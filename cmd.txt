@@ -1,0 +1,11 @@
+This file contains some frequently used commands.
+
+Activate/Deactivate python virtual environment.
+[activate] > conda activate microworld_dissertation_tcd
+[deactivate] > conda deactivate
+
+Start FastAPI app usng uvicorn.
+> uvicorn server:app --reload
+
+Start NextJS in development mode.
+> npm run dev

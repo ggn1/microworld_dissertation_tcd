@@ -8,7 +8,7 @@ export default class Simulation {
 
     constructor() {
         this.time = 0
-        this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_BASE)
+        this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
         const income_sources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
         this.resources = {
             timber: new Timber(

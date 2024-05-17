@@ -3,7 +3,6 @@ import Simulation from "./classes/Simulation.js"
 const Home = () => {
     
     const simulation = new Simulation()
-    console.log(simulation)
    
     return (
         <main className="

@@ -4,7 +4,7 @@ export default class Environment {
     /** Environment comprises the atmosphere and the land. */
 
     constructor() {
-        this.temperature = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE_BASE)
+        this.temperature = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE_START)
         this.co2 = {
             available: 1.0,
             bound: 0.0

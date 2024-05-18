@@ -1,8 +1,10 @@
 import Simulation from "./classes/Simulation.js"
+import Tree from "./classes/Tree.js"
 
 const Home = () => {
     
     const simulation = new Simulation()
+    // const tree = new Tree([0, 0], "coniferous")
    
     return (
         <main className="

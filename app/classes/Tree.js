@@ -1,13 +1,15 @@
+import * as utils from '../utils.js'
 import Tolerance from "./Tolerance.js"
 
 export default class Tree {
-    /** This class encompases a tree object. */
+    /** This class embodies a tree. */
     
     constructor(position, tree_type) {
-        /** Constructor.
-         *  @param position: The index of the row and column 
-         *                   corresponding to the position of this tree.
-         *  @param tree_type: The type of this tree ["coniferous", "deciduous"].
+        /** 
+         * Constructor.
+         * @param position: The index of the row and column corresponding to the 
+         *                  position of this tree as a list [x, y].
+         * @param tree_type: The type of this tree ["coniferous", "deciduous"].
          */
         this.tree_type = tree_type
         this.position = position
@@ -15,14 +17,22 @@ export default class Tree {
         this.diameter = this.getDiameterFromHeight(this.height, this.tree_type)
         this.stress = 0
         this.age = 0
+        this.age_stages = JSON.parse(process.env.NEXT_PUBLIC_AGE)[this.tree_type]
         this.biodiversityReductionFactor = JSON.parse(process.env.NEXT_PUBLIC_BD_REDUCTION)
-        this.maxHeight = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_MAX)[this.tree_type]
-        this.maxDiameter = this.getDiameterFromHeight(this.maxHeight, this.tree_type)
-        this.maxAge = 0 // TO DO ...
+        this.heightMax = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_MAX)[this.tree_type]
+        this.diameterMax = this.getDiameterFromHeight(this.heightMax, this.tree_type)
+        const ageMax = this.age_stages.senescent
+        this.ageMax = utils.getRandomIntegerBetween(ageMax[0], ageMax[1])
         this.reproductionInterval = JSON.parse(
             process.env.NEXT_PUBLIC_REPRODUCTION_INTERVAL
         )[this.tree_type]
         this.woodDensity = JSON.parse(process.env.NEXT_PUBLIC_WOOD_DENSITY)[this.tree_type]
+        this.rgr = JSON.parse(process.env.NEXT_PUBLIC_RGR)[this.tree_type]
+        const tolerance_co2 = JSON.parse(process.env.NEXT_PUBLIC_TOLERANCE_CO2)
+        this.tolerance = {"co2": {
+            "mature": new Tolerance(tolerance_co2.mature),
+            "premature": new Tolerance(tolerance_co2.premature)
+        }}
     }
 
     getDiameterFromHeight(height, tree_type) {
@@ -83,38 +93,22 @@ export class Coniferous extends Tree {
     /** This class embodies a coniferous tree. */
     
     constructor(position) {
-        /** Constructor. 
-         *  @param position: The index of the row and column of this tree.
-        */
+        /**
+         * Construcor.
+         * @param position: The index of the row and column of this tree.
+         */
         super(position, "coniferous")
-        this.stressors = {
-            temperature: {
-                premature: new Tolerance(), // TO DO ...
-                mature: new Tolerance() // TO DO ...
-            },
-            co2: {
-                premature: new Tolerance(), // TO DO ...
-                mature: new Tolerance() // TO DO ...
-            }
-        }
     }
 }
 
 export class Deciduous extends Tree {
-    /** This class embodies a coniferous tree. 
-     *  @param position: The index of the row and column of this tree.
-    */
+    /** This class embodies a deciduous tree. */
+
     constructor(position) {
+        /**
+         * Construcor.
+         * @param position: The index of the row and column of this tree.
+         */
         super(position, "deciduous")
-        this.stressors = {
-            temperature: {
-                premature: new Tolerance(), // TO DO ...
-                mature: new Tolerance() // TO DO ...
-            },
-            co2: {
-                premature: new Tolerance(), // TO DO ...
-                mature: new Tolerance() // TO DO ...
-            }
-        }
     }
 }

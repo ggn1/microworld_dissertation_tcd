@@ -3,6 +3,8 @@ import Tolerance from "./Tolerance.js"
 
 export default class Tree {
     /** This class embodies a tree. */
+
+    #c_percent = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE)
     
     constructor(position, tree_type) {
         /** 

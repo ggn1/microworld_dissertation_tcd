@@ -5,7 +5,7 @@ export default class Tolerance {
     constructor(avail2stress) {
         /** Constructor. 
          *  @param avail2stress: Maps availability of resource
-         *                                 to stress it induces in the tree.
+         *                       to stress it induces in the tree.
         */
        this.avail2stress = avail2stress
     }

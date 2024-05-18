@@ -4,7 +4,7 @@ import Tree from "./classes/Tree.js"
 const Home = () => {
     
     const simulation = new Simulation()
-    console.log(simulation)
+    console.log(simulation.env.envScale)
     // const tree = new Tree([0, 0], "coniferous")
    
     return (

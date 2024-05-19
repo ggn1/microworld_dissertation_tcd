@@ -5,17 +5,30 @@ export default class Environment {
 
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
     #envScaleColors = JSON.parse(process.env.NEXT_PUBLIC_ENV_SCALE_COLORS)
+    #c = JSON.parse(process.env.NEXT_PUBLIC_C_START) // g
 
     constructor() {
-        // this.temperature = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE_START)
-        this.co2 = JSON.parse(process.env.NEXT_PUBLIC_C_START) // g
+        this.annualEmissionCO2 = JSON.parse(process.env.NEXT_PUBLIC_CO2_ANNUAL_EMISSION_START)
         this.land = new Land()
         this.envScale = JSON.parse(process.env.NEXT_PUBLIC_ENV_SCALE)
-        // console.log(this.#envScaleColors)
     }
 
-    computeAirCO2ppm() {
-        /** Computes the concentration of CO2 in the air. 
+    getCarbon() {
+        /** Returns current amount of carbon in the world. */
+        return this.#c
+    }
+
+    updateCarbon(amount) {
+        /** Updates carbon levels in the air and soil by the given amount. */
+        for (const [reservoir, change] of Object.entries(amount)) {
+            this.#c[reservoir] += change;
+        }
+    }
+
+    computeAirCO2ppm(airC) {
+        /** Computes the concentration of CO2 in the air given
+         *  mass of Carbon in the Air. 
+         *  @param airC: Amount of carbon in the air gC.
          *  @return: Concentration of CO2 in the atmosphere in
          *           parts per million (ppm).
          */
@@ -25,7 +38,7 @@ export default class Environment {
         const o_atomic_mass = 16 // u = g/mol
         const molar_mass_co2 = c_atomic_mass + (2 * o_atomic_mass) // g/mol
         const ratio_mass_co2_c = molar_mass_co2 / c_atomic_mass
-        const mass_co2_air = this.co2.air * ratio_mass_co2_c // gCO2
+        const mass_co2_air = airC * ratio_mass_co2_c // gCO2
 
         // 2. Compute molar mass.
         const num_moles_co2 = mass_co2_air / molar_mass_co2 // moles
@@ -39,5 +52,16 @@ export default class Environment {
         const ppm = (co2_volume / this.#airVolume) * 1e6
 
         return ppm
+    }
+
+    computeCfromCO2(massCO2) {
+        /**
+         * Computes g C from g CO2.
+         * @param massCO2: Amount of CO2 in g.
+         * @return: Equivalent amount of C in g.
+         */
+        const molecularMassC = 12 // g/mol
+        const molecularMassCO2 = 44 // g/mol
+        return massCO2 * (12/44)
     }
 }

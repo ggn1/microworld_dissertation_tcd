@@ -37,6 +37,14 @@ export default class Tree {
         }}
     }
 
+    isAlive() {
+        /** 
+         * Function to check whether this tree is still alive.
+         * @return: True if the tree is alive and False otherwise.
+         */
+        return this.stress < 1
+    }
+
     getDiameterFromHeight(height, treeType) {
         /** Computes diameter of this tree. 
          *  @param height: Height of the tree in meters.
@@ -75,7 +83,24 @@ export default class Tree {
     }
 
     getLifeStage() {
-        // TO DO ...
+        /**
+         * Returns the stage of life that this tree is currently in.
+         * @return: The string that identifies the current 
+         *          life stage of this tree.
+         */
+
+        // Check if this tree is dead.
+        let lifeStage = "dead"
+        if (this.isAlive()) {
+            for (const [stageName, stageAgeLimit] of Object.entries(this.lifeStages)) {
+                if (typeof(stageAgeLimit) != "number") lifeStage = stageName
+                if (this.age < stageAgeLimit) {
+                    lifeStage = stageName
+                    break
+                }
+            }
+        }
+        return lifeStage
     }
 
     live() {

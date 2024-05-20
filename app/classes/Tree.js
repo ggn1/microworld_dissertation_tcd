@@ -20,7 +20,6 @@ export default class Tree {
         this.stress = 0
         this.age = 0
         this.lifeStages = JSON.parse(process.env.NEXT_PUBLIC_LIFE_STAGE_TREE)[this.treeType]
-        this.biodiversityReductionFactor = JSON.parse(process.env.NEXT_PUBLIC_BD_REDUCTION)
         this.heightMax = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_MAX)[this.treeType]
         this.diameterMax = this.getDiameterFromHeight(this.heightMax, this.treeType)
         const ageMax = this.lifeStages.senescent
@@ -29,7 +28,7 @@ export default class Tree {
             process.env.NEXT_PUBLIC_REPRODUCTION_INTERVAL
         )[this.treeType]
         this.woodDensity = JSON.parse(process.env.NEXT_PUBLIC_WOOD_DENSITY)[this.treeType]
-        this.rgr = JSON.parse(process.env.NEXT_PUBLIC_RGR)[this.treeType]
+        this.gh_max = JSON.parse(process.env.NEXT_PUBLIC_GROWTH_HEIGHT_MAX)[this.treeType]
         const tolerance_co2 = JSON.parse(process.env.NEXT_PUBLIC_TOLERANCE_CO2)
         this.tolerance = {"co2": {
             "mature": new Tolerance(tolerance_co2.mature),

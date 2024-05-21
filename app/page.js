@@ -1,27 +1,27 @@
 'use client'
 
-import Simulation from "./classes/Simulation.js"
-import Tree from "./classes/Tree.js"
-import LandPlot from "./components/LandPlot.jsx"
 import { useState } from 'react'
+import Tree from "./classes/Tree.js"
+import Simulation from "./classes/Simulation.js"
+import LandPlot from "./components/LandPlot.jsx"
 
 const Home = () => {
     const sim = new Simulation() // Microworld model.
 
     /***************************** PLAYGROUND ******************************/
 
-    const tree = new Tree(
-        [0, 0], "coniferous", 
-        sim.env.land.getBiodiversityCategory, 
-        sim.env.updateCarbon
-    )
-    console.log("carbon air (before) =", sim.env.carbon.air.toFixed(5))
-    tree.getOlder()
-    console.log("carbon air (after) =", sim.env.carbon.air.toFixed(5))
+    // const tree = new Tree(
+    //     [0, 0], "coniferous", 
+    //     sim.env.land.getBiodiversityCategory, 
+    //     sim.env.updateCarbon
+    // )
+    // console.log("carbon air (before) =", sim.env.carbon.air.toFixed(5))
+    // tree.getOlder()
+    // console.log("carbon air (after) =", sim.env.carbon.air.toFixed(5))
 
     /***********************************************************************/
 
-    // Here are all factors that will change on the UI.
+    // Here are all factors that can change in the UI.
     const [landContent, setLandContent] = useState(sim.env.land.content) 
 
     return (

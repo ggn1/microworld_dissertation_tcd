@@ -23,7 +23,7 @@ const getRenderProperties = (x, y, entity) => {
             d: svgIcon.d
         }
     } else { // Entity is a tree.
-        let svgIcon = svgIcons[entity.getLifeStage()]
+        let svgIcon = svgIcons[entity.lifeStage]
         if (entity.treeType in svgIcon) {
             svgIcon = svgIcon[entity.treeType]
         }

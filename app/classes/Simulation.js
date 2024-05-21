@@ -28,10 +28,6 @@ export default class Simulation {
         this.planner = new Planner()
     }
 
-    #initialize() {
-        // TO DO ...
-    }
-
     play() {
         // TO DO ...
     }

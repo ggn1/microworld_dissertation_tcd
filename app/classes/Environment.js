@@ -7,9 +7,6 @@ export default class Environment {
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
 
     constructor() {
-        this.annualEmissionCO2 = JSON.parse(process.env.NEXT_PUBLIC_CO2_ANNUAL_EMISSION_START)
-        this.land = new Land()
-        this.envScale = JSON.parse(process.env.NEXT_PUBLIC_ENV_SCALE)
         const carbonAmounts = JSON.parse(process.env.NEXT_PUBLIC_C_START)
         this.carbon = {} // g
         for (const [reservoir, carbonAmount] of Object.entries(carbonAmounts)) {
@@ -27,6 +24,7 @@ export default class Environment {
                 this.carbon[reservoir] = this.carbon[reservoir].plus(change)
             }
         }
+        this.land = new Land(this.updateCarbon)
     }
 
     getCarbon() {

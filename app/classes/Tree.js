@@ -7,8 +7,16 @@ export default class Tree {
 
     #getBiodiversityCategory
     #updateCarbon
+    #isLandFree
+    #ageLastReproduced = 0
+    #sow
+    #lifeStages
     
-    constructor(position, treeType, getBiodiversityCategory, updateCarbon) {
+    constructor(
+        position, treeType, 
+        getBiodiversityCategory, 
+        isLandFree, updateCarbon, sow
+    ) {
         /** 
          * Constructor.
          * @param position: The index of the row and column corresponding to the 
@@ -18,6 +26,8 @@ export default class Tree {
          *                                 of the land based on biodiversity.
          * @param updateCarbon: Function that can be used to update the amount of carbon
          *                      in the atmosphere.
+         * @param isLandFree: Function that can be used to check if a given spot is free.
+         * @param sow: Function that can be used to sow a new seedling to reproduce.
          */
         this.treeType = treeType
         this.position = position
@@ -25,13 +35,16 @@ export default class Tree {
         this.diameter = this.#getDiameterFromHeight(this.height)
         this.stress = 0
         this.age = 0 // years
+        this.reproduction = true // Reproduction enabled. Disabled for initialization.
         this.#getBiodiversityCategory = getBiodiversityCategory
         this.#updateCarbon = updateCarbon
+        this.#isLandFree = isLandFree
+        this.#sow = sow
         this.lifeStage = "seedling"
-        this.lifeStages = JSON.parse(process.env.NEXT_PUBLIC_LIFE_STAGE_TREE)[this.treeType]
+        this.#lifeStages = JSON.parse(process.env.NEXT_PUBLIC_LIFE_STAGE_TREE)[this.treeType]
         this.heightMax = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_MAX)[this.treeType]
         this.diameterMax = this.#getDiameterFromHeight(this.heightMax)
-        const ageMax = this.lifeStages.senescent
+        const ageMax = this.#lifeStages.senescent
         this.ageMax = utils.getRandomIntegerBetween(ageMax[0], ageMax[1])
         this.reproductionInterval = JSON.parse(
             process.env.NEXT_PUBLIC_REPRODUCTION_INTERVAL
@@ -67,7 +80,7 @@ export default class Tree {
         // Check if this tree is dead.
         let lifeStage = "dead"
         if (this.isAlive()) {
-            for (const [stageName, stageAgeLimit] of Object.entries(this.lifeStages)) {
+            for (const [stageName, stageAgeLimit] of Object.entries(this.#lifeStages)) {
                 if (typeof(stageAgeLimit) != "number") lifeStage = stageName
                 if (this.age < stageAgeLimit) {
                     lifeStage = stageName
@@ -159,13 +172,27 @@ export default class Tree {
     live() {
         /**
          * Models life activities that a plant does.
-        */
+         * @param reproduce: Whether or not reproduction is enabled.
+         *                   This is enabled by default. There is a
+         *                   need to allow for this to be disabled
+         *                   in the situation wherein the land is being
+         *                   initialized to achive a desired tree age 
+         *                   and tree type composition.
+         */
 
         // Compute current stress level.
         this.#updateStress()
 
         // Grow physically.
         this.#grow()
+
+        // Reproduce if enabled.
+        if (this.reproduction) {
+            const posSeedling = this.#reproduce()
+            if (! typeof(posSeedling) == "number") {
+                console.log(`New ${this.treeType} seedling at ${posSeedling}.`)
+            }
+        } 
     }
 
     decay() {
@@ -203,8 +230,56 @@ export default class Tree {
         this.height = heightReduced
     }
 
-    reproduce() {
-        // TO DO ...
+    #reproduce() {
+        /** 
+         * Facilitates reproduction. 
+         * Trees may reproduce every this.reproductionInterval 
+         * no. of years only if there is a free space adjacent 
+         * to this tree and this tree is mature or 
+         * old growth with stress <= 50%.
+         * @return: Position of the new seedling or -1 if reproduction
+         *          was not possible.
+        */
+
+        // If the tree is too young or too old, it may not reproduce.
+        if (!(
+            this.lifeStage == "mature" || 
+            this.lifeStage == "old_growth"
+        )) return -1
+
+        // If the tree is not due to reproduce again since last
+        // reproduction, then it will not do so.
+        if (
+            (this.age - this.#ageLastReproduced) < 
+            this.reproductionInterval
+        ) return -1
+
+        // If the tree is too stressed, then it shall not reproduce.
+        if (this.stress > 0.5) return -1
+
+        // If all above checks are false, then the tree
+        // is eligible to reproduce. However, it remains
+        // to be checked as to whether this is possible.
+
+        // A tree may only reproduce if a position adjacent
+        // to it (vertical, horizontal, diagonal), is free.
+        const adjacentPositions = utils.getAdjacentPositions(
+            this.position[0], this.position[1]
+        )
+        const positionsFree = []
+        for (const pos of adjacentPositions) {
+            if (this.#isLandFree(pos[0], pos[1])) {
+                positionsFree.push(pos)
+            }
+        }
+        if (positionsFree.length == 0) return -1
+
+        // If it is indeed possible to reproduce,
+        // pick a random free position to add a 
+        // sapling to.
+        this.#sow(this.treeType, positionsFree[
+            utils.getRandomIntegerBetween(0, positionsFree.length-1)
+        ])
     }
 
     getOlder() {

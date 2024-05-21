@@ -1,5 +1,5 @@
+import Tree from './Tree'
 import * as utils from '../utils.js'
-import Tree from './Tree';
 
 export default class Land {
     /** This class models the land that is 
@@ -7,18 +7,145 @@ export default class Land {
      */
 
     #biodiversityScore = 0
+    #updateCarbon
 
-    constructor() {
+    constructor(updateCarbon) {
+        /**
+         * Constructor for object of this class.
+         * @param updateCarbon: Function that can be used to update the amount of carbon
+         *                      in the atmosphere. Needed to pass onto tree objects.
+         */
+        this.#updateCarbon = updateCarbon
         this.size = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
         this.content = []
         for (let i = 0; i < this.size.rows; i++) {
             const row = [];
-            for (let j = 0; j < this.size.columns; j++) {
-                row.push(null)
-            }
+            for (let j = 0; j < this.size.columns; j++) row.push(null)
             this.content.push(row);
         }
         this.biodiversityCategory = "unforested"
+        this.getBiodiversityCategory = () => {
+            /** 
+             * Returns classification of this land that was 
+             * computed using the biodiversity score. 
+             */
+            return this.biodiversityCategory
+        }
+        this.isLandFree = (row, column) => {
+            /**
+             * Checks if a given spot on the land is free.
+             * @param row: Land grid row.
+             * @param column: Land grid column.
+             * @return: True if [row, column] is free and false otherwise.
+             */
+            // If the given position falls outside the size of the
+            // land, then it is invalid and hence not free.
+            if (
+                row < 0 || row >= this.size[0] || 
+                column < 0 || column >= this.size[1]
+            ) return false
+            return this.content[row][column] == null
+        }
+        this.sow = (treeType, position=null) => {
+            /**
+             * Function that adds a new seedling onto the land.
+             * This action is successful only if there is a free
+             * space available on the land.
+             * @param treeType: The type of tree that is born.
+             * @param position: The position at which the new plant is 
+             *                  to grow. This is null by default, in which
+             *                  case, the position is a random free spot.
+             *                  If a position is defined, then 
+             * @return: The tree that was planted or null if it was 
+             *          not possible to sow.
+             */
+
+            let spot = position
+            if (spot == null) {
+                spot = this.#getRandomFreeSpot()
+            }
+
+            // If no free spot then cannot sow.
+            if (typeof(spot) == 'number') {
+                return null
+            }
+            
+            const newTree = new Tree(
+                spot, treeType,
+                this.getBiodiversityCategory,
+                this.isLandFree, this.#updateCarbon,
+                this.sow
+            )
+            this.content[spot[0]][spot[1]] = newTree
+            
+            return newTree
+        }
+        this.#initialize()
+    }
+
+    #initialize() {
+        /**
+         * Initializes the land to have a forest of 
+         * predefined starting composition. 
+        */
+        let comp = JSON.parse(process.env.NEXT_PUBLIC_FOREST_COMPOSITION_START)
+        comp = this.#getForestComposition(
+            Object.values(this.size), comp.type, comp.age
+        )
+
+        console.log(comp)
+            
+        // For each entry in the composition, sow a plant
+        // of the desired type and and let it grow without reproducing 
+        // until it reaches the resired age category.
+        for (let i = 0; i < comp.length; i++) {
+            const typeAge = comp[i]
+            const seedling = this.sow(typeAge.type)
+            
+            if (seedling == null) break // No more space on land to plant.
+            
+            // If it was indeed possible to plant a 
+            // new tree, then disable reproduction
+            // so as to achivve desired composition without
+            // alterations introduced due to reproduction.
+            seedling.reproduction = false
+            
+            // Update timestep until this seedling 
+            // grows to the desired age.
+            let j = 0 // Infinite loop check.
+            while (seedling.lifeStage != typeAge.age && j < 110) {
+                seedling.getOlder()
+                j += 1
+            }
+            if (j >= 110) {
+                console.log("infinite loop")
+            }
+        }
+    }
+
+    #getForestComposition(landSize, typeComp, ageComp) {
+        /**  
+         * Computes how many spaces should have each type and age combination
+         * of a tree.
+         * @param landSize: The size of the land [rows, columns].
+         * @param typeComp: Desired % of each type of tree {"type": %, ...}.
+         * @param ageComp: Desired % of each age category of trees {"category": %, ...}.
+         * @return composition: A list containing objects that specify tree
+         *                      type and age combinations as many times as needed to 
+         *                      meet given composition proportions.
+        */
+        const composition = []
+        const numLandSpots = landSize[0] * landSize[1]
+        for (const [typeName, typePc] of Object.entries(typeComp)) {
+            for (const [ageCatName, ageCatPc] of Object.entries(ageComp)) {
+                const numType = Math.round(typePc * numLandSpots)
+                const numTypeAgeCat =  Math.round(ageCatPc * numType)
+                for (let i=0; i<numTypeAgeCat; i++) {
+                    composition.push({'type': typeName, 'age': ageCatName})
+                }
+            }
+        }
+        return composition
     }
 
     #countTrees() {
@@ -126,7 +253,8 @@ export default class Land {
         const freeSpots = this.#getFreeSpaces()
         const numFreeSpots = freeSpots.length
         if (numFreeSpots == 0) return -1 
-        return freeSpots[utils.getRandomIntegerBetween(0, numFreeSpots)]
+        const randomSpotIdx = utils.getRandomIntegerBetween(0, numFreeSpots-1)
+        return freeSpots[randomSpotIdx]
     }
 
     updateBiodiversity() {
@@ -136,33 +264,5 @@ export default class Land {
          */
         this.#biodiversityScore = this.#computeBiodiversityScore()
         this.biodiversityCategory = this.#computeBiodiversityCategory()
-    }
-
-    getBiodiversityCategory() {
-        /** 
-         * Returns classification of this land that was 
-         * computed using the biodiversity score. 
-         */
-        return this.biodiversityCategory
-    }
-
-    germinate(treeType) {
-        /**
-         * Function that adds a new seedling onto the land.
-         * This action is successful only if there is a free
-         * space available on the land.
-         * @param treeType: The type of tree that is born.
-         * @return position: The position at which the new plant has
-         *                   germinated or -1 if the action was not
-         *                   possible.
-         */
-        const spot = this.#getRandomFreeSpot()
-
-        // If no free spot then cannot germinate.
-        if (typeof(spot) == 'number') return -1
-        
-        const newTree = new Tree(spot, treeType)
-        this.content[spot[0]][spot[1]] = newTree
-        return spot
     }
 }

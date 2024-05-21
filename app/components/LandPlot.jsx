@@ -4,7 +4,6 @@ import * as d3 from "d3"
 import React, { useEffect, useRef } from "react"
 
 const svgIcons = JSON.parse(process.env.NEXT_PUBLIC_LAND_ICONS_SVG)
-console.log("svgIcons =", svgIcons)
 
 const getRenderProperties = (x, y, entity) => {
     /** Returns properties of the path that is to be the icon

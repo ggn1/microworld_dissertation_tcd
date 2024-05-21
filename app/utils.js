@@ -10,3 +10,8 @@ export function getRandomIntegerBetween(x, y) {
      */
     return Math.floor(Math.random() * (y - x + 1)) + x;
 }
+
+export function volumeCylinder(height, radius) {
+    /** Computes and returns the volume of a cylinder. */
+    return Math.PI * (radius ** 2) * height
+}

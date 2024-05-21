@@ -1,6 +1,7 @@
 'use client'
 
 import Simulation from "./classes/Simulation.js"
+import Tree from "./classes/Tree.js"
 import LandPlot from "./components/LandPlot.jsx"
 import { useState } from 'react'
 
@@ -9,14 +10,14 @@ const Home = () => {
 
     /***************************** PLAYGROUND ******************************/
 
-    // const envCarbon = sim.env.getCarbon()
-    // console.log(
-    //     "Air CO2 concentration =", 
-    //     sim.env.computeAirCO2ppm(envCarbon.air)
-    // )
-
-    // const seedlingPosition = sim.env.land.germinate("deciduous")
-    // console.log('New Seedling Position =', seedlingPosition)
+    const tree = new Tree(
+        [0, 0], "coniferous", 
+        sim.env.land.getBiodiversityCategory, 
+        sim.env.updateCarbon
+    )
+    console.log("carbon air (before) =", sim.env.carbon.air.toFixed(5))
+    tree.getOlder()
+    console.log("carbon air (after) =", sim.env.carbon.air.toFixed(5))
 
     /***********************************************************************/
 

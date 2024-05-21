@@ -1,27 +1,36 @@
+import { max } from 'd3'
 import * as utils from '../utils.js'
 import Tolerance from "./Tolerance.js"
 
 export default class Tree {
     /** This class embodies a tree. */
 
-    #cPercent = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE)
+    #getBiodiversityCategory
+    #updateCarbon
     
-    constructor(position, treeType) {
+    constructor(position, treeType, getBiodiversityCategory, updateCarbon) {
         /** 
          * Constructor.
          * @param position: The index of the row and column corresponding to the 
          *                  position of this tree as a list [x, y].
          * @param treeType: The type of this tree ["coniferous", "deciduous"].
+         * @param getBiodiversityCategory: Function that fetches current classification
+         *                                 of the land based on biodiversity.
+         * @param updateCarbon: Function that can be used to update the amount of carbon
+         *                      in the atmosphere.
          */
         this.treeType = treeType
         this.position = position
         this.height = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_START_SEEDLING)
-        this.diameter = this.getDiameterFromHeight(this.height, this.treeType)
+        this.diameter = this.#getDiameterFromHeight(this.height)
         this.stress = 0
-        this.age = 0
+        this.age = 0 // years
+        this.#getBiodiversityCategory = getBiodiversityCategory
+        this.#updateCarbon = updateCarbon
+        this.lifeStage = "seedling"
         this.lifeStages = JSON.parse(process.env.NEXT_PUBLIC_LIFE_STAGE_TREE)[this.treeType]
         this.heightMax = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_MAX)[this.treeType]
-        this.diameterMax = this.getDiameterFromHeight(this.heightMax, this.treeType)
+        this.diameterMax = this.#getDiameterFromHeight(this.heightMax)
         const ageMax = this.lifeStages.senescent
         this.ageMax = utils.getRandomIntegerBetween(ageMax[0], ageMax[1])
         this.reproductionInterval = JSON.parse(
@@ -36,52 +45,19 @@ export default class Tree {
         }}
     }
 
-    isAlive() {
+    #computeBiodiversityReductionFactor() {
         /** 
-         * Function to check whether this tree is still alive.
-         * @return: True if the tree is alive and False otherwise.
-         */
-        return this.stress < 1
-    }
-
-    getDiameterFromHeight(height, treeType) {
-        /** Computes diameter of this tree. 
-         *  @param height: Height of the tree in meters.
-         *  @param treeType: Type of tree ["coniferous", "deciduous"].
-         *  @return: Diameter of the tree in meters.
+         * Computes and returns biodiversity reduction 
+         * factor of the land. 
+         * @return: Biodiversity reduction factor.
         */
-        return height * JSON.parse(process.env.NEXT_PUBLIC_HDR)[treeType].diameter
+        const b_red_rules = JSON.parse(
+            process.env.NEXT_PUBLIC_BIODIVERSITY_STRESS_REDUCTION_FACTOR
+        )
+        return b_red_rules[this.#getBiodiversityCategory()]
     }
 
-    computeBiodiversityReduction() {
-        // TO DO ...
-    }
-
-    computeVolume() {
-        // TO DO ...
-    }
-
-    updateStress() {
-        // TO DO ...
-    }
-
-    computeGrowthRate() {
-        // TO DO ...
-    }
-
-    grow() {
-        // TO DO ...
-    }
-
-    absorbCO2() {
-        // TO DO ...
-    }
-
-    growOlder() {
-        // TO DO ...
-    }
-
-    getLifeStage() {
+    #computeLifeStage() {
         /**
          * Returns the stage of life that this tree is currently in.
          * @return: The string that identifies the current 
@@ -102,16 +78,157 @@ export default class Tree {
         return lifeStage
     }
 
-    live() {
+    #getDiameterFromHeight(height) {
+        /** Computes diameter of this tree. 
+         *  @param height: Height of the tree in meters.
+         *  @return: Diameter of the tree in meters.
+        */
+        return height ** (3/2)
+    }
+
+    #updateStress() {
         // TO DO ...
     }
 
+    #computeCarbonInTreeVolume(volume) {
+        /** 
+         * Compute amount of carbon in given tree volume. 
+         * @return: Weight of carbon in given tree volume.
+         */
+        const weight = this.woodDensity * volume // g
+        return JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE) * weight
+    }
+
+    #processCarbon(volume, srcReservoir, dstReservoir) {
+        /** 
+         * Pulls and fixes carbon needed to build given amount of volume. 
+         * @param volume: The amount of growth required.
+         * @param srcReservoir: The sources that the carbon is to be drawn from.
+         * @param dstReservoir: The destination to which carbon is to be added to.
+        */
+        
+        // Compute weight of carbon that must be pulled from the air.
+        const carbonWeight = this.#computeCarbonInTreeVolume(volume)
+
+        // Reduce carbon in given volume of the tree
+        // from the source reservoir and add it to the
+        // destination reservoir.
+        let update = {}
+        update[srcReservoir] = -1 * carbonWeight
+        update[dstReservoir] = 1 * carbonWeight
+        this.#updateCarbon(update)
+    }
+
+    #grow() {
+        /**
+         * Facilitates physical growth of a plant.
+        */
+        
+        // Compute volume by which this tree grows to 
+        // to maintain it's current biomass (damage repair, shedding, etc.)
+        const volumeCur = utils.volumeCylinder(this.height, this.diameter/2)
+        const volumeMaintenance = volumeCur * JSON.parse(
+            process.env.NEXT_PUBLIC_TREE_VOLUME_MAINTENANCE_PC
+        )
+
+        // Compute volume by which this tree grows in height.
+        const bd_red = this.#computeBiodiversityReductionFactor()
+        const growthHeight = (1 - max([0, this.stress - bd_red])) * this.gh_max
+        const growthDiameter = this.#getDiameterFromHeight(growthHeight)
+        const volumeGrowth = utils.volumeCylinder(growthHeight, growthDiameter/2)
+
+        // Process carbon needed for growth.
+        this.#processCarbon(volumeGrowth, "air", "vegetation")
+
+        // Process carbon needed for maintenance.
+        this.#processCarbon(volumeMaintenance, "air", "soil")
+
+        // Grow physically.
+        this.height += growthHeight
+        this.diameter += growthDiameter
+    }
+
+    isAlive() {
+        /** 
+         * Function to check whether this tree is still alive.
+         * @return: True if the tree is alive and False otherwise.
+         */
+        return this.stress < 1
+    }
+
+    live() {
+        /**
+         * Models life activities that a plant does.
+        */
+
+        // Compute current stress level.
+        this.#updateStress()
+
+        // Grow physically.
+        this.#grow()
+    }
+
     decay() {
-        // TO DO ...
+        /** 
+         * Plants that are dead and remain in the soil, decay.  
+        */
+        
+        // 15 % of the carbon in the remains of this plant is 
+        // released back into the athmosphere and soil.
+        const volume = utils.volumeCylinder(this.height, this.diameter/2)
+        const weight = volume * this.woodDensity
+        const weightCarbon = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE) * weight
+        const decayFactor = JSON.parse(process.env.NEXT_PUBLIC_C_PC_DECAY)
+        const weightCarbonDecay = decayFactor * weightCarbon
+        const weightDecay = weightCarbonDecay * (1/decayFactor)
+        const volumeDecay = weightDecay/this.woodDensity
+
+        // Of the amount of carbon decayed, 35% ends up in the soil
+        // and 65% ends up back in the atmosphere.
+        this.#processCarbon(
+            volumeDecay * JSON.parse(process.env.NEXT_PUBLIC_DECAY_PC_SOIL),
+            "vegetation", "soil"
+        )
+        this.#processCarbon(
+            volumeDecay * JSON.parse(process.env.NEXT_PUBLIC_DECAY_PC_AIR),
+            "vegetation", "air"
+        )
+
+        // Reduce the volume of the tree.
+        // For simplicity, let redius of the cylinder
+        // that represents the tree be fixed.
+        const volumeReduced = volume - volumeDecay
+        const radius = this.diameter/2
+        const heightReduced = volumeReduced/(Math.PI * (radius**2))
+        this.height = heightReduced
     }
 
     reproduce() {
         // TO DO ...
+    }
+
+    getOlder() {
+        /** 
+         * Facilitates aging of this tree. 
+         * Embodies update by 1 time step.
+         * @return: True if the tree still exists after the 
+         *          update and false otherwise (if all of the
+         *          tree has decayed, then it will no longer
+         *          exist).
+        */
+        
+        // Perform activities related to living or decaying.
+        if (this.isAlive()) this.live()
+        else this.decay()
+
+        // Increment age.
+        this.age += 1
+
+        // Update life stage.
+        this.lifeStage = this.#computeLifeStage()
+
+        if (this.height <= 0) return false
+        return true
     }
 }
 

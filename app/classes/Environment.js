@@ -1,28 +1,37 @@
+import Big from 'big.js'
 import Land from "./Land.js"
 
 export default class Environment {
     /** Environment comprises the atmosphere and the land. */
 
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
-    #envScaleColors = JSON.parse(process.env.NEXT_PUBLIC_ENV_SCALE_COLORS)
-    #c = JSON.parse(process.env.NEXT_PUBLIC_C_START) // g
 
     constructor() {
         this.annualEmissionCO2 = JSON.parse(process.env.NEXT_PUBLIC_CO2_ANNUAL_EMISSION_START)
         this.land = new Land()
         this.envScale = JSON.parse(process.env.NEXT_PUBLIC_ENV_SCALE)
+        const carbonAmounts = JSON.parse(process.env.NEXT_PUBLIC_C_START)
+        this.carbon = {} // g
+        for (const [reservoir, carbonAmount] of Object.entries(carbonAmounts)) {
+            this.carbon[reservoir] = Big(carbonAmount)
+        }
+        this.updateCarbon = (amount) => {
+            /** 
+             * Updates carbon levels in the air and 
+             * soil by the given amount. 
+             * @param amount: An object that specifies the amount of 
+             *                carbon to add/remove to/from specific 
+             *                reservoirs.
+            */
+            for (const [reservoir, change] of Object.entries(amount)) {
+                this.carbon[reservoir] = this.carbon[reservoir].plus(change)
+            }
+        }
     }
 
     getCarbon() {
         /** Returns current amount of carbon in the world. */
-        return this.#c
-    }
-
-    updateCarbon(amount) {
-        /** Updates carbon levels in the air and soil by the given amount. */
-        for (const [reservoir, change] of Object.entries(amount)) {
-            this.#c[reservoir] += change;
-        }
+        return this.carbon
     }
 
     computeAirCO2ppm(airC) {

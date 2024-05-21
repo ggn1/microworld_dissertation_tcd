@@ -11,11 +11,13 @@ export default class Tree {
     #ageLastReproduced = 0
     #sow
     #lifeStages
+    #getAirCO2ppm
     
     constructor(
         position, treeType, 
         getBiodiversityCategory, 
-        isLandFree, updateCarbon, sow
+        isLandFree, updateCarbon, 
+        sow, getAirCO2ppm
     ) {
         /** 
          * Constructor.
@@ -28,6 +30,8 @@ export default class Tree {
          *                      in the atmosphere.
          * @param isLandFree: Function that can be used to check if a given spot is free.
          * @param sow: Function that can be used to sow a new seedling to reproduce.
+         * @param getAirCO2ppm: Function that gets current concentration of CO2 in the
+         *                      atmosphere. 
          */
         this.treeType = treeType
         this.position = position
@@ -40,6 +44,7 @@ export default class Tree {
         this.#updateCarbon = updateCarbon
         this.#isLandFree = isLandFree
         this.#sow = sow
+        this.#getAirCO2ppm = getAirCO2ppm
         this.lifeStage = "seedling"
         this.#lifeStages = JSON.parse(process.env.NEXT_PUBLIC_LIFE_STAGE_TREE)[this.treeType]
         this.heightMax = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_MAX)[this.treeType]
@@ -51,10 +56,10 @@ export default class Tree {
         )[this.treeType]
         this.woodDensity = JSON.parse(process.env.NEXT_PUBLIC_WOOD_DENSITY)[this.treeType]
         this.gh_max = JSON.parse(process.env.NEXT_PUBLIC_GROWTH_HEIGHT_MAX)[this.treeType]
-        const tolerance_co2 = JSON.parse(process.env.NEXT_PUBLIC_TOLERANCE_CO2)
+        const toleranceCO2 = JSON.parse(process.env.NEXT_PUBLIC_TOLERANCE_CO2)
         this.tolerance = {"co2": {
-            "mature": new Tolerance(tolerance_co2.mature),
-            "premature": new Tolerance(tolerance_co2.premature)
+            "mature": new Tolerance(toleranceCO2.mature),
+            "premature": new Tolerance(toleranceCO2.premature)
         }}
     }
 
@@ -100,7 +105,47 @@ export default class Tree {
     }
 
     #updateStress() {
-        // TO DO ...
+        /** 
+         * Computes latest value of stress. 
+         * Stress may be due to the environment 
+         * or due to aging.
+        */
+
+        // If this tree has reached max age, then stess
+        // is 100%.
+        if (this.age >= this.ageMax) {
+            this.stress = 1.0
+            return
+        }
+
+        // Upon reaching the senescence stage, stress increases by 
+        // x amount every year. This models how health declines slowly 
+        // when a tree is old and close to death.
+        let stressAge = 0
+        if (this.lifeStage == 'senescent') {
+            stressAge += JSON.parse(process.env.NEXT_PUBLIC_STRESS_AGING);
+        }
+        
+        // Stress also arises when environmental conditions are less than ideal.
+        let stressEnv = 0
+
+        // Get stress due to availability of CO2 in the air.
+        const availabilityCo2 = this.#getAirCO2ppm()
+        let stressLifestage = "premature"
+        if (this.lifeStage != "seedling" && this.lifeStage != "sapling") {
+            stressLifestage = "mature"
+        }
+        stressEnv += this.tolerance.co2[stressLifestage].getStress(availabilityCo2)
+
+        // If conditions are ideal, recover from past stress.
+        if (stressEnv == 0 && this.stress > 0){ 
+            this.stress = Math.max(0, this.stress - ((1 - this.stress) * 0.1))
+        } 
+        
+        // Else, add to stress.
+        else {
+            this.stress += stressEnv + stressAge;
+        }
     }
 
     #computeCarbonInTreeVolume(volume) {
@@ -169,7 +214,7 @@ export default class Tree {
         return this.stress < 1
     }
 
-    live() {
+    #live() {
         /**
          * Models life activities that a plant does.
          * @param reproduce: Whether or not reproduction is enabled.
@@ -195,7 +240,7 @@ export default class Tree {
         } 
     }
 
-    decay() {
+    #decay() {
         /** 
          * Plants that are dead and remain in the soil, decay.  
         */
@@ -293,8 +338,8 @@ export default class Tree {
         */
         
         // Perform activities related to living or decaying.
-        if (this.isAlive()) this.live()
-        else this.decay()
+        if (this.isAlive()) this.#live()
+        else this.#decay()
 
         // Increment age.
         this.age += 1

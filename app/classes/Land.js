@@ -8,14 +8,18 @@ export default class Land {
 
     #biodiversityScore = 0
     #updateCarbon
+    #getAirCO2ppm
 
-    constructor(updateCarbon) {
+    constructor(updateCarbon, getAirCO2ppm) {
         /**
          * Constructor for object of this class.
          * @param updateCarbon: Function that can be used to update the amount of carbon
          *                      in the atmosphere. Needed to pass onto tree objects.
+         * @param getAirCO2ppm: Function that gets current concentration of CO2 in the
+         *                      atmosphere. Needed to pass onto tree objects.
          */
         this.#updateCarbon = updateCarbon
+        this.#getAirCO2ppm = getAirCO2ppm
         this.size = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
         this.content = []
         for (let i = 0; i < this.size.rows; i++) {
@@ -74,7 +78,7 @@ export default class Land {
                 spot, treeType,
                 this.getBiodiversityCategory,
                 this.isLandFree, this.#updateCarbon,
-                this.sow
+                this.sow, this.#getAirCO2ppm
             )
             this.content[spot[0]][spot[1]] = newTree
             
@@ -92,34 +96,32 @@ export default class Land {
         comp = this.#getForestComposition(
             Object.values(this.size), comp.type, comp.age
         )
-
-        console.log(comp)
             
         // For each entry in the composition, sow a plant
         // of the desired type and and let it grow without reproducing 
         // until it reaches the resired age category.
         for (let i = 0; i < comp.length; i++) {
             const typeAge = comp[i]
-            const seedling = this.sow(typeAge.type)
+            // const typeAge = {type: "deciduous", age: "dead"}
+            const tree = this.sow(typeAge.type)
             
-            if (seedling == null) break // No more space on land to plant.
+            if (tree == null) break // No more space on land to plant.
             
             // If it was indeed possible to plant a 
             // new tree, then disable reproduction
             // so as to achivve desired composition without
             // alterations introduced due to reproduction.
-            seedling.reproduction = false
+            tree.reproduction = false
             
             // Update timestep until this seedling 
             // grows to the desired age.
             let j = 0 // Infinite loop check.
-            while (seedling.lifeStage != typeAge.age && j < 110) {
-                seedling.getOlder()
+            const loopLimit = 1000
+            while (tree.lifeStage != typeAge.age && j < loopLimit) {
+                tree.getOlder()
                 j += 1
             }
-            if (j >= 110) {
-                console.log("infinite loop")
-            }
+            if (j >= loopLimit) console.log("infinite loop")
         }
     }
 

@@ -1,6 +1,8 @@
 /** This file shall contain common functions that multiple other 
  *  files may require. */
 
+const linearInterpolator = require('linear-interpolator')
+
 export function getRandomIntegerBetween(x, y) {
     /** Returns a random integer between integers 
      *  x and y inclusive. 
@@ -54,4 +56,24 @@ export function getAdjacentPositions(x, y) {
     ]
 
     return adjacentPositions
+}
+
+export const createInterpolationFunction = (xyPoints) => {
+    /** 
+     * A function that returns a linear interpolator
+     * that connects given points using a line.
+     * @param xyPoints: Points to interpolate between.
+     * @return: The interpolation function.
+     */
+
+    // Create the interpolation function.
+    const interpolationFunction = linearInterpolator(xyPoints)
+
+    // Define a new function that takes an x value 
+    // and returns the interpolated y value.
+    function interpolatedFunction(x) {
+        return interpolationFunction(x)
+    }
+
+    return interpolatedFunction
 }

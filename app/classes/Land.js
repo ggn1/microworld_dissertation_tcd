@@ -6,7 +6,6 @@ export default class Land {
      *  available for the user to manage.
      */
 
-    #biodiversityScore = 0
     #updateCarbon
     #getAirCO2ppm
 
@@ -27,7 +26,8 @@ export default class Land {
             for (let j = 0; j < this.size.columns; j++) row.push(null)
             this.content.push(row);
         }
-        this.biodiversityCategory = "unforested"
+        this.biodiversityCategory = "Unforested"
+        this.biodiversityScore = 0
         this.getBiodiversityCategory = () => {
             /** 
              * Returns classification of this land that was 
@@ -123,6 +123,9 @@ export default class Land {
             }
             if (j >= loopLimit) console.log("infinite loop")
         }
+
+        // Compute latest biodiversity score.
+        this.#updateBiodiversity()
     }
 
     #getForestComposition(landSize, typeComp, ageComp) {
@@ -162,9 +165,9 @@ export default class Land {
             seedling: 0, sapling: 0, mature: 0, 
             old_growth: 0, senescent: 0, dead: 0
         }
-
-        for (let x = 0; x <= this.size[0]; x++) {
-            for (let y = 0; y <= this.size[1]; x++) {
+   
+        for (let x = 0; x < this.size.rows; x++) {
+            for (let y = 0; y < this.size.columns; y++) {
                 let entity = this.content[x][y]
                 if (entity != null) {
                     counts[entity.treeType] += 1
@@ -188,25 +191,27 @@ export default class Land {
 
         // Rule = Mixed forests with more trees => more biodiversity.
         // MIN = 0
-        // MAX = (num_rows/2) * (num_columns/2) * 3
+        // MAX = num_rows * num_columns * 3
         const more = Math.max(treeCounts.coniferous, treeCounts.deciduous)
         const less = Math.min(treeCounts.coniferous, treeCounts.deciduous)
-        const different = more - less
-        const similar = less
-        biodiversity += 3 * (similar * 2)
-        if (different%2 == 0) biodiversity += 2 * different
-        else biodiversity += (2 * (different - 1)) + 1
+        const diff = more - less
+        const sim = less
+        biodiversity += 3 * (sim * 2)
+        if (diff%2 == 0) biodiversity += 2 * diff
+        else biodiversity += (2 * (diff - 1)) + 1
 
         // Rule = More old growth => more biodiversity.
         // MIN = 0
-        // MAX = (num_rows/2) * (num_columns/2) * 3
+        // MAX = num_rows * num_columns * 3
         biodiversity += 0.5 * treeCounts.seedling
         biodiversity += 0.8 * treeCounts.sapling
         biodiversity += 2 * treeCounts.mature
         biodiversity += 3 * treeCounts.old_growth
         biodiversity += 1 * treeCounts.dead
 
-        return biodiversity
+        // MIN = 0
+        // MAX = 2 * num_rows * num_columns * 3
+        return (biodiversity/(2 * this.size.rows * this.size.columns * 3)).toFixed(2)
     }
 
     #computeBiodiversityCategory() {
@@ -219,10 +224,10 @@ export default class Land {
         const categoryScoreRanges = JSON.parse(
             process.env.NEXT_PUBLIC_BIODIVERSITY_CATEGORIES
         )
-        for (const [category, scoreRange] in categoryScoreRanges) {
+        for (const [category, scoreRange] of Object.entries(categoryScoreRanges)) {
             if (
-                this.#biodiversityScore >= scoreRange[0] &&
-                this.#biodiversityScore < scoreRange[1]
+                this.biodiversityScore >= scoreRange[0] &&
+                this.biodiversityScore < scoreRange[1]
             ) {
                 return category
             }
@@ -259,12 +264,12 @@ export default class Land {
         return freeSpots[randomSpotIdx]
     }
 
-    updateBiodiversity() {
+    #updateBiodiversity() {
         /** 
          * Computes and updates biodiversity of the land
          * based on current land content.
          */
-        this.#biodiversityScore = this.#computeBiodiversityScore()
+        this.biodiversityScore = this.#computeBiodiversityScore()
         this.biodiversityCategory = this.#computeBiodiversityCategory()
     }
 }

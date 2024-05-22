@@ -1,40 +1,47 @@
 'use client'
-
 import { useState } from 'react'
-import Tree from "./classes/Tree.js"
 import Simulation from "./classes/Simulation.js"
 import LandPlot from "./components/LandPlot.jsx"
+import CO2Scale from "./components/CO2Scale.jsx"
+import CarbonDist from "./components/CarbonDist.jsx"
+import BdStatus from './components/BdStatus.jsx'
 
 const Home = () => {
-    const sim = new Simulation() // Microworld model.
+    // const sim = new Simulation() // Microworld model.
 
-    /***************************** PLAYGROUND ******************************/
+    // // Here are all factors that can change in the UI.
+    // const [landContent, setLandContent] = useState(sim.env.land.content) 
+    // const [CO2Concentration, setCO2Concentration] = useState(sim.env.getAirCO2ppm())
+    // const [carbonDist, setCarbonDist] = useState(sim.env.carbon)
+    // const [bdScore, setBdScore] = useState(sim.env.land.biodiversityScore)
 
-    // const tree = new Tree(
-    //     [0, 0], "coniferous", 
-    //     sim.env.land.getBiodiversityCategory, 
-    //     sim.env.updateCarbon
-    // )
-    // console.log("carbon air (before) =", sim.env.carbon.air.toFixed(5))
-    // tree.getOlder()
-    // console.log("carbon air (after) =", sim.env.carbon.air.toFixed(5))
-
-    /***********************************************************************/
-
-    // Here are all factors that can change in the UI.
-    const [landContent, setLandContent] = useState(sim.env.land.content) 
+    const [sim, setSim] = useState(new Simulation())
 
     return (
         <main className="h-screen w-full p-5 grid grid-cols-10 grid-rows-9 gap-2">
             <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-3 row-span-3"></div>
             <div id="home-land" className="rounded-xl bg-[#FFE2D5] col-span-4 row-span-8">
-                <LandPlot size={sim.env.land.size} content={landContent}/>
+                <LandPlot size={sim.env.land.size} content={sim.env.land.content}/>
             </div>
-            <div id="home-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-8"></div>
+            <div id="home-world-state" className="
+                rounded-xl bg-[#EEEEEE] col-span-3 row-span-8 p-5
+                flex flex-col justify-between
+            ">
+                <CO2Scale concentration={sim.env.getAirCO2ppm()}/>
+                <CarbonDist distribution={sim.env.carbon}/>
+                <BdStatus 
+                    bdScore={sim.env.land.biodiversityScore} 
+                    bdCategory={sim.env.land.biodiversityCategory}
+                />
+            </div>
             <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5"></div>
-            <div id="home-income-dependency" className="rounded-xl bg-[#E8DFF6] col-span-3 row-span-1"></div>
+            <div id="home-income-dependency" className="
+                rounded-xl bg-[#E8DFF6] col-span-3 row-span-1
+            "></div>
             <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-5 row-span-1"></div>
-            <div id="home-play-pause" className="rounded-xl bg-[#F2EAD5] col-span-1 row-span-1"></div>
+            <div id="home-play-pause" className="
+                rounded-xl bg-[#F2EAD5] col-span-1 row-span-1
+            "></div>
             <div id="home-reset" className="rounded-xl bg-[#F2EAD5] col-span-1 row-span-1"></div>
         </main>
     )

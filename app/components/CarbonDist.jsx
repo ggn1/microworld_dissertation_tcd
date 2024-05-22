@@ -1,14 +1,6 @@
-"use client"
-
 import Card from './Card'
-import { useEffect, useState } from 'react'
 
 const CarbonDist = ({distribution}) => {
-    // Need to render client side to avoid hydration error due to 
-    // function toNumber() from the third party library Big.js.
-    const [isClient, setIsClient] = useState(false)
-    useEffect(() => { setIsClient(true)}, [])
-
     let reservoirs = []
     for (const [reservoir, carbon] of Object.entries(distribution)) {
         let reservoirLabel = reservoir.replace("_", " ")
@@ -23,14 +15,14 @@ const CarbonDist = ({distribution}) => {
         reservoirs.push(
             <div key={reservoir} className='flex'>
                 <div className='text-[#6E6E6E] mr-1'>{reservoirLabel}:</div>
-                <div>{carbon.toNumber().toFixed(2)}</div>
+                <div>{(carbon.toNumber()/(10**15)).toFixed(8)}</div>
             </div>
         )
     }
 
     return (
-        <Card bgColor="#FFFFFF" heading="CARBON (g)">
-            {isClient && <div className='w-full flex flex-col gap-2'>{reservoirs}</div>}
+        <Card bgColor="#FFFFFF" heading="CARBON (Gt)">
+            <div className='w-full flex flex-col gap-2'>{reservoirs}</div>
         </Card>
     )
 }

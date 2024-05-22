@@ -7,14 +7,6 @@ import CarbonDist from "./components/CarbonDist.jsx"
 import BdStatus from './components/BdStatus.jsx'
 
 const Home = () => {
-    // const sim = new Simulation() // Microworld model.
-
-    // // Here are all factors that can change in the UI.
-    // const [landContent, setLandContent] = useState(sim.env.land.content) 
-    // const [CO2Concentration, setCO2Concentration] = useState(sim.env.getAirCO2ppm())
-    // const [carbonDist, setCarbonDist] = useState(sim.env.carbon)
-    // const [bdScore, setBdScore] = useState(sim.env.land.biodiversityScore)
-
     const [sim, setSim] = useState(new Simulation())
 
     return (

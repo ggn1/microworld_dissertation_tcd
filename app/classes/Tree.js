@@ -1,3 +1,4 @@
+import Big from 'big.js'
 import { max } from 'd3'
 import * as utils from '../utils.js'
 import Tolerance from "./Tolerance.js"
@@ -164,16 +165,17 @@ export default class Tree {
          * @param srcReservoir: The sources that the carbon is to be drawn from.
          * @param dstReservoir: The destination to which carbon is to be added to.
         */
-        
+
         // Compute weight of carbon that must be pulled from the air.
-        const carbonWeight = this.#computeCarbonInTreeVolume(volume)
+        const carbonWeight = Big(this.#computeCarbonInTreeVolume(volume))
+        const scaleFactor = Big(JSON.parse(process.env.NEXT_PUBLIC_C_WEIGHT_SCALE_FACTOR))
 
         // Reduce carbon in given volume of the tree
         // from the source reservoir and add it to the
         // destination reservoir.
         let update = {}
-        update[srcReservoir] = -1 * carbonWeight
-        update[dstReservoir] = 1 * carbonWeight
+        update[srcReservoir] = scaleFactor.mul(carbonWeight).mul(-1)
+        update[dstReservoir] = scaleFactor.mul(carbonWeight)
         this.#updateCarbon(update)
     }
 
@@ -185,7 +187,7 @@ export default class Tree {
         // Compute volume by which this tree grows to 
         // to maintain it's current biomass (damage repair, shedding, etc.)
         const volumeCur = utils.volumeCylinder(this.height, this.diameter/2)
-        const volumeMaintenance = volumeCur * JSON.parse(
+        let volumeMaintenance = volumeCur * JSON.parse(
             process.env.NEXT_PUBLIC_TREE_VOLUME_MAINTENANCE_PC
         )
 
@@ -193,7 +195,11 @@ export default class Tree {
         const bd_red = this.#computeBiodiversityReductionFactor()
         const growthHeight = (1 - max([0, this.stress - bd_red])) * this.gh_max
         const growthDiameter = this.#getDiameterFromHeight(growthHeight)
-        const volumeGrowth = utils.volumeCylinder(growthHeight, growthDiameter/2)
+        let volumeGrowth = utils.volumeCylinder(growthHeight, growthDiameter/2)
+
+        // Handle NaN likely due to underflow.
+        if (isNaN(volumeGrowth)) volumeGrowth = 0
+        if(isNaN(volumeMaintenance)) volumeMaintenance = 0
 
         // Process carbon needed for growth.
         this.#processCarbon(volumeGrowth, "air", "vegetation")
@@ -253,7 +259,8 @@ export default class Tree {
         const decayFactor = JSON.parse(process.env.NEXT_PUBLIC_C_PC_DECAY)
         const weightCarbonDecay = decayFactor * weightCarbon
         const weightDecay = weightCarbonDecay * (1/decayFactor)
-        const volumeDecay = weightDecay/this.woodDensity
+        let volumeDecay = weightDecay/this.woodDensity
+        if (isNaN(volumeDecay)) volumeDecay = 0.0
 
         // Of the amount of carbon decayed, 35% ends up in the soil
         // and 65% ends up back in the atmosphere.

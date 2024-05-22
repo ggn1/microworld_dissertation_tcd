@@ -1,7 +1,7 @@
 "use client"
 
 import * as d3 from "d3"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 const svgIcons = JSON.parse(process.env.NEXT_PUBLIC_LAND_ICONS_SVG)
 
@@ -123,9 +123,7 @@ const LandPlot = ({size, content}) => {
     }, [])
 
     return (
-        <svg className="w-full h-full" ref={refSvg}>
-            
-        </svg>
+        <svg className="w-full h-full" ref={refSvg}></svg>
     )
 }
 

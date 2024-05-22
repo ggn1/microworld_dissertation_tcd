@@ -30,9 +30,9 @@ const Home = () => {
             <div id="home-land" className="rounded-xl bg-[#FFE2D5] col-span-4 row-span-8">
                 <LandPlot size={sim.env.land.size} content={landContent}/>
             </div>
-            <div id="home-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-4"></div>
+            <div id="home-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-8"></div>
             <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5"></div>
-            <div id="home-income-dependency" className="rounded-xl bg-[#E8DFF6] col-span-3 row-span-5"></div>
+            <div id="home-income-dependency" className="rounded-xl bg-[#E8DFF6] col-span-3 row-span-1"></div>
             <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-5 row-span-1"></div>
             <div id="home-play-pause" className="rounded-xl bg-[#F2EAD5] col-span-1 row-span-1"></div>
             <div id="home-reset" className="rounded-xl bg-[#F2EAD5] col-span-1 row-span-1"></div>

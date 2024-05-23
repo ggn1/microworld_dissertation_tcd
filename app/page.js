@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Simulation from "./classes/Simulation.js"
+import Timeline from './components/Timeline.jsx'
 import LandPlot from "./components/LandPlot.jsx"
 import CO2Scale from "./components/CO2Scale.jsx"
 import CarbonDist from "./components/CarbonDist.jsx"
@@ -12,7 +13,7 @@ const Home = () => {
     return (
         <main className="h-screen w-full p-5 grid grid-cols-10 grid-rows-9 gap-2">
             <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-3 row-span-3"></div>
-            <div id="home-land" className="rounded-xl bg-[#FFE2D5] col-span-4 row-span-8">
+            <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-4 row-span-8">
                 <LandPlot size={sim.env.land.size} content={sim.env.land.content}/>
             </div>
             <div id="home-world-state" className="
@@ -27,14 +28,17 @@ const Home = () => {
                 />
             </div>
             <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5"></div>
+            <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-3 row-span-1">
+                {/* <Timeline 
+                    curTime={5}
+                    timeRange={[0, JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)]}
+                    unit={"Year"}
+                    window={10}
+                /> */}
+            </div>
             <div id="home-income-dependency" className="
-                rounded-xl bg-[#E8DFF6] col-span-3 row-span-1
+                rounded-xl bg-[#FFECFB] col-span-7 row-span-1
             "></div>
-            <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-5 row-span-1"></div>
-            <div id="home-play-pause" className="
-                rounded-xl bg-[#F2EAD5] col-span-1 row-span-1
-            "></div>
-            <div id="home-reset" className="rounded-xl bg-[#F2EAD5] col-span-1 row-span-1"></div>
         </main>
     )
 }

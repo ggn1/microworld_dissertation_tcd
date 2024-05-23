@@ -50,6 +50,7 @@ const LandPlot = ({size, content}) => {
      * @return: Dynamic land UI component.
      */
     const refSvg = useRef()
+    
     const contentToRender = []
     for (let i = 0; i < size.rows; i++) {
         for (let j = 0; j < size.columns; j++) {

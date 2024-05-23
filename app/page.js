@@ -29,15 +29,18 @@ const Home = () => {
             </div>
             <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5"></div>
             <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-3 row-span-1">
-                {/* <Timeline 
+                <Timeline 
                     curTime={5}
                     timeRange={[0, JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)]}
                     unit={"Year"}
                     window={10}
-                /> */}
+                />
             </div>
+            <div id="home-sold" className="
+                rounded-xl bg-[#FFECFB] col-span-4 row-span-1
+            "></div>
             <div id="home-income-dependency" className="
-                rounded-xl bg-[#FFECFB] col-span-7 row-span-1
+                rounded-xl bg-[#F4ECFF] col-span-3 row-span-1
             "></div>
         </main>
     )

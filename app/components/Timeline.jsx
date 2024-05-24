@@ -1,88 +1,213 @@
 "use client"
 
-import * as d3 from "d3"
 import Button from "./Button"
 import React, { useEffect, useRef, useState } from "react"
 
-const Timeline = ({curTime, timeRange, unit, window}) => {
+const unit = "Year"
+const validRange = [0, JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)]
+let curTime = validRange[0]
+let newTime = validRange[0]
+const delay = JSON.parse(process.env.NEXT_PUBLIC_SIMULATION_DELAY)
+let interval = null
+
+const Timeline = ({goToTime}) => {
     /**
      * Displays a timeline of given time range such that 
      * time is displayed a window at a time. One may 
      * move from one time window to another.
-     * @param curTime: The current time step.
-     * @param timeRange: The [min, max] time to be displayed.
-     * @param unit: A string that says what the unit of the time line is.
-     * @param window: No. of timesteps to display at a time.
-     * @return: Timeline component.
+     * @param goToTime: Function that facilitates going to a certain point
+     *                  in time w.r.t the simulation.
+     * @return: UI component.
      */
-    const refSvg = useRef()
 
-    const [curWindow, setCurWindow] = useState(d3.range(timeRange[0], timeRange[0]+window+1))
-    const [timeNow, setTimeNow] = useState(curTime)
+    const [isEditing, setIsEditing] = useState(false)
+    const [isValid, setIsValid] = useState(true)
+    const [isPaused, setIsPaused] = useState(true)
 
-    const shiftWindow = (direction) => {
-        /** Shifts time window to the left/right. */
-        if (direction == "left") {
-            
-        } else { // (direction == "right")
-            console.log("shift window right")
+    const inputRef = useRef()
+
+    const validateInput = (text) => {
+        /**
+         * Checks if input text has numbers only.
+         * Here, input is valid, only if it is an integer
+         * within the given inclusive range.
+         * @param text: Input text as string.
+         * @return: The input text as a number if it is valid and 
+         *          null otherwise.
+         */
+        // Text field value is placeholder if empty string.
+        console.log(validRange)
+        if (
+            !isNaN(text) && !text.includes(".") &&
+            Number.parseInt(text) >= validRange[0] &&
+            Number.parseInt(text) <= validRange[1]
+        ) {
+            // If input is valid, then returns 
+            // the input as a number.
+            return Number.parseInt(text)
+        } else {
+            // If input is invalid, then returns null.
+            return null
         }
     }
 
+    const handleChange = (timeText) => {
+        /** 
+         * Handles the event wherein the user changes
+         * contents of the time input field.
+         * @param timeText: Text box content as string.
+         */
+        setIsEditing(true)
+        let timeValidated = validateInput(
+            timeText == "" ? 
+            curTime.toString() :
+            timeText
+        )
+        if (timeValidated != null) {
+            // isValid = true
+            setIsValid(true)
+            newTime = timeValidated
+        }
+        else {
+            // isValid = false
+            setIsValid(false)
+            newTime = curTime
+        }
+
+        console.log("curTime =", curTime, "newTime =", newTime)
+    }
+
+    const handleNewTimeSubmit = () => {
+        /**
+         * Set current time to new time only if
+         * new time is valid.
+         */
+        if (newTime != curTime) {
+            curTime = newTime
+            goToTime(curTime)
+        }
+        setIsValid(true)
+        inputRef.current.value = curTime
+        setIsEditing(false)
+    }
+
+    const handleNewTimeCancel = () => {
+        /**
+         * Cancel current time input change.
+         */
+        setIsValid(true)
+        inputRef.current.value = curTime
+        setIsEditing(false)
+    }
+
+    const takeTimeStep = () => {
+        /** 
+         * Move 1 step forward in time 
+         * and trigger changes in the 
+         * simulation to reflect this.
+         */ 
+        if (curTime <= validRange[1]) {
+            handleChange((curTime+1).toString())
+            handleNewTimeSubmit()
+        } else {
+            if (interval != null) {
+                clearInterval(interval)
+                interval = null
+            }
+        }
+    }
+
+    const handlePlayPause = () => {
+        /**
+         * Play simulation.
+         */
+        setIsPaused(prevVal => !prevVal)
+        if (isPaused) {
+            console.log("Playing ...")
+            interval = setInterval(takeTimeStep, delay)
+        } else { // Is playing, so pause.
+            console.log("Paused.")
+            if (interval != null) {
+                clearInterval(interval)
+                interval = null
+            }
+        }
+    }
+
+    const handleReset = () => {
+        /**
+         * Reset simulation.
+         */
+        console.log("Reset")
+        curTime = validRange[0]
+        newTime = validRange[0]
+        inputRef.current.value = curTime
+        goToTime(curTime)
+    }
+
     useEffect(() => {
-        // Get SVG and it's dimensions.
-        const svg = d3.select(refSvg.current)
-        const widthSvg = Number(svg.style('width').replace('px', ''))
-        const heightSvg = Number(svg.style('height').replace('px', ''))
-        const margins = { left: 10, right: 10, top: 0, bottom: 0 }
-        const widthPlot = widthSvg - margins.left - margins.right;
-        const heightPlot = heightSvg - margins.top - margins.bottom;
-
-        // Group that contains the whole plot.
-        const gPlot = svg.selectAll('.group-plot')
-                        .data(['g'])
-                        .join('g')
-                        .attr('class', 'group-plot')
-                        .attr('width', widthPlot)
-                        .attr('height', heightPlot)
-                        .attr('transform', `translate(${margins.left}, ${margins.top})`);
-
-        // Define groups that shall contain the x axis of this timeline plot.
-        const gXAxis = gPlot.selectAll('.group-x-axis')
-                            .data(['g'])
-                            .join('g')
-                            .attr('class', 'group-x-axis')
-                            .attr('transform', `translate(${0}, ${(heightPlot/2)-2.5})`)
-        gXAxis.select("path").attr("opacity", 0)
-        gXAxis.selectAll(".tick")
-            .select("text").attr("opacity", 0)
-        gXAxis.selectAll(".tick")
-            .select("line")
-            .attr("stroke", d => d == timeNow ? "#FF0000" : "#CCCCCC")
-            .attr("stroke-width", 8)
-            .attr("stroke-linecap", "round")
-            .attr("class", d => d != timeNow ? "hover:stroke-orange-300" : "")
-            .on("click", (e, d) => {
-                setTimeNow(prevVal => d)
-            })
-        
-        // Set the scale of both x and y axes.
-        const scaleX = d3.scaleBand()
-                        .domain(curWindow)
-                        .range([0, widthPlot])
-        gXAxis.call(d3.axisBottom(scaleX))
-
-    }, [curWindow, timeNow])
+        inputRef.current.value = curTime
+    }, [])
 
     return (
-        <div className="timeline p-2 flex gap-1">
-            <Button bgColor="#F2EAD5" onClick={() => shiftWindow("left")}>
-                <span className="h-8 px-1">◀</span>
-            </Button>
-            <svg ref={refSvg} className="w-full bg-white h-8 rounded-full"></svg>
-            <Button bgColor="#F2EAD5" onClick={() => shiftWindow("right")}>
-                <span className="h-8 px-1">▶</span>
-            </Button>
+        <div className="timeline p-2 flex gap-3 justify-center h-full">
+            <div className="flex items-center h-full font-bold">
+                {unit.toUpperCase()}:
+            </div>
+            <input type="text" 
+                className="
+                    px-3 rounded-full text-[#888888] text-center 
+                    max-w-16 focus:text-[#CCCCCC]
+                "
+                onChange={(e) => handleChange(e.target.value)}
+                style={{"border": `${isValid ? 0 : 3}px solid red`}}
+                ref={inputRef}
+            />
+            {
+                isEditing ? <>
+                    
+                    {/* Submit Change Button */}
+                    <Button 
+                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                        onClick={handleNewTimeSubmit}
+                    >
+                        <div className="px-[5px]">
+                            <img className="h-4" src="tick.png" />
+                        </div>
+                    </Button>
+
+                    {/* Cancel Change Button */}
+                    <Button 
+                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                        onClick={handleNewTimeCancel}
+                    >
+                        <div className="px-[5px]">
+                            <img className="h-4" src="cross.png" />
+                        </div>
+                    </Button>
+                </> : <>
+                    {/* Play/Pause Button */}
+                    <Button 
+                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                        onClick={handlePlayPause}
+                    >
+                        <div className="px-[7px]">
+                            <img className="h-3" src={isPaused ? "play.png" : "pause.png"}/>
+                        </div>
+                    </Button>
+
+                    {/* Reset Button */}
+                    <Button 
+                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                        onClick={handleReset}
+                    >
+                        <div className="px-[5px]">
+                            <img className="h-4" src="reset.png" />
+                        </div>
+                    </Button>
+                </>
+            }
+            
         </div>
     )
 }

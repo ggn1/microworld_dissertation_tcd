@@ -60,13 +60,13 @@ const LandPlot = ({size, content}) => {
 
     useEffect(() => {
         // Get SVG and it's dimensions.
-        const svg = d3.select(refSvg.current);
-        const widthSvg = Number(svg.style('width').replace('px', ''));
-        const heightSvg = Number(svg.style('height').replace('px', ''));
+        const svg = d3.select(refSvg.current)
+        const widthSvg = Number(svg.style('width').replace('px', ''))
+        const heightSvg = Number(svg.style('height').replace('px', ''))
         const margins = {
             left: widthSvg/(size.rows*2+1), right: 0,
             top: heightSvg/(size.columns*2+1), bottom: 0
-        };
+        }
         const widthPlot = widthSvg - margins.left - margins.right;
         const heightPlot = heightSvg - margins.top - margins.bottom;
 

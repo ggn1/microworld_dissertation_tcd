@@ -7,10 +7,18 @@ export default class Simulation {
      *  entire simulated world. */
 
     #income_sources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
+    #updateSimUI
 
-    constructor() {
+    constructor(updateSimUI) {
+        /**
+         * Constructor.
+         * @param updateSimUI: Function that may be called after each
+         *                   time step update with latest simulation
+         *                   state to update the UI.
+         */
         this.#createFreshWorld()
         this.planner = new Planner()
+        this.#updateSimUI = updateSimUI
         this.goto = (time) => {
             /** 
              * Given a point in time, runs the simulation
@@ -42,8 +50,9 @@ export default class Simulation {
     #takeTimeStep() {
         /** Step forward in time by one step. */
         this.time += 1
-        console.log("Took time step. Now, year =", this.time)
-        // TO DO
+        this.env.land.takeTimeStep()
+        this.#updateSimUI()
+        // this.plan.takeTimeStep()
     } 
 
     #createFreshWorld() {

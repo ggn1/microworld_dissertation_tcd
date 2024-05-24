@@ -272,4 +272,29 @@ export default class Land {
         this.biodiversityScore = this.#computeBiodiversityScore()
         this.biodiversityCategory = this.#computeBiodiversityCategory()
     }
+
+    takeTimeStep() {
+        /**
+         * Step forward in time by one step.
+         * All trees on the land age by 1 time unit.
+         * If any of the trees that did exist no longer
+         * exist after the aging, then they are removed
+         * from the land.
+         */
+        for (let i = 0; i < this.size.rows; i++) {
+            for (let j = 0; j < this.size.columns; j++) {
+                const entity = this.content[i][j]
+                if (entity != null) {
+                    const stillExists = entity.getOlder() // Entity ages by 1 time unit.
+                    if (!stillExists) {
+                        // After aging, if this entity no longer
+                        // exists on land, then set corresponding
+                        // position on land to null to reflect this.
+                        this.content[i][j] = null
+                        console.log("Entity at position (", [i, j], ") no longer exists.")
+                    }
+                }
+            }
+        }
+    }
 }

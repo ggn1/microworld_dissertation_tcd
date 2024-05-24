@@ -29,7 +29,7 @@ const Home = () => {
             </div>
             <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5"></div>
             <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-3 row-span-1">
-                <Timeline goToTime={(time) => {console.log("Go to time", time)}}/>
+                <Timeline goToTime={sim.goto}/>
             </div>
             <div id="home-sold" className="
                 rounded-xl bg-[#FFECFB] col-span-4 row-span-1

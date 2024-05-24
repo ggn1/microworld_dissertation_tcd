@@ -35,8 +35,6 @@ const Timeline = ({goToTime}) => {
          * @return: The input text as a number if it is valid and 
          *          null otherwise.
          */
-        // Text field value is placeholder if empty string.
-        console.log(validRange)
         if (
             !isNaN(text) && !text.includes(".") &&
             Number.parseInt(text) >= validRange[0] &&
@@ -73,8 +71,6 @@ const Timeline = ({goToTime}) => {
             setIsValid(false)
             newTime = curTime
         }
-
-        console.log("curTime =", curTime, "newTime =", newTime)
     }
 
     const handleNewTimeSubmit = () => {

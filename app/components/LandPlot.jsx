@@ -113,8 +113,6 @@ const LandPlot = ({content}) => {
     }, [])
 
     useEffect(() => {
-        console.log("Land content changed.")
-
         // Get latest content to render.
         const contentToRender = []
         for (let i = 0; i < size.rows; i++) {

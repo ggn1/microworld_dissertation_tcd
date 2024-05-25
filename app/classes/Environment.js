@@ -21,7 +21,6 @@ export default class Environment {
              *                reservoirs.
             */
             for (const [reservoir, change] of Object.entries(amount)) {
-                // console.log(`${reservoir}: ${this.carbon[reservoir]} + ${change}`)
                 this.carbon[reservoir] = this.carbon[reservoir].plus(change)
             }
         }
@@ -57,12 +56,11 @@ export default class Environment {
     
             return ppm
         }
-        this.land = new Land(this.updateCarbon, this.getAirCO2ppm)
-    }
-
-    getCarbon() {
-        /** Returns current amount of carbon in the world. */
-        return this.carbon
+        this.getCarbon = () => {
+            /** Returns current amount of carbon in the world. */
+            return this.carbon
+        }
+        this.land = new Land(this.updateCarbon, this.getCarbon, this.getAirCO2ppm)
     }
 
     computeCfromCO2(massCO2) {

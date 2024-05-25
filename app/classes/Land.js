@@ -1,3 +1,4 @@
+import Big from 'big.js'
 import Tree from './Tree'
 import * as utils from '../utils.js'
 
@@ -8,8 +9,9 @@ export default class Land {
 
     #updateCarbon
     #getAirCO2ppm
+    #getCarbon
 
-    constructor(updateCarbon, getAirCO2ppm) {
+    constructor(updateCarbon, getCarbon, getAirCO2ppm) {
         /**
          * Constructor for object of this class.
          * @param updateCarbon: Function that can be used to update the amount of carbon
@@ -19,6 +21,7 @@ export default class Land {
          */
         this.#updateCarbon = updateCarbon
         this.#getAirCO2ppm = getAirCO2ppm
+        this.#getCarbon = getCarbon
         this.size = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
         this.content = []
         for (let i = 0; i < this.size.rows; i++) {
@@ -117,8 +120,16 @@ export default class Land {
             // grows to the desired age.
             let j = 0 // Infinite loop check.
             const loopLimit = 1000
-            while (tree.lifeStage != typeAge.age && j < loopLimit) {
-                tree.getOlder()
+            while (
+                tree.lifeStage != typeAge.age 
+                // && tree.lifeStage != "dead"
+                && j < loopLimit
+            ) {
+                const stillExists = tree.getOlder()
+                // if (!stillExists) {
+                //     const pos = tree.position
+                //     this.content[pos[0]][pos[1]] = null
+                // }
                 j += 1
             }
             if (j >= loopLimit) console.log("infinite loop")
@@ -129,6 +140,33 @@ export default class Land {
 
         // Compute latest biodiversity score.
         this.#updateBiodiversity()
+
+        // Soil releases a portion of the carbon stored in it.
+        this.#releaseCarbonFromSoil()
+
+        // Print ratios.
+        const carbon = this.#getCarbon()
+        console.log(
+            "soil / vegetation =", 
+            carbon.soil.div(carbon.vegetation).toNumber().toFixed(2),
+            "[ideally 2.54]"
+        )
+        console.log(
+            "soil / air =", 
+            carbon.soil.div(carbon.air).toNumber().toFixed(2),
+            "[ideally 1.87]"
+        )
+    }
+
+    #releaseCarbonFromSoil() {
+        /** 
+         * Each time step, a certain amount of the carbon 
+         * in the soil is released back into the atmosphere.
+         */
+        const carbonSoil = this.#getCarbon().soil
+        const soilCarbonReleasePc = JSON.parse(process.env.NEXT_PUBLIC_SOIL_RELEASE_PC)
+        const releasedWeight = carbonSoil.mul(soilCarbonReleasePc)
+        this.#updateCarbon({"soil":releasedWeight.mul(-1), "air":releasedWeight})
     }
 
     #getForestComposition(landSize, typeComp, ageComp) {
@@ -294,7 +332,7 @@ export default class Land {
         }
         contentPositions = utils.shuffle(contentPositions) 
 
-        // Age each tree by 1 timestep.
+        // Each tree gets older by 1 time unit.
         for (const pos of contentPositions) {
             const entity = this.content[pos[0]][pos[1]]
             if (entity != null) {
@@ -308,6 +346,9 @@ export default class Land {
                 }
             }
         }
+
+        // Soil releases a portion of the carbon stored in it.
+        this.#releaseCarbonFromSoil()
 
         // Update biodiversity.
         this.#updateBiodiversity()

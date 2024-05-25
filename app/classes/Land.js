@@ -92,8 +92,9 @@ export default class Land {
 
     #initialize() {
         /**
-         * Initializes the land to have a forest of 
-         * predefined starting composition. 
+         * Initializes the land to have an 
+         * old growth forest of predefined
+         * starting composition. 
         */
         let comp = JSON.parse(process.env.NEXT_PUBLIC_FOREST_COMPOSITION_START)
         comp = this.#getForestComposition(
@@ -101,8 +102,9 @@ export default class Land {
         )
             
         // For each entry in the composition, sow a plant
-        // of the desired type and and let it grow without reproducing 
-        // until it reaches the resired age category.
+        // of the desired type and and let it grow without 
+        // reproducing until it reaches the desired age 
+        // category.
         for (let i = 0; i < comp.length; i++) {
             const typeAge = comp[i]
             const tree = this.sow(typeAge.type)

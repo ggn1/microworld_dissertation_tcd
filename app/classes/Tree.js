@@ -188,9 +188,6 @@ export default class Tree {
         /**
          * Facilitates physical growth of a plant.
         */
-        
-        console.log("Is Alive?", this.#isAlive())
-
         // Compute volume by which this tree grows to 
         // to maintain it's current biomass (damage repair, shedding, etc.)
         const volumeOld = utils.volumeCylinder(this.height, this.diameter/2)
@@ -368,6 +365,13 @@ export default class Tree {
          *          exist).
         */
 
+        // Increment age.
+        this.age += 1
+
+        // Update life stage.
+        this.lifeStage = this.#computeLifeStage()
+        console.log(`[Tree @ ${this.position}] Stress = ${this.stress} (${this.lifeStage})`)
+
         // Compute current stress level.
         this.#updateStress()
         
@@ -375,13 +379,11 @@ export default class Tree {
         if (this.#isAlive()) this.#live()
         else this.#decay()
 
-        // Increment age.
-        this.age += 1
-
-        // Update life stage.
-        this.lifeStage = this.#computeLifeStage()
-
-        if (this.height <= 0) return false
+        // Check if this tree still exists 
+        // in the world.
+        if (this.height <= 0) {
+            return false
+        }
         return true
     }
 }

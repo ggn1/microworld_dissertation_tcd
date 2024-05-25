@@ -31,6 +31,7 @@ export default class Simulation {
             if (timesteps < 0) {
                 timesteps = time
                 this.#createFreshWorld() // Reset world.
+                this.#updateSimUI()
             }
 
             // For as manu timesteps as required, 

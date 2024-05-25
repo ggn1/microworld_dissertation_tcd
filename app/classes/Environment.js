@@ -21,6 +21,7 @@ export default class Environment {
              *                reservoirs.
             */
             for (const [reservoir, change] of Object.entries(amount)) {
+                // console.log(`${reservoir}: ${this.carbon[reservoir]} + ${change}`)
                 this.carbon[reservoir] = this.carbon[reservoir].plus(change)
             }
         }
@@ -72,6 +73,6 @@ export default class Environment {
          */
         const molecularMassC = 12 // g/mol
         const molecularMassCO2 = 44 // g/mol
-        return massCO2 * (12/44)
+        return massCO2 * (molecularMassC/molecularMassCO2)
     }
 }

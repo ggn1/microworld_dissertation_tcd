@@ -58,7 +58,7 @@ export function getAdjacentPositions(x, y) {
     return adjacentPositions
 }
 
-export const createInterpolationFunction = (xyPoints) => {
+export function createInterpolationFunction(xyPoints) {
     /** 
      * A function that returns a linear interpolator
      * that connects given points using a line.
@@ -76,4 +76,18 @@ export const createInterpolationFunction = (xyPoints) => {
     }
 
     return interpolatedFunction
+}
+
+export function shuffle(array) { 
+    /** 
+     * Shuffles given array using the Fisher-Yates Sorting Algorithm. 
+     * Reference: https://dev.to/codebubb/how-to-shuffle-an-array-in-javascript-2ikj
+     */
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array
 }

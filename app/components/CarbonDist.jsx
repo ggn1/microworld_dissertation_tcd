@@ -1,3 +1,4 @@
+import Big from 'big.js'
 import Card from './Card'
 
 const CarbonDist = ({distribution}) => {
@@ -15,7 +16,7 @@ const CarbonDist = ({distribution}) => {
         reservoirs.push(
             <div key={reservoir} className='flex'>
                 <div className='text-[#6E6E6E] mr-1'>{reservoirLabel}:</div>
-                <div>{(carbon.toNumber()/(10**15)).toFixed(2)}</div>
+                <div>{carbon.div(Big(10**15)).toNumber().toFixed(2)}</div>
             </div>
         )
     }

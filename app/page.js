@@ -31,11 +31,7 @@ const Home = () => {
         updateSimUI()
         setIsInitialized(true)
     }, [])
-
-    useEffect(() => {
-        console.log("land content changed")
-    }, [landContent])
-
+    
     return (
         isInitialized &&
         <main className="h-screen w-full p-5 grid grid-cols-10 grid-rows-9 gap-2">

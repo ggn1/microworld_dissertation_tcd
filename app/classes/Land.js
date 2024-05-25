@@ -102,10 +102,10 @@ export default class Land {
         // until it reaches the resired age category.
         for (let i = 0; i < comp.length; i++) {
             const typeAge = comp[i]
-            // const typeAge = {type: "deciduous", age: "dead"}
             const tree = this.sow(typeAge.type)
             
-            if (tree == null) break // No more space on land to plant.
+            // No more space on land to plant.
+            if (tree == null) break 
             
             // If it was indeed possible to plant a 
             // new tree, then disable reproduction
@@ -122,6 +122,9 @@ export default class Land {
                 j += 1
             }
             if (j >= loopLimit) console.log("infinite loop")
+
+            // // Reset reproduction to true as normal.
+            // tree.reproduction = true
         }
 
         // Compute latest biodiversity score.
@@ -281,20 +284,32 @@ export default class Land {
          * exist after the aging, then they are removed
          * from the land.
          */
+
+        // Shuffle order.
+        let contentPositions = []
         for (let i = 0; i < this.size.rows; i++) {
             for (let j = 0; j < this.size.columns; j++) {
-                const entity = this.content[i][j]
-                if (entity != null) {
-                    const stillExists = entity.getOlder() // Entity ages by 1 time unit.
-                    if (!stillExists) {
-                        // After aging, if this entity no longer
-                        // exists on land, then set corresponding
-                        // position on land to null to reflect this.
-                        this.content[i][j] = null
-                        console.log("Entity at position (", [i, j], ") no longer exists.")
-                    }
+                contentPositions.push([i, j])
+            }
+        }
+        contentPositions = utils.shuffle(contentPositions) 
+
+        // Age each tree by 1 timestep.
+        for (const pos of contentPositions) {
+            const entity = this.content[pos[0]][pos[1]]
+            if (entity != null) {
+                const stillExists = entity.getOlder() // Entity ages by 1 time unit.
+                if (!stillExists) {
+                    // After aging, if this entity no longer
+                    // exists on land, then set corresponding
+                    // position on land to null to reflect this.
+                    this.content[pos[0]][pos[1]] = null
+                    console.log("Entity at position (", pos, ") no longer exists.")
                 }
             }
         }
+
+        // Update biodiversity.
+        this.#updateBiodiversity()
     }
 }

@@ -3,9 +3,6 @@ import { max } from 'd3'
 import * as utils from '../utils.js'
 import Tolerance from "./Tolerance.js"
 
-let volumeAdded = 0
-let volumeRemoved = 0 
-
 export default class Tree {
     /** This class embodies a tree. */
 
@@ -294,8 +291,8 @@ export default class Tree {
         const decayPcSoil = JSON.parse(process.env.NEXT_PUBLIC_DECAY_PC_SOIL)
         const decayPcAir = JSON.parse(process.env.NEXT_PUBLIC_DECAY_PC_AIR)
         const volumeDecayed = Math.min(this.#volumeDecay, volume)
-        this.#processCarbon(Math.round(volumeDecayed*decayPcSoil), "vegetation", "soil")
-        this.#processCarbon(Math.round(volumeDecayed*decayPcAir), "vegetation", "air")
+        this.#processCarbon(Math.floor(volumeDecayed*decayPcSoil), "vegetation", "soil")
+        this.#processCarbon(Math.floor(volumeDecayed*decayPcAir), "vegetation", "air")
 
         // Reduce the volume of the tree.
         // For simplicity, let radius of the cylinder
@@ -303,9 +300,6 @@ export default class Tree {
         const volumeRemaining = volume - volumeDecayed
         const heightRemaining = volumeRemaining/(Math.PI * ((this.diameter/2)**2))
         this.height = heightRemaining
-        console.log(
-            `${volumeRemaining} == ${utils.volumeCylinder(this.height, this.diameter/2)}`
-        )
     }
         
     #reproduce() {

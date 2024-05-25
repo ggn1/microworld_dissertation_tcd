@@ -45,8 +45,8 @@ export default class Land {
             // If the given position falls outside the size of the
             // land, then it is invalid and hence not free.
             if (
-                row < 0 || row >= this.size[0] || 
-                column < 0 || column >= this.size[1]
+                row < 0 || row >= this.size.rows || 
+                column < 0 || column >= this.size.columns
             ) return false
             return this.content[row][column] == null
         }
@@ -123,8 +123,8 @@ export default class Land {
             }
             if (j >= loopLimit) console.log("infinite loop")
 
-            // // Reset reproduction to true as normal.
-            // tree.reproduction = true
+            // Reset reproduction to true as normal.
+            tree.reproduction = true
         }
 
         // Compute latest biodiversity score.

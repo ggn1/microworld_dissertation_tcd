@@ -128,7 +128,6 @@ export default class Land {
                     initSowPositions.push(spot)
                 } else spot = initSowPositions[spotIdx]
                 this.sow(typeName, spot)
-                console.log(`Sowed a ${typeName} tree at position ${spot}.`)
                 spotIdx += 1
             }
         }
@@ -305,17 +304,17 @@ export default class Land {
         // Update biodiversity.
         this.#updateBiodiversity()
 
-        // Print ratios.
-        const carbon = this.#getCarbon()
-        if (carbon.vegetation > 0 && carbon.air > 0) {
-            console.log(
-                "soil / vegetation =", 
-                carbon.soil.div(carbon.vegetation).toNumber().toFixed(2),
-                "[ideally 2.54]\n",
-                "soil / air =", 
-                carbon.soil.div(carbon.air).toNumber().toFixed(2),
-                "[ideally 1.87]"
-            )
-        }
+        // // Print ratios.
+        // const carbon = this.#getCarbon()
+        // if (carbon.vegetation > 0 && carbon.air > 0) {
+        //     console.log(
+        //         "soil / vegetation =", 
+        //         carbon.soil.div(carbon.vegetation).toNumber().toFixed(2),
+        //         "[ideally 2.54]\n",
+        //         "soil / air =", 
+        //         carbon.soil.div(carbon.air).toNumber().toFixed(2),
+        //         "[ideally 1.87]"
+        //     )
+        // }
     }
 }

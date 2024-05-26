@@ -209,7 +209,7 @@ export default class Tree {
 
         // Handle NaN.
         if (isNaN(volumeGrowth)) {
-            console.log(`[tree @ ${this.position} aged ${this.age}]\nvolumeNew = ${volumeNew}\nvolumeGrowth is NaN`)
+            console.log("volumeGrowth is NaN")
             volumeGrowth = 0
         }
         if (isNaN(volumeMaintenance)) {
@@ -253,12 +253,7 @@ export default class Tree {
         this.#grow()
 
         // Reproduce if enabled.
-        if (this.reproduction) {
-            const posSeedling = this.#reproduce()
-            if (! typeof(posSeedling) == "number") {
-                console.log(`New ${this.treeType} seedling at ${posSeedling}.`)
-            }
-        } 
+        if (this.reproduction) this.#reproduce()
     }
 
     #decay() {

@@ -15,7 +15,8 @@
     "linear-interpolator": "^1.0.2",
     "next": "14.2.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-tooltip": "^5.26.4"
   },
   "devDependencies": {
     "eslint": "^8",

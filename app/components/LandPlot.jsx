@@ -69,7 +69,7 @@ const LandPlot = ({content}) => {
         heightSvg = Number(svg.style('height').replace('px', ''))
         margins = {
             left: widthSvg/(size.rows*2+1), right: 0,
-            top: heightSvg/(size.columns*2+1), bottom: 0
+            top: heightSvg/(size.columns*3+1), bottom: 0
         }
         widthPlot = widthSvg - margins.left - margins.right;
         heightPlot = heightSvg - margins.top - margins.bottom;

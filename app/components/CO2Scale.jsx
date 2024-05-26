@@ -1,5 +1,6 @@
 import React from 'react'
 import Card from './Card'
+import { Tooltip } from 'react-tooltip'
 
 const CO2Scale = ({concentration}) => {
     /** 
@@ -29,12 +30,20 @@ const CO2Scale = ({concentration}) => {
     let scaleColorDivs = []
     for (const [scaleCategory, scaleColor] of Object.entries(scaleColors)) {
         scaleColorDivs.push(
-            <div key={scaleCategory} className='
-                scaleTile w-full h-full rounded-sm 
-                px-2 py-1 text-[#232323] text-black
-            ' style={{backgroundColor: `#${scaleColor}`}}>
-                {scaleCategory == curScaleCategory ? concentration : ""}
-            </div>
+            <a 
+                className='w-full h-full'
+                data-tooltip-id={`tooltip-${scaleCategory}`}
+                data-tooltip-content={`${scaleCategory}`}
+                data-tooltip-place="top"
+            > 
+                <div key={scaleCategory} className='
+                    scaleTile w-full h-full rounded-sm 
+                    px-2 py-1 text-[#232323] text-black
+                ' style={{backgroundColor: `#${scaleColor}`}}>
+                    {scaleCategory == curScaleCategory ? concentration : ""}
+                </div>
+                <Tooltip id={`tooltip-${scaleCategory}`}/>
+            </a>
         )
     }
 

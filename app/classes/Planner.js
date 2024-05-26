@@ -4,19 +4,14 @@ export default class Planner {
      */
 
     constructor() {
-        this.rotation_period = JSON.parse(process.env.NEXT_PUBLIC_ROTATION_START)
+        this.rotationPeriod = JSON.parse(process.env.NEXT_PUBLIC_ROTATION_START)
         this.targets = {
             co2: 0.0, // % available
             income: 0 // x Barcons
         }
-        this.income_dependency = {}
-        for (const [key, value] of Object.entries(
-            JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
-        )) {
-            this.income_dependency[key] = value.dependency_start
-        }
+        this.incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
         this.plan = {}
-        for (let i=0; i<=JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX); i+=this.rotation_period) {
+        for (let i = 0; i<=JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX); i+=this.rotationPeriod) {
             this.plan[`${i}`] = []
         }
     }

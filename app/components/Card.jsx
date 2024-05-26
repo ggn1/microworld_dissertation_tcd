@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-const Card = ({children, bgColor, heading}) => {
+const Card = ({children, bgColor, heading, fgColor}) => {
     /** A rounded card within which to place elements. */
 
     // Need to render client side to avoid hydration error.
@@ -13,7 +13,9 @@ const Card = ({children, bgColor, heading}) => {
         isClient && <div className="card p-3 w-full rounded-lg text-sm" style={{
             backgroundColor: bgColor
         }}>
-            {heading != "" && <div className='text-center font-bold mb-2'>{heading}</div>}
+            {heading != "" && <div className='text-center font-bold mb-2' style={{color: fgColor}}>
+                {heading}
+            </div>}
             {children}
         </div>
     )

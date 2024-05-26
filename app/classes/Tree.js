@@ -58,7 +58,7 @@ export default class Tree {
             process.env.NEXT_PUBLIC_REPRODUCTION_INTERVAL
         )[this.treeType]
         this.woodDensity = JSON.parse(process.env.NEXT_PUBLIC_WOOD_DENSITY)[this.treeType]
-        this.gh_max = JSON.parse(process.env.NEXT_PUBLIC_GROWTH_HEIGHT_MAX)[this.treeType]
+        this.ghMax = JSON.parse(process.env.NEXT_PUBLIC_GROWTH_HEIGHT_MAX)[this.treeType]
         const toleranceCO2 = JSON.parse(process.env.NEXT_PUBLIC_TOLERANCE_CO2)
         this.tolerance = {"co2": {
             "mature": new Tolerance(toleranceCO2.mature),
@@ -67,7 +67,6 @@ export default class Tree {
         this.#processCarbon(utils.volumeCylinder(
             this.height, this.diameter/2
         ), "air", "vegetation")
-        this.deathCause = ""
     }
 
     #computeBiodiversityReductionFactor() {
@@ -143,7 +142,8 @@ export default class Tree {
 
         // If conditions are ideal, recover from past stress.
         if (stressEnv == 0 && this.stress > 0){ 
-            this.stress = Math.max(0, this.stress - ((1 - this.stress) * JSON.parse(
+            const health = (1 - this.stress)
+            this.stress = Math.max(0, this.stress - (health * JSON.parse(
                 process.env.NEXT_PUBLIC_STRESS_RECOVERY_FACTOR
             )))
         } 
@@ -200,7 +200,7 @@ export default class Tree {
 
         // Compute volume by which this tree grows in height.
         const bdRed = this.#computeBiodiversityReductionFactor()
-        const growthHeight = (1 - max([0, this.stress - bdRed])) * this.gh_max
+        const growthHeight = (1 - max([0, this.stress - bdRed])) * this.ghMax
         const growthDiameter = this.#getDiameterFromHeight(growthHeight)
         const heightNew = this.height + growthHeight
         const diameterNew = this.diameter + growthDiameter

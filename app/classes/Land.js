@@ -139,10 +139,10 @@ export default class Land {
         // Soil releases a portion of the carbon stored in it.
         this.#releaseCarbonFromSoil()
 
-        // // Let the forest grow for some years.
-        // for (let i = 0; i < JSON.parse(process.env.NEXT_PUBLIC_INIT_NUM_YEARS); i++) {
-        //     this.takeTimeStep()
-        // }
+        // Let the forest grow for some years.
+        for (let i = 0; i < JSON.parse(process.env.NEXT_PUBLIC_INIT_NUM_YEARS); i++) {
+            this.takeTimeStep()
+        }
     }
 
     #releaseCarbonFromSoil() {

@@ -2,9 +2,12 @@ import Big from 'big.js'
 import Tree from './Tree'
 import * as utils from '../utils.js'
 
+let initSowPositions = []
+
 export default class Land {
-    /** This class models the land that is 
-     *  available for the user to manage.
+    /** 
+     * This class models the land that is 
+     * available for the user to manage.
      */
 
     #updateCarbon
@@ -70,7 +73,8 @@ export default class Land {
              * @param position: The position at which the new plant is 
              *                  to grow. This is null by default, in which
              *                  case, the position is a random free spot.
-             *                  If a position is defined, then 
+             *                  If a position is defined, then this is where
+             *                  the plant is sown.
              * @return: The tree that was planted or null if it was 
              *          not possible to sow.
              */
@@ -103,47 +107,30 @@ export default class Land {
          * Initializes the land to have a forest of 
          * predefined starting composition. 
         */
-        let comp = JSON.parse(process.env.NEXT_PUBLIC_FOREST_COMPOSITION_START)
-        comp = this.#getForestComposition(
-            Object.values(this.size), comp.type, comp.age
-        )
-            
-        // For each entry in the composition, sow a plant
-        // of the desired type and and let it grow without reproducing 
-        // until it reaches the resired age category.
-        for (let i = 0; i < comp.length; i++) {
-            const typeAge = comp[i]
-            const tree = this.sow(typeAge.type)
-            
-            // No more space on land to plant.
-            if (tree == null) break 
-            
-            // If it was indeed possible to plant a 
-            // new tree, then disable reproduction
-            // so as to achivve desired composition without
-            // alterations introduced due to reproduction.
-            tree.reproduction = false
-            
-            // Update timestep until this seedling 
-            // grows to the desired age.
-            let j = 0 // Infinite loop check.
-            const loopLimit = 1000
-            while (
-                tree.lifeStage != typeAge.age 
-                // && tree.lifeStage != "dead"
-                && j < loopLimit
-            ) {
-                const stillExists = tree.getOlder()
-                // if (!stillExists) {
-                //     const pos = tree.position
-                //     this.content[pos[0]][pos[1]] = null
-                // }
-                j += 1
-            }
-            if (j >= loopLimit) console.log("infinite loop")
 
-            // Reset reproduction to true as normal.
-            tree.reproduction = true
+        // For each entry in the composition definition, 
+        // sow a plant of the desired type.
+        const numSpots = Math.round(
+            (this.size.rows * this.size.columns) * 
+            (1 - JSON.parse(process.env.NEXT_PUBLIC_LAND_FREE_PC_START))
+        )
+        const compDef = Object.entries(JSON.parse(
+            process.env.NEXT_PUBLIC_SPECIES_COMPOSITION_START
+        ))
+        let spotIdx = 0
+        for (const [typeName, typePc] of compDef) {
+            const numType = Math.round(typePc * numSpots)
+            for (let i=0; i<numType; i++) {
+                let spot = null
+                if (initSowPositions.length <= spotIdx) {
+                    spot = this.#getRandomFreeSpot()
+                    if (typeof(spot) == "number") return // No more space on land.
+                    initSowPositions.push(spot)
+                } else spot = initSowPositions[spotIdx]
+                this.sow(typeName, spot)
+                console.log(`Sowed a ${typeName} tree at position ${spot}.`)
+                spotIdx += 1
+            }
         }
 
         // Compute latest biodiversity score.
@@ -151,6 +138,11 @@ export default class Land {
 
         // Soil releases a portion of the carbon stored in it.
         this.#releaseCarbonFromSoil()
+
+        // // Let the forest grow for some years.
+        // for (let i = 0; i < JSON.parse(process.env.NEXT_PUBLIC_INIT_NUM_YEARS); i++) {
+        //     this.takeTimeStep()
+        // }
     }
 
     #releaseCarbonFromSoil() {
@@ -162,31 +154,6 @@ export default class Land {
         const soilCarbonReleasePc = JSON.parse(process.env.NEXT_PUBLIC_SOIL_RELEASE_PC)
         const releasedWeight = carbonSoil.mul(soilCarbonReleasePc)
         this.#updateCarbon({"soil":releasedWeight.mul(-1), "air":releasedWeight})
-    }
-
-    #getForestComposition(landSize, typeComp, ageComp) {
-        /**  
-         * Computes how many spaces should have each type and age combination
-         * of a tree.
-         * @param landSize: The size of the land [rows, columns].
-         * @param typeComp: Desired % of each type of tree {"type": %, ...}.
-         * @param ageComp: Desired % of each age category of trees {"category": %, ...}.
-         * @return composition: A list containing objects that specify tree
-         *                      type and age combinations as many times as needed to 
-         *                      meet given composition proportions.
-        */
-        const composition = []
-        const numLandSpots = landSize[0] * landSize[1]
-        for (const [typeName, typePc] of Object.entries(typeComp)) {
-            for (const [ageCatName, ageCatPc] of Object.entries(ageComp)) {
-                const numType = Math.round(typePc * numLandSpots)
-                const numTypeAgeCat =  Math.round(ageCatPc * numType)
-                for (let i=0; i<numTypeAgeCat; i++) {
-                    composition.push({'type': typeName, 'age': ageCatName})
-                }
-            }
-        }
-        return composition
     }
 
     #countTrees() {
@@ -340,15 +307,15 @@ export default class Land {
 
         // Print ratios.
         const carbon = this.#getCarbon()
-        console.log(
-            "soil / vegetation =", 
-            carbon.soil.div(carbon.vegetation).toNumber().toFixed(2),
-            "[ideally 2.54]"
-        )
-        console.log(
-            "soil / air =", 
-            carbon.soil.div(carbon.air).toNumber().toFixed(2),
-            "[ideally 1.87]"
-        )
+        if (carbon.vegetation > 0 && carbon.air > 0) {
+            console.log(
+                "soil / vegetation =", 
+                carbon.soil.div(carbon.vegetation).toNumber().toFixed(2),
+                "[ideally 2.54]\n",
+                "soil / air =", 
+                carbon.soil.div(carbon.air).toNumber().toFixed(2),
+                "[ideally 1.87]"
+            )
+        }
     }
 }

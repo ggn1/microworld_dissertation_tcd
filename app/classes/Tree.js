@@ -129,10 +129,6 @@ export default class Tree {
         if (this.lifeStage == 'senescent') stressAge += JSON.parse(
             process.env.NEXT_PUBLIC_STRESS_AGING
         )
-
-        if (stressAge > 0) {
-            console.log("Age related stress.")
-        }
         
         // Stress also arises when environmental conditions are less than ideal.
         let stressEnv = 0
@@ -144,10 +140,6 @@ export default class Tree {
             this.lifeStage == "sapling"
         ) ? "premature" : "mature"
         stressEnv += this.tolerance.co2[stressLifestage].getStress(availabilityCO2)
-
-        if (stressEnv > 0) {
-            console.log("Environmental stress.")
-        } 
 
         // If conditions are ideal, recover from past stress.
         if (stressEnv == 0 && this.stress > 0){ 
@@ -295,13 +287,11 @@ export default class Tree {
         // If the volume of tree to be decayed is more
         // or equal to current volume, then all of the
         // tree decays and it ceases to exist.
-        // Of the amount of carbon decayed, 35% ends up in the soil
-        // and 65% ends up back in the atmosphere.
+        // Of the amount of carbon decayed, x% ends up in the soil
+        // and (1-x)% ends up back in the atmosphere.
         const decayPcSoil = JSON.parse(process.env.NEXT_PUBLIC_DECAY_PC_SOIL)
-        const decayPcAir = JSON.parse(process.env.NEXT_PUBLIC_DECAY_PC_AIR)
         const volumeDecayed = Math.min(this.#volumeDecay, volume)
-        const volumeDecayedSoil = Math.round(volumeDecayed*decayPcSoil)
-        // const volumeDecayedAir = Math.floor(volumeDecayed*decayPcAir)
+        const volumeDecayedSoil = volumeDecayed * decayPcSoil
         const volumeDecayedAir = volumeDecayed - volumeDecayedSoil
         this.#processCarbon(volumeDecayedSoil, "vegetation", "soil")
         this.#processCarbon(volumeDecayedAir, "vegetation", "air")

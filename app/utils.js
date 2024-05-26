@@ -44,17 +44,18 @@ export function getAdjacentPositions(x, y) {
      *          immediately adjacent to the given position.
      */
 
-    let surroundingPositions = []
+    const adjacentPositions = [
+        [x - 1, y - 1], // Top-left
+        [x - 1, y],     // Top
+        [x - 1, y + 1], // Top-right
+        [x, y - 1],     // Left
+        [x, y + 1],     // Right
+        [x + 1, y - 1], // Bottom-left
+        [x + 1, y],     // Bottom
+        [x + 1, y + 1], // Bottom-right
+    ]
 
-    for(let i = -2; i <= 2; i++) {
-        for (let j = -2; j <= 2; j++) {
-            if (x != 0 && y != 0) {
-                surroundingPositions.push([x+i, j+i])
-            }
-        }
-    }
-
-    return surroundingPositions
+    return adjacentPositions
 }
 
 export function createInterpolationFunction(xyPoints) {

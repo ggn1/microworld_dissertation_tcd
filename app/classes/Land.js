@@ -10,6 +10,7 @@ export default class Land {
     #updateCarbon
     #getAirCO2ppm
     #getCarbon
+    #timestepOrder
 
     constructor(updateCarbon, getCarbon, getAirCO2ppm) {
         /**
@@ -23,6 +24,13 @@ export default class Land {
         this.#getAirCO2ppm = getAirCO2ppm
         this.#getCarbon = getCarbon
         this.size = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
+        this.#timestepOrder = []// Shuffle order.
+        for (let i = 0; i < this.size.rows; i++) {
+            for (let j = 0; j < this.size.columns; j++) {
+                this.#timestepOrder.push([i, j])
+            }
+        }
+        this.#timestepOrder = utils.shuffle(this.#timestepOrder)
         this.content = []
         for (let i = 0; i < this.size.rows; i++) {
             const row = [];
@@ -92,9 +100,8 @@ export default class Land {
 
     #initialize() {
         /**
-         * Initializes the land to have an 
-         * old growth forest of predefined
-         * starting composition. 
+         * Initializes the land to have a forest of 
+         * predefined starting composition. 
         */
         let comp = JSON.parse(process.env.NEXT_PUBLIC_FOREST_COMPOSITION_START)
         comp = this.#getForestComposition(
@@ -102,9 +109,8 @@ export default class Land {
         )
             
         // For each entry in the composition, sow a plant
-        // of the desired type and and let it grow without 
-        // reproducing until it reaches the desired age 
-        // category.
+        // of the desired type and and let it grow without reproducing 
+        // until it reaches the resired age category.
         for (let i = 0; i < comp.length; i++) {
             const typeAge = comp[i]
             const tree = this.sow(typeAge.type)
@@ -145,19 +151,6 @@ export default class Land {
 
         // Soil releases a portion of the carbon stored in it.
         this.#releaseCarbonFromSoil()
-
-        // Print ratios.
-        const carbon = this.#getCarbon()
-        console.log(
-            "soil / vegetation =", 
-            carbon.soil.div(carbon.vegetation).toNumber().toFixed(2),
-            "[ideally 2.54]"
-        )
-        console.log(
-            "soil / air =", 
-            carbon.soil.div(carbon.air).toNumber().toFixed(2),
-            "[ideally 1.87]"
-        )
     }
 
     #releaseCarbonFromSoil() {
@@ -325,17 +318,8 @@ export default class Land {
          * from the land.
          */
 
-        // Shuffle order.
-        let contentPositions = []
-        for (let i = 0; i < this.size.rows; i++) {
-            for (let j = 0; j < this.size.columns; j++) {
-                contentPositions.push([i, j])
-            }
-        }
-        contentPositions = utils.shuffle(contentPositions) 
-
         // Each tree gets older by 1 time unit.
-        for (const pos of contentPositions) {
+        for (const pos of this.#timestepOrder) {
             const entity = this.content[pos[0]][pos[1]]
             if (entity != null) {
                 const stillExists = entity.getOlder() // Entity ages by 1 time unit.
@@ -344,7 +328,6 @@ export default class Land {
                     // exists on land, then set corresponding
                     // position on land to null to reflect this.
                     this.content[pos[0]][pos[1]] = null
-                    console.log("Entity at position (", pos, ") no longer exists.")
                 }
             }
         }
@@ -354,5 +337,18 @@ export default class Land {
 
         // Update biodiversity.
         this.#updateBiodiversity()
+
+        // Print ratios.
+        const carbon = this.#getCarbon()
+        console.log(
+            "soil / vegetation =", 
+            carbon.soil.div(carbon.vegetation).toNumber().toFixed(2),
+            "[ideally 2.54]"
+        )
+        console.log(
+            "soil / air =", 
+            carbon.soil.div(carbon.air).toNumber().toFixed(2),
+            "[ideally 1.87]"
+        )
     }
 }

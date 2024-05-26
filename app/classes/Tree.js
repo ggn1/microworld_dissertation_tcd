@@ -64,6 +64,10 @@ export default class Tree {
             "mature": new Tolerance(toleranceCO2.mature),
             "premature": new Tolerance(toleranceCO2.premature)
         }}
+        this.#processCarbon(utils.volumeCylinder(
+            this.height, this.diameter/2
+        ), "air", "vegetation")
+        this.deathCause = ""
     }
 
     #computeBiodiversityReductionFactor() {
@@ -114,35 +118,42 @@ export default class Tree {
          * or due to aging.
         */
 
-        // If this tree has reached max age, then stess
-        // is 100%.
-        if (this.age >= this.ageMax) {
-            this.stress = 1.0
-            return
-        }
+        let stressAge = 0
+
+        // If this tree has reached max age, then stess is 100%.
+        if (this.age >= this.ageMax) stressAge = 1.0
 
         // Upon reaching the senescence stage, stress increases by 
         // x amount every year. This models how health declines slowly 
         // when a tree is old and close to death.
-        let stressAge = 0
-        if (this.lifeStage == 'senescent') {
-            stressAge += JSON.parse(process.env.NEXT_PUBLIC_STRESS_AGING);
+        if (this.lifeStage == 'senescent') stressAge += JSON.parse(
+            process.env.NEXT_PUBLIC_STRESS_AGING
+        )
+
+        if (stressAge > 0) {
+            console.log("Age related stress.")
         }
         
         // Stress also arises when environmental conditions are less than ideal.
         let stressEnv = 0
 
         // Get stress due to availability of CO2 in the air.
-        const availabilityCo2 = this.#getAirCO2ppm()
-        let stressLifestage = "premature"
-        if (this.lifeStage != "seedling" && this.lifeStage != "sapling") {
-            stressLifestage = "mature"
-        }
-        stressEnv += this.tolerance.co2[stressLifestage].getStress(availabilityCo2)
+        const availabilityCO2 = this.#getAirCO2ppm()
+        const stressLifestage = (
+            this.lifeStage == "seedling" || 
+            this.lifeStage == "sapling"
+        ) ? "premature" : "mature"
+        stressEnv += this.tolerance.co2[stressLifestage].getStress(availabilityCO2)
+
+        if (stressEnv > 0) {
+            console.log("Environmental stress.")
+        } 
 
         // If conditions are ideal, recover from past stress.
         if (stressEnv == 0 && this.stress > 0){ 
-            this.stress = Math.max(0, this.stress - ((1 - this.stress) * 0.1))
+            this.stress = Math.max(0, this.stress - ((1 - this.stress) * JSON.parse(
+                process.env.NEXT_PUBLIC_STRESS_RECOVERY_FACTOR
+            )))
         } 
         
         // Else, add to stress.
@@ -193,7 +204,7 @@ export default class Tree {
         const volumeOld = utils.volumeCylinder(this.height, this.diameter/2)
         let volumeMaintenance = volumeOld * JSON.parse(
             process.env.NEXT_PUBLIC_TREE_VOLUME_MAINTENANCE_PC
-        )
+        )[this.treeType]
 
         // Compute volume by which this tree grows in height.
         const bdRed = this.#computeBiodiversityReductionFactor()
@@ -328,7 +339,9 @@ export default class Tree {
         ) return -1
 
         // If the tree is too stressed, then it shall not reproduce.
-        if (this.stress > 0.5) return -1
+        if (this.stress > JSON.parse(
+            process.env.NEXT_PUBLIC_REPRODUCTION_STRESS_THRESHOLD
+        )) return -1
 
         // If all above checks are false, then the tree
         // is eligible to reproduce. However, it remains
@@ -368,12 +381,11 @@ export default class Tree {
         // Increment age.
         this.age += 1
 
-        // Update life stage.
-        this.lifeStage = this.#computeLifeStage()
-        console.log(`[Tree @ ${this.position}] Stress = ${this.stress} (${this.lifeStage})`)
-
         // Compute current stress level.
         this.#updateStress()
+
+        // Update life stage.
+        this.lifeStage = this.#computeLifeStage()
         
         // Perform activities related to living or decaying.
         if (this.#isAlive()) this.#live()

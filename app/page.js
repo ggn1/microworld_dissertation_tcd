@@ -43,18 +43,12 @@ const Home = () => {
                 <LandPlot content={landContent}/>
             </div>
             <div id="home-world-state" className="
-                rounded-xl bg-[#EEEEEE] col-span-3 row-span-8 p-5
+                rounded-xl bg-[#EEEEEE] col-span-3 row-span-9 p-5
                 flex flex-col justify-between
             ">
                 <CO2Scale concentration={airCO2}/>
                 <CarbonDist distribution={envC}/>
                 <BdStatus bdScore={bdScore} bdCategory={bdCat}/>
-            </div>
-            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-4"></div>
-            <div id="home-income-dependency" className="
-                rounded-xl bg-[#EEEEEE] col-span-3 row-span-2
-                flex align-middle justify-center
-            ">
                 <IncDepBar
                     proportions={Object.values(
                         incomeSources
@@ -67,6 +61,7 @@ const Home = () => {
                     ).map(source => source.label)}
                 />
             </div>
+            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5"></div>
             <div id="home-sold" className="
                 rounded-xl bg-[#FFECFB] col-span-4 row-span-2
             "></div>

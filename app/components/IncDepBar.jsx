@@ -15,7 +15,7 @@ const IncDepBar = ({proportions, labels, colors}) => {
             >   
                 <div 
                     key={`prop-bar-${labels[i]}`} 
-                    className="rounded-md h-8"
+                    className="rounded-full h-3"
                     style={{"backgroundColor": colors[i]}}
                 >
                     <Tooltip id={`tooltip-${labels[i]}`}/>

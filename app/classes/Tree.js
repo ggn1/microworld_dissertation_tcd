@@ -52,8 +52,7 @@ export default class Tree {
         this.#lifeStages = JSON.parse(process.env.NEXT_PUBLIC_LIFE_STAGE_TREE)[this.treeType]
         this.heightMax = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_MAX)[this.treeType]
         this.diameterMax = this.#getDiameterFromHeight(this.heightMax)
-        const ageMax = this.#lifeStages.senescent
-        this.ageMax = utils.getRandomIntegerBetween(ageMax[0], ageMax[1])
+        this.ageMax = this.#lifeStages.senescent
         this.reproductionInterval = JSON.parse(
             process.env.NEXT_PUBLIC_REPRODUCTION_INTERVAL
         )[this.treeType]
@@ -92,8 +91,7 @@ export default class Tree {
         let lifeStage = "dead"
         if (this.#isAlive()) {
             for (const [stageName, stageAgeLimit] of Object.entries(this.#lifeStages)) {
-                if (typeof(stageAgeLimit) != "number") lifeStage = stageName
-                if (this.age < stageAgeLimit) {
+                if (this.age <= stageAgeLimit) {
                     lifeStage = stageName
                     break
                 }
@@ -120,7 +118,7 @@ export default class Tree {
         let stressAge = 0
 
         // If this tree has reached max age, then stess is 100%.
-        if (this.age >= this.ageMax) stressAge = 1.0
+        if (this.age > this.ageMax) stressAge = 1.0
 
         // Upon reaching the senescence stage, stress increases by 
         // x amount every year. This models how health declines slowly 
@@ -345,12 +343,16 @@ export default class Tree {
         }
         if (positionsFree.length == 0) return -1
 
+        // // If it is indeed possible to reproduce,
+        // // pick a random free position to add a 
+        // // sapling to.
+        // this.#sow(this.treeType, positionsFree[
+        //     utils.getRandomIntegerBetween(0, positionsFree.length-1)
+        // ])
+
         // If it is indeed possible to reproduce,
-        // pick a random free position to add a 
-        // sapling to.
-        this.#sow(this.treeType, positionsFree[
-            utils.getRandomIntegerBetween(0, positionsFree.length-1)
-        ])
+        // add a sapling to the first available space.
+        this.#sow(this.treeType, positionsFree[0])
     }
 
     getOlder() {
@@ -382,29 +384,5 @@ export default class Tree {
             return false
         }
         return true
-    }
-}
-
-export class Coniferous extends Tree {
-    /** This class embodies a coniferous tree. */
-    
-    constructor(position) {
-        /**
-         * Construcor.
-         * @param position: The index of the row and column of this tree.
-         */
-        super(position, "coniferous")
-    }
-}
-
-export class Deciduous extends Tree {
-    /** This class embodies a deciduous tree. */
-
-    constructor(position) {
-        /**
-         * Construcor.
-         * @param position: The index of the row and column of this tree.
-         */
-        super(position, "deciduous")
     }
 }

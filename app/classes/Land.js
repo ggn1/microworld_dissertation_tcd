@@ -1,8 +1,8 @@
-import Big from 'big.js'
 import Tree from './Tree'
 import * as utils from '../utils.js'
 
 let initSowPositions = []
+let timeStepOrder = []
 
 export default class Land {
     /** 
@@ -13,7 +13,6 @@ export default class Land {
     #updateCarbon
     #getAirCO2ppm
     #getCarbon
-    #timestepOrder
 
     constructor(updateCarbon, getCarbon, getAirCO2ppm) {
         /**
@@ -27,13 +26,14 @@ export default class Land {
         this.#getAirCO2ppm = getAirCO2ppm
         this.#getCarbon = getCarbon
         this.size = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
-        this.#timestepOrder = []// Shuffle order.
-        for (let i = 0; i < this.size.rows; i++) {
-            for (let j = 0; j < this.size.columns; j++) {
-                this.#timestepOrder.push([i, j])
+        if (timeStepOrder.length == 0) {
+            for (let i = 0; i < this.size.rows; i++) {
+                for (let j = 0; j < this.size.columns; j++) {
+                    timeStepOrder.push([i, j])
+                }
             }
+            timeStepOrder = utils.shuffle(timeStepOrder)
         }
-        this.#timestepOrder = utils.shuffle(this.#timestepOrder)
         this.content = []
         for (let i = 0; i < this.size.rows; i++) {
             const row = [];
@@ -285,7 +285,7 @@ export default class Land {
          */
 
         // Each tree gets older by 1 time unit.
-        for (const pos of this.#timestepOrder) {
+        for (const pos of timeStepOrder) {
             const entity = this.content[pos[0]][pos[1]]
             if (entity != null) {
                 const stillExists = entity.getOlder() // Entity ages by 1 time unit.

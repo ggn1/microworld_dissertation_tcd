@@ -46,8 +46,6 @@ export default class Simulation {
                 }
             }
         }
-
-        // console.log()
     }
 
     #takeTimeStep() {

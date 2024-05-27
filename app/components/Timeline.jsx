@@ -102,32 +102,35 @@ const Timeline = ({goToTime}) => {
          * and trigger changes in the 
          * simulation to reflect this.
          */ 
-        if (curTime <= validRange[1]) {
+        if (curTime < validRange[1]) {
             handleChange((curTime+1).toString())
             handleNewTimeSubmit()
         } else {
-            if (interval != null) {
-                clearInterval(interval)
-                interval = null
-            }
+            pause()
         }
+    }
+
+    const pause = () => {
+        /** Pauses the simulation. */
+        setIsPaused(true)
+        if (interval != null) {
+            clearInterval(interval)
+            interval = null
+        }
+    }
+
+    const play = () => {
+        /** Plays the simluation. */
+        setIsPaused(false)
+        interval = setInterval(takeTimeStep, delay)
     }
 
     const handlePlayPause = () => {
         /**
          * Play simulation.
          */
-        setIsPaused(prevVal => !prevVal)
-        if (isPaused) {
-            console.log("Playing ...")
-            interval = setInterval(takeTimeStep, delay)
-        } else { // Is playing, so pause.
-            console.log("Paused.")
-            if (interval != null) {
-                clearInterval(interval)
-                interval = null
-            }
-        }
+        if (isPaused) play() // Is paused, so play.
+        else pause() // Is playing, so pause.
     }
 
     const handleReset = () => {
@@ -139,6 +142,7 @@ const Timeline = ({goToTime}) => {
         newTime = validRange[0]
         inputRef.current.value = curTime
         goToTime(curTime)
+        pause()
     }
 
     useEffect(() => {

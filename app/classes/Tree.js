@@ -148,7 +148,7 @@ export default class Tree {
         
         // Else, add to stress.
         else {
-            this.stress += stressEnv + stressAge;
+            this.stress += stressEnv + stressAge
         }
     }
 

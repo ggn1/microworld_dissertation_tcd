@@ -9,6 +9,7 @@ import CarbonDist from "./components/CarbonDist.jsx"
 import BdStatus from './components/BdStatus.jsx'
 import IncDepBar from './components/IncDepBar.jsx'
 import Targets from './components/Targets.jsx'
+import PlanViewer from './components/PlanViewer.jsx'
 
 let sim = null
 
@@ -20,6 +21,7 @@ const Home = () => {
     const [bdScore, setBdScore] = useState(0)
     const [bdCat, setBdCat] = useState("")
     const [incomeSources, setIncomeSources] = useState({})
+    const [rotationPeriod, setRotationPeriod] = useState()
 
     const updateSimUI = () => {
         setLandContent([...sim.env.land.content])
@@ -28,6 +30,7 @@ const Home = () => {
         setBdScore(sim.env.land.biodiversityScore)
         setBdCat(sim.env.land.biodiversityCategory)
         setIncomeSources({...sim.planner.incomeSources})
+        setRotationPeriod(sim.planner.rotationPeriod)
     }
 
     useEffect(() => {
@@ -70,7 +73,9 @@ const Home = () => {
                     ).map(source => source.label)}
                 />
             </div>
-            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5"></div>
+            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5">
+                <PlanViewer rotationPeriod={rotationPeriod} />
+            </div>
             <div id="home-sold" className="
                 rounded-xl bg-[#FFECFB] col-span-4 row-span-2
             "></div>

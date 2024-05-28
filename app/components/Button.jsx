@@ -5,7 +5,7 @@ const Button = ({children, onClick, outlineColor="#CCCCCC", bgColor="#EEEEEE", f
      */
     return (
         <button 
-            className="button rounded-md hover:brightness-105 hover:drop-shadow-lg" 
+            className="button font-bold px-1 rounded-md hover:brightness-110 hover:drop-shadow-lg" 
             onClick={onClick} 
             style={{
                 backgroundColor: bgColor, color:fgColor,

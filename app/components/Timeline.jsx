@@ -171,7 +171,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleNewTimeSubmit}
                     >
-                        <div className="px-[5px]">
+                        <div className="px-[4px]">
                             <img className="h-4" src="tick.png" />
                         </div>
                     </Button>
@@ -181,7 +181,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleNewTimeCancel}
                     >
-                        <div className="px-[5px]">
+                        <div className="px-[4px]">
                             <img className="h-4" src="cross.png" />
                         </div>
                     </Button>
@@ -191,7 +191,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handlePlayPause}
                     >
-                        <div className="px-[7px]">
+                        <div className="px-[5px]">
                             <img className="h-3" src={isPaused ? "play.png" : "pause.png"}/>
                         </div>
                     </Button>
@@ -201,7 +201,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleReset}
                     >
-                        <div className="px-[5px]">
+                        <div className="px-[4px]">
                             <img className="h-4" src="reset.png" />
                         </div>
                     </Button>

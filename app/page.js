@@ -8,6 +8,7 @@ import CO2Scale from "./components/CO2Scale.jsx"
 import CarbonDist from "./components/CarbonDist.jsx"
 import BdStatus from './components/BdStatus.jsx'
 import IncDepBar from './components/IncDepBar.jsx'
+import Targets from './components/Targets.jsx'
 
 let sim = null
 
@@ -38,7 +39,15 @@ const Home = () => {
     return (
         isInitialized &&
         <main className="h-screen w-full p-5 grid grid-cols-10 grid-rows-9 gap-2">
-            <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-3 row-span-3"></div>
+            <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-3 row-span-3">
+                <Targets 
+                    setTargets={sim.planner.setTargets} 
+                    getCO2={sim.env.getAirCO2ppm}
+                    getIncome={sim.getIncome}
+                    startValCO2={sim.planner.getTargets().co2}
+                    startValIncome={sim.planner.getTargets().income}
+                />
+            </div>
             <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-4 row-span-7">
                 <LandPlot content={landContent}/>
             </div>

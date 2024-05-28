@@ -6,8 +6,9 @@ export default class Simulation {
     /** This class shall encapsulate the
      *  entire simulated world. */
 
-    #income_sources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
+    #incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
     #updateSimUI
+    #income
 
     constructor(updateSimUI) {
         /**
@@ -59,21 +60,29 @@ export default class Simulation {
     #createFreshWorld() {
         /** Initializes the simulation with starting world state. */
         this.time = 0
+        this.#income = 0
         this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
         this.resources = {
             timber: new Timber(
-                this.#income_sources.timber.unit,
-                this.#income_sources.timber.price_per_unit
+                this.#incomeSources.timber.unit,
+                this.#incomeSources.timber.price_per_unit
             ),
             ntfp: new NTFP(
-                this.#income_sources.ntfp.unit,
-                this.#income_sources.ntfp.price_per_unit
+                this.#incomeSources.ntfp.unit,
+                this.#incomeSources.ntfp.price_per_unit
             ),
             hunting_fishing: new HuntingFishing(
-                this.#income_sources.hunting_fishing.unit,
-                this.#income_sources.hunting_fishing.price_per_unit
+                this.#incomeSources.hunting_fishing.unit,
+                this.#incomeSources.hunting_fishing.price_per_unit
             )
         }
         this.env = new Environment()
+        this.getIncome = () => {
+            /**
+             * Returns latest income.
+             * @return: User's latest income.
+             */
+            return this.#income
+        }
     }
 }

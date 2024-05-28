@@ -51,7 +51,7 @@ export class NTFP extends IncomeSource {
     }
 }
 
-export class HuntingFishing extends IncomeSource {
+export class RecreationalActivities extends IncomeSource {
     /** Class embodies income that hunting and fishing
      *  activities present. */
 

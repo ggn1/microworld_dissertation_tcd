@@ -1,6 +1,6 @@
 import Planner from "./Planner.js"
 import Environment from "./Environment.js"
-import { Timber, HuntingFishing, EcosystemServices, NTFP } from "./IncomeSource.js"
+import { Timber, RecreationalActivities, NTFP } from "./IncomeSource.js"
 
 export default class Simulation {
     /** This class shall encapsulate the
@@ -71,9 +71,9 @@ export default class Simulation {
                 this.#incomeSources.ntfp.unit,
                 this.#incomeSources.ntfp.price_per_unit
             ),
-            hunting_fishing: new HuntingFishing(
-                this.#incomeSources.hunting_fishing.unit,
-                this.#incomeSources.hunting_fishing.price_per_unit
+            recActs: new RecreationalActivities(
+                this.#incomeSources.recreational_activities.unit,
+                this.#incomeSources.recreational_activities.price_per_unit
             )
         }
         this.env = new Environment()

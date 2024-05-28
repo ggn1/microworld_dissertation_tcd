@@ -147,6 +147,15 @@ const Timeline = ({goToTime}) => {
 
     useEffect(() => {
         inputRef.current.value = curTime
+        /** 
+         * If the time was changed, then
+         * ensure that the world is at this
+         * point in time where the user last 
+         * left it. 
+         */
+        if (curTime != validRange[0]) {
+            goToTime(curTime)
+        }
     }, [])
 
     return (

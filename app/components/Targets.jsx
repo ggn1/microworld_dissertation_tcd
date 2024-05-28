@@ -2,6 +2,12 @@ import Switch from "./Switch"
 import TextInput from "./TextInput"
 import {useState, useEffect } from "react"
 
+let TARGETS = {
+    "co2": null,
+    "income": null
+}
+let IS_EXP_MODE = true
+
 const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) => {
     /**
      * This component both displays targets and allows 
@@ -24,9 +30,15 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
     const colorGood = "#32BE51"
     const colorBad = "#F44A4A"
 
-    const [expMode, setExpMode] = useState(true)
-    const [targetCO2, setTargetCO2] = useState(startValCO2) 
-    const [targetIncome, setTargetIncome] = useState(startValIncome) 
+    const [expMode, setExpMode] = useState(IS_EXP_MODE)
+    const [targetCO2, setTargetCO2] = useState(
+        TARGETS.co2 != null && TARGETS.co2 != startValCO2
+        ? TARGETS.co2 : startValCO2
+    ) 
+    const [targetIncome, setTargetIncome] = useState(
+        TARGETS.income != null && TARGETS.income != startValIncome
+        ? TARGETS.income : startValIncome
+    ) 
     const [borderColorCO2, setBorderColorCO2] = useState(colorBorderDefault)
     const [textColorCO2, setTextColorCO2] = useState(colorTextDefault)
     const [borderColorIncome, setBorderColorIncome] = useState(colorBorderDefault)
@@ -80,13 +92,15 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
         if (targetType == "co2") {
             if (isTargetMet("co2", val)) setBorderColorCO2(colorGood)
             else setBorderColorCO2(colorBad)
-            setTargetCO2(val)
+            TARGETS.co2 = val
+            setTargetCO2(TARGETS.co2)
         }
 
         if (targetType == "income") {
             if (isTargetMet("income", val)) setBorderColorIncome(colorGood)
             else setBorderColorIncome(colorBad)
-            setTargetIncome(val)
+            TARGETS.income = val
+            setTargetIncome(TARGETS.income)
         }
     }
 
@@ -96,14 +110,15 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
          * @param toggledState: Whether the serious mode toggle switch
          *                      is in the true / false state. 
          */
-        setExpMode(!toggledState)
+        IS_EXP_MODE = !toggledState
+        setExpMode(IS_EXP_MODE)
     }
 
     useEffect(() => {
         /** 
          * Initially, check if default targets are met.
          */
-        handleVal("co2", targetCO2)
+        handleVal("co2", targetCO2) 
         handleVal("income", targetIncome)
     }, [])
 
@@ -123,7 +138,7 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
         ">
             <div className="flex gap-5 justify-center">
                 <div className="font-bold">TARGETS</div>
-                <Switch isOnStart={false} onToggle={handleExpModeToggle}/>
+                <Switch isOnStart={!expMode} onToggle={handleExpModeToggle}/>
             </div>
             <TextInput 
                 label="CO2 :"

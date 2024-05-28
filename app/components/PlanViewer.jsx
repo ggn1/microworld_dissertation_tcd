@@ -1,3 +1,4 @@
+import Link from "next/link"
 import Button from "./Button"
 
 const PlanViewer = ({rotationPeriod}) => {
@@ -8,7 +9,7 @@ const PlanViewer = ({rotationPeriod}) => {
                 {rotationPeriod} Year Rotation
             </div>
             <Button bgColor="#08851C" outlineColor="#2D9C23" fgColor="#FFFFFF">
-                PLAN
+                <Link href={"/planner"}>PLAN</Link>
             </Button>
         </div>
         <div className="bg-white flex-grow p-3 rounded-lg">

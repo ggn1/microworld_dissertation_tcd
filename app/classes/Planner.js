@@ -30,7 +30,6 @@ export default class Planner {
             for (const [key, val] of Object.entries(targets)) {
                 if (key in this.#targets) this.#targets[key] = val
             }
-            console.log("Target values changed. Now =", this.#targets)
         }
     }
 

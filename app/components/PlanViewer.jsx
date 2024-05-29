@@ -8,9 +8,11 @@ const PlanViewer = ({rotationPeriod}) => {
             <div className="font-bold">
                 {rotationPeriod} Year Rotation
             </div>
-            <Button bgColor="#08851C" outlineColor="#2D9C23" fgColor="#FFFFFF">
-                <Link href={"/planner"}>PLAN</Link>
-            </Button>
+            <Link href={"/planner"}>
+                <Button bgColor="#08851C" outlineColor="#2D9C23" fgColor="#FFFFFF">
+                    PLAN
+                </Button>
+            </Link>
         </div>
         <div className="bg-white flex-grow p-3 rounded-lg">
             Plans

@@ -180,9 +180,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleNewTimeSubmit}
                     >
-                        <div className="px-[4px]">
-                            <img className="h-4" src="tick.png" />
-                        </div>
+                        <img className="max-h-6 w-auto p-1" src="tick.png" />
                     </Button>
 
                     {/* Cancel Change Button */}
@@ -190,9 +188,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleNewTimeCancel}
                     >
-                        <div className="px-[4px]">
-                            <img className="h-4" src="cross.png" />
-                        </div>
+                        <img className="max-h-6 w-auto p-1" src="cross.png" />
                     </Button>
                 </> : <>
                     {/* Play/Pause Button */}
@@ -200,9 +196,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handlePlayPause}
                     >
-                        <div className="px-[5px]">
-                            <img className="h-3" src={isPaused ? "play.png" : "pause.png"}/>
-                        </div>
+                        <img className="max-h-6 w-auto p-1" src={isPaused ? "play.png" : "pause.png"}/>
                     </Button>
 
                     {/* Reset Button */}
@@ -210,9 +204,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleReset}
                     >
-                        <div className="px-[4px]">
-                            <img className="h-4" src="reset.png" />
-                        </div>
+                        <img className="max-h-6 w-auto p-1" src="reset.png" />
                     </Button>
                 </>
             }

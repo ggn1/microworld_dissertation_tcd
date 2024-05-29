@@ -11,7 +11,7 @@ import IncDepBar from './components/IncDepBar.jsx'
 import Targets from './components/Targets.jsx'
 import PlanViewer from './components/PlanViewer.jsx'
 
-let sim = null
+export let sim = null
 
 const Home = () => {
     const [isInitialized, setIsInitialized] = useState(false)
@@ -34,14 +34,14 @@ const Home = () => {
     }
 
     useEffect(() => {
-        sim = new Simulation(updateSimUI)
+        if (sim == null) sim = new Simulation(updateSimUI)
         updateSimUI()
         setIsInitialized(true)
     }, [])
     
     return (
         isInitialized &&
-        <main className="h-screen w-full p-5 grid grid-cols-10 grid-rows-9 gap-2">
+        <main className="w-full p-5 grid grid-cols-10 grid-rows-9 gap-2">
             <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-3 row-span-3">
                 <Targets 
                     setTargets={sim.planner.setTargets} 
@@ -56,7 +56,7 @@ const Home = () => {
             </div>
             <div id="home-world-state" className="
                 rounded-xl bg-[#EEEEEE] col-span-3 row-span-9 p-5
-                flex flex-col justify-between
+                flex flex-col gap-5
             ">
                 <CO2Scale concentration={airCO2}/>
                 <CarbonDist distribution={envC}/>

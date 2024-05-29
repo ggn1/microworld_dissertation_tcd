@@ -1,11 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const TextInput = ({
-        sanityCheck, handleVal, startVal="", 
-        refInput=null, placeholder="", label="",
-        borderColor="white", textColor="#6e6e6e"
+        sanityCheck, handleVal, unit="", startVal="", label="",
+        placeholder="", textColor="#6e6e6e", borderColor="white", 
     }) => {
     /** 
      * This component is a generic text box. 
@@ -22,6 +21,9 @@ const TextInput = ({
      * @param placeholder: Some placeholder text to be displayed in
      *                     the text box when there is no input (optional).
      * @param label: A label for this text box (optional).
+     * @param unit: The unit of measurement of value in this field (optional).
+     * @param textColor: Color of the text inside the text box.
+     * @param borderColor: Colour of the border of the text box.
      */
 
     const [val, setVal] = useState(startVal)
@@ -38,25 +40,28 @@ const TextInput = ({
         else handleVal("")
     }
 
+    useEffect(() => {
+        console.log()
+    }, [val])
+
     return (
         <div 
             className="
-                w-full bg-white px-2 py-1 flex justify-between 
-                items-center rounded-full border-4
+                w-full bg-white px-2 py-1justify-between 
+                items-center rounded-full flex border-4
             "
-            style={{
-                borderColor: borderColor,
-                color: textColor
-            }}
+            style={{borderColor: borderColor}}
         >
             <label className="font-bold mr-2">{label}</label>
             <input
-                className="min-w-0 flex-1 text-[#6e6e6e]"
-                type="text" ref={refInput} 
+                className="text-[#6e6e6e]"
+                type="text"
                 onChange={handleChange}
                 value={val}
                 placeholder={placeholder}
+                style={{color: textColor, width: `${val.toString().length+2}ch`}}
             />
+            <label className="ml-2" style={{color: textColor}}>{unit}</label>
         </div>
     )
 }

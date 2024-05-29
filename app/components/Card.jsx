@@ -10,7 +10,7 @@ const Card = ({children, bgColor, heading, fgColor}) => {
     useEffect(() => { setIsClient(true)}, [])
 
     return (
-        isClient && <div className="card p-3 w-full rounded-lg text-sm" style={{
+        isClient && <div className="card p-3 flex-1 w-full rounded-lg text-sm" style={{
             backgroundColor: bgColor
         }}>
             {heading != "" && <div className='text-center font-bold mb-2' style={{color: fgColor}}>

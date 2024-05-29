@@ -69,7 +69,7 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
     
         // Check if the parsed number is a positive 
         // number and not NaN.
-        return !isNaN(num) && num > 0
+        return !isNaN(num) && num >= 0
     }
 
     const handleVal = (targetType, val) => {
@@ -132,26 +132,28 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
 
     return (
         <div className="
-            grid p-3 pb-5 auto-rows-auto grid-cols-1 max-w-full
+            grid p-3 auto-rows-auto grid-cols-1
             justify-content-center justify-items-center h-full
             gap-3
         ">
-            <div className="flex gap-5 justify-center">
+            <div className="flex gap-5 justify-center -mb-3">
                 <div className="font-bold">TARGETS</div>
                 <Switch isOnStart={!expMode} onToggle={handleExpModeToggle}/>
             </div>
             <TextInput 
                 label="CO2 :"
-                placeholder="0 ppm"
+                placeholder="0"
                 borderColor={expMode ? colorBorderDefault : borderColorCO2}
                 textColor={textColorCO2}
                 startVal={targetCO2}
+                unit="ppm"
                 sanityCheck={sanityCheckNumeric} 
                 handleVal={(val) => handleVal("co2", val)}
             />
             <TextInput 
                 label="Income :"
-                placeholder="0 Barcons"
+                placeholder="0"
+                unit="Bc"
                 borderColor={expMode ? colorBorderDefault : borderColorIncome}
                 textColor={textColorIncome}
                 startVal={targetIncome}

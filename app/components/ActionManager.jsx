@@ -1,135 +1,276 @@
 "use client"
 
+import * as d3 from "d3"
 import Button from './Button.jsx'
-import Card from './Card.jsx'
-import { useEffect, useState } from 'react'
-import TextInput from './TextInput.jsx'
 import Switch from './Switch.jsx'
+import TextInput from './TextInput.jsx'
+import YearActions from './YearActions.jsx'
+import { useEffect, useState } from 'react'
 
-const ActionManager = () => {
-  return (
-    <div>
-        {/* ACTION & YEAR TAGS */}
-        <div className='mb-5'>
-            <div className='flex justify-between gap-5 mb-3 items-center flex-wrap'>
-                <div className='flex gap-5 justify-evenly'>
-                    <b>{"Years ->"}</b>
-                    <b>{"Actions ↓"}</b>
-                </div>
-                <Button 
-                    outlineColor='#D28282' bgColor='#FFC5C5'
-                    onClick={() => {console.log("DELETE button clicked.")}}
-                ><img src="bin.png" className='h-8 p-1 w-auto'/></Button>
-            </div>
-            <div className="bg-[#FFFFFF] rounded-lg p-3 h-52">            
-            </div>
-        </div>
-        {/* ACTION & TREE TYPE SELECTION */}
-        <div className='
-            flex justify-between gap-3 items-center 
-            rounded-lg bg-[#AAAAAA] p-3 box-border
-        '>
-            <div className='py-2 px-5 bg-[#D0D0D0] rounded-lg text-center'>
-                <p className='mb-2 font-bold'>ACTIONS</p>
-                <div className='mb-2'>
-                    <Button 
-                    outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                        onClick={() => {console.log("PLANT button clicked.")}}
-                    ><img src="shovel.png" className='h-16 w-auto'/></Button>
-                </div>
-                <div>
-                    <Button 
-                    outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                        onClick={() => {console.log("FELL button clicked.")}}
-                    ><img src="axe.png" className='h-16 w-auto'/></Button>
-                </div>
-            </div>
-            <div className='py-2 px-5 bg-[#D0D0D0] rounded-lg text-center'>
-                <p className='mb-2 font-bold'>TREE TYPES</p>
-                {/* DECIDUOUS */}
-                <div className='flex justify-center gap-2'> 
-                    <div className='mb-2'>
-                        <Button 
-                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                            onClick={() => {console.log("MATURE DECIDUOUS button clicked.")}}
-                        ><img src="mature_deciduous.png" className='h-16 w-auto'/></Button>
+const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
+    /**
+     * Provides an interface using which learners
+     * may add, remove or filter management actions.
+     * @param rotationPeriod: Current rotation period.
+     * @param getPlan: Fetches current plan.
+     * @param addAction: Adds a new action to the plan. 
+     */
+
+    const colorBad = "#F44A4A"
+    const colorDefault = "#FFFFFF"
+
+    let yearActions = {}
+    
+    const [yearActionObjects, setYearActionsObjects] = useState([])
+    const [treeCount, setTreeCount] = useState(0)
+    const [textColorTreeCount, setTextColorTreeCount] = useState(colorDefault)
+    const [repeat, setRepeat] = useState(false)
+
+    const sanityCheckInt = (val) => {
+        /** 
+         * Here, input is considered valid only if
+         * it is a positive number (integer) >= 1 and 
+         * <= max no. of years.
+         * @param val: Input as a string.
+         * @return: True if the input was deemed valid and
+         *          false otherwise.
+        */
+
+        // Parse the string to a number
+        const num = parseInt(val);
+    
+        // Check if the parsed number is a positive 
+        // number >= 0, <= size of land and not NaN.
+        const landSize = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
+        return !isNaN(num) && num >= 0 && num <= (landSize.rows * landSize.columns)
+    }
+
+    const handleActionTagClick = (year, actionIdx) => {
+        /** 
+         * Updates data and UI to reflect the user
+         * having selected a specific action tag.
+         * @param tagId: Unique ID of the action tag that was clicked.
+         */
+        const e = d3.select(`#action-tag-${year}-${actionIdx}`)
+        let eClass = e.attr("class")
+        if (eClass.includes("border-[#DDDDDD]")) {
+            e.attr("class", eClass.replace("border-[#DDDDDD]", "border-yellow"))
+        } else if (eClass.includes("border-yellow")) {
+            e.attr("class", eClass.replace("border-yellow", "border-[#DDDDDD]"))
+        }
+        console.log("Clicked tag", e.attr('class'))
+    }
+
+    const getYearActionsObjects = () => {
+        /**
+         * Computes the years after which actions 
+         * may be taken as per current rotation interval.
+         * @return: A list of rotation years as renderable tags.
+         */
+
+        // Get years of intereest based on latest rotation period.
+        const maxTime = JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
+        let t = rotationPeriod
+        let years = []
+        while (t >= 0 && t <= maxTime) {
+            years.push(t)
+            t += rotationPeriod
+        }
+        
+        // Get actions for each year of interest.
+        yearActions = {}
+        for (const year of years) {
+            yearActions[year] = []
+            for (const action of getPlan(year)) {
+                yearActions[year].push({selected: false, ...action})
+            }
+        }
+
+        // Returns renderable tags to visualize actions.
+        const yearActionsObjects = []
+        for (const [year, actions] of Object.entries(yearActions)) {
+            yearActionsObjects.push(<YearActions 
+                year={year} 
+                actions={actions}
+                maxHeight="120px"
+            />)
+        }
+        
+        return yearActionsObjects
+    }
+
+    const handleTreeCountChange = (val) => {
+        /**
+         * Handles a change in the tree count value text box.
+         */
+        if (val == "") { // Invalid / empty value.
+            setTextColorTreeCount(colorBad)
+            val = 0
+        } else { // Valid value.
+            setTextColorTreeCount(colorDefault)
+            val = parseInt(val)
+        }
+        setTreeCount(val)
+    }
+
+    const handleRepeatChange = (val) => {
+        /** 
+         * Handles a change in the repeat setting. 
+         * @param val: New repeat setting value (true / false).
+         */
+        console.log("Repeat Change =", val)
+    }
+
+    useEffect(() => {
+        setYearActionsObjects(getYearActionsObjects())
+    }, [rotationPeriod])
+
+    return (
+        <div>
+            {/* VIEWER */}
+            <div className='mb-5 -mt-2'>
+                {/* LABELS & DELETE, SAVE, UPLOAD BUTTONS */}
+                <div className='flex justify-between gap-5 mb-3 items-center flex-wrap'>
+                    <div className='flex gap-5 justify-evenly'>
+                        <b>{"Years ->"}</b>
+                        <b>{"Actions ↓"}</b>
                     </div>
-                    <div>
+                    <div className='flex gap-3 jusify-center'>
                         <Button 
-                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                            onClick={() => {console.log("OLD GROWTH DECIDUOUS button clicked.")}}
-                        ><img src="old_growth_deciduous.png" className='h-16 w-auto'/></Button>
-                    </div>
-                    <div>
-                        <Button 
-                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                            onClick={() => {console.log("SENESCENT DECIDUOUS button clicked.")}}
-                        ><img src="senescent_deciduous.png" className='h-16 w-auto'/></Button>
-                    </div>
-                </div>
-                {/* CONIFEROUS */}
-                <div className='flex justify-center gap-2'> 
-                    <div className='mb-2'>
-                        <Button 
-                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                            onClick={() => {console.log("MATURE CONIFEROUS button clicked.")}}
-                        ><img src="mature_coniferous.png" className='h-16 w-auto'/></Button>
-                    </div>
-                    <div>
-                        <Button 
-                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                            onClick={() => {console.log("OLD GROWTH CONIFEROUS button clicked.")}}
-                        ><img src="old_growth_coniferous.png" className='h-16 w-auto'/></Button>
-                    </div>
-                    <div>
-                        <Button 
-                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                            onClick={() => {console.log("SENESCENT CONIFEROUS button clicked.")}}
-                        ><img src="senescent_coniferous.png" className='h-16 w-auto'/></Button>
-                    </div>
-                </div>
-            </div>
-            <div className='flex flex-col gap-3 justify-between'>
-                <div className='flex items-center gap-2 p-2 bg-[#D0D0D0] rounded-lg'>
-                    <b>COUNT:</b>
-                    <TextInput/>
-                </div>
-                <div className='flex items-center gap-2 p-2 bg-[#D0D0D0] rounded-lg'>
-                    <b>REPEAT:</b>
-                    {/* <Switch/> */}
-                </div>
-                <div className='
-                    grid grid-cols-2 grid-rows-2 gap-3 place-items-center
-                '>
-                    <div>
-                        <Button 
-                            outlineColor='#8AB885' bgColor='#B9DEB5'
-                            onClick={() => {console.log("ADD button clicked.")}}
-                        ><img src="plus.png" className='h-8 p-1 w-auto'/></Button>
-                    </div>
-                    <div>
-                        <Button 
-                            outlineColor='#D2BD96' bgColor='#EFE0C4'
-                            onClick={() => {console.log("FILTER button clicked.")}}
-                        ><img src="filter.png" className='h-8 p-1 w-auto'/></Button>
-                    </div>
-                    <div>
+                            outlineColor='#D28282' bgColor='#FFC5C5'
+                            onClick={() => {console.log("DELETE button clicked.")}}
+                        ><img src="bin.png" className='max-h-8 p-1 w-auto'/></Button>
                         <Button 
                             outlineColor='#9FCBFF' bgColor='#C5E0FF'
                             onClick={() => {console.log("SAVE button clicked.")}}
-                        ><img src="save.png" className='h-8 p-1 w-auto'/></Button>
-                    </div>
-                    <div>
+                        ><img src="save.png" className='max-h-8 p-1 w-auto'/></Button>
                         <Button 
                             outlineColor='#F0BDFE' bgColor='#F7D9FF'
                             onClick={() => {console.log("UPLOAD button clicked.")}}
-                        ><img src="upload.png" className='h-8 p-1 w-auto'/></Button>
+                        ><img src="upload.png" className='max-h-8 p-1 w-auto'/></Button>
+                    </div>
+                </div>
+                {/* YEAR & ACTION TAGS */}
+                <div 
+                    className="bg-[#FFFFFF] rounded-lg p-3"
+                    style={{height: "200px"}}
+                >
+                    <div className='
+                        flex max-w-full gap-5 overflow-hidden
+                        hover:overflow-scroll
+                    '>{[yearActionObjects]}</div>
+                </div>
+            </div>
+            {/* ACTION & TREE TYPE SELECTION */}
+            <div className='
+                flex justify-between gap-3 items-center 
+                rounded-lg bg-[#AAAAAA] p-3 box-border
+            '>
+                {/* ACTIONS BUTTONS */}
+                <div className='py-2 px-5 bg-[#D0D0D0] rounded-lg text-center'>
+                    <p className='mb-2 font-bold'>ACTIONS</p>
+                    <div className='mb-2'>
+                        <Button 
+                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
+                            onClick={() => {console.log("PLANT button clicked.")}}
+                        ><img src="shovel.png" className='max-h-16 w-auto'/></Button>
+                    </div>
+                    <div>
+                        <Button 
+                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
+                            onClick={() => {console.log("FELL button clicked.")}}
+                        ><img src="axe.png" className='max-h-16 w-auto'/></Button>
+                    </div>
+                </div>
+                
+                {/* TREE TYPE BUTTONS */}
+                <div className='py-2 px-5 bg-[#D0D0D0] rounded-lg text-center'>
+                    <p className='mb-2 font-bold'>TREE TYPES</p>
+                    {/* DECIDUOUS */}
+                    <div className='flex justify-center gap-2'> 
+                        <div className='mb-2'>
+                            <Button 
+                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
+                                onClick={() => {console.log("MATURE DECIDUOUS button clicked.")}}
+                            ><img src="mature_deciduous.png" className='max-h-16 w-auto'/></Button>
+                        </div>
+                        <div>
+                            <Button 
+                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
+                                onClick={() => {console.log("OLD GROWTH DECIDUOUS button clicked.")}}
+                            ><img src="old_growth_deciduous.png" className='max-h-16 w-auto'/></Button>
+                        </div>
+                        <div>
+                            <Button 
+                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
+                                onClick={() => {console.log("SENESCENT DECIDUOUS button clicked.")}}
+                            ><img src="senescent_deciduous.png" className='max-h-16 w-auto'/></Button>
+                        </div>
+                    </div>
+                    {/* CONIFEROUS */}
+                    <div className='flex justify-center gap-2'> 
+                        <div className='mb-2'>
+                            <Button 
+                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
+                                onClick={() => {console.log("MATURE CONIFEROUS button clicked.")}}
+                            ><img src="mature_coniferous.png" className='max-h-16 w-auto'/></Button>
+                        </div>
+                        <div>
+                            <Button 
+                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
+                                onClick={() => {console.log("OLD GROWTH CONIFEROUS button clicked.")}}
+                            ><img src="old_growth_coniferous.png" className='max-h-16 w-auto'/></Button>
+                        </div>
+                        <div>
+                            <Button 
+                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
+                                onClick={() => {console.log("SENESCENT CONIFEROUS button clicked.")}}
+                            ><img src="senescent_coniferous.png" className='max-h-16 w-auto'/></Button>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* COUNT & REPEAT SETTINGS */}
+                <div className='flex flex-col gap-3 justify-center'>
+                    <div className='flex items-center p-2 bg-[#D0D0D0] rounded-lg'>
+                        <b className='mr-2'>COUNT:</b>
+                        <TextInput 
+                            placeholder="0"
+                            textColor={textColorTreeCount}
+                            startVal={0}
+                            sanityCheck={sanityCheckInt} 
+                            handleVal={handleTreeCountChange}
+                            maxWidth="30px"
+                        />
+                    </div>
+                    <div className='
+                        flex items-center justify-between 
+                        gap-2 p-2 bg-[#D0D0D0] rounded-lg
+                    '>
+                        <b>REPEAT:</b>
+                        <Switch 
+                            isOnStart={repeat} 
+                            onToggle={handleRepeatChange}
+                            onColor="#32BE51"
+                            offColor="#6E6E6E"
+                        />
+                    </div>
+                    
+                    {/* ADD, FILTER BUTTONS */}
+                    <div className='flex flex-wrap gap-3 justify-center'>
+                        <Button 
+                            outlineColor='#B9DEB5' bgColor='#99cc93'
+                            onClick={() => {console.log("ADD button clicked.")}}
+                        ><img src="plus.png" className='max-h-8 p-1 w-auto'/></Button>
+                        <Button 
+                            outlineColor='#e0dd87' bgColor='#faf8c5'
+                            onClick={() => {console.log("FILTER button clicked.")}}
+                        ><img src="filter.png" className='max-h-8 p-1 w-auto'/></Button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-  )
+    )
 }
 
 export default ActionManager

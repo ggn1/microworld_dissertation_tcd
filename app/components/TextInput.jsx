@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 
 const TextInput = ({
-        sanityCheck, handleVal, unit="", startVal="", label="",
+        sanityCheck, handleVal, maxWidth="50px", unit="", startVal="", label="",
         placeholder="", textColor="#6e6e6e", borderColor="white", 
     }) => {
     /** 
@@ -47,21 +47,27 @@ const TextInput = ({
     return (
         <div 
             className="
-                w-full bg-white px-2 py-1justify-between 
+                w-full bg-white px-1.5 gap-2
                 items-center rounded-full flex border-4
             "
             style={{borderColor: borderColor}}
         >
-            <label className="font-bold mr-2">{label}</label>
-            <input
-                className="text-[#6e6e6e]"
-                type="text"
-                onChange={handleChange}
-                value={val}
-                placeholder={placeholder}
-                style={{color: textColor, width: `${val.toString().length+2}ch`}}
-            />
-            <label className="ml-2" style={{color: textColor}}>{unit}</label>
+            <b>{label}</b>
+            <div className="flex flex-1 w-full justify-between gap-2">
+                <input
+                    className="text-[#6e6e6e]"
+                    type="text"
+                    onChange={handleChange}
+                    value={val}
+                    placeholder={placeholder}
+                    style={{
+                        color: textColor, 
+                        width: `${val.toString().length+4}ch`,
+                        maxWidth: maxWidth
+                    }}
+                />
+                <p style={{color: textColor}}>{unit}</p>
+            </div>
         </div>
     )
 }

@@ -138,7 +138,12 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
         ">
             <div className="flex gap-5 justify-center -mb-3">
                 <div className="font-bold">TARGETS</div>
-                <Switch isOnStart={!expMode} onToggle={handleExpModeToggle}/>
+                <Switch 
+                    isOnStart={!expMode} 
+                    onToggle={handleExpModeToggle}
+                    onColor="#32BE51"
+                    offColor="#6E6E6E"
+                />
             </div>
             <TextInput 
                 label="CO2 :"

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-const Switch = ({isOnStart, onToggle}) => {
+const Switch = ({isOnStart, onToggle, offColor, onColor}) => {
     /**
      * A togglable switch component.
      * @param isOnStart: Whether or not this switch is in the 
@@ -24,7 +24,7 @@ const Switch = ({isOnStart, onToggle}) => {
 
     return (
         <div className="w-10 h-6 rounded-full relative" style={{
-            backgroundColor: isOn ? "#32BE51" : "#CCCCCC"
+            backgroundColor: isOn ? onColor : offColor
         }}>
             <div 
                 className="absolute h-full w-full flex items-center p-1"

@@ -16,7 +16,7 @@ const RotationPeriod = ({setRotationPeriod, curRotationPeriod, validRange}) => {
     const colorDefault = "#6E6E6E"
     const [textColorRotation, setTextColorRotation] = useState(colorDefault)
 
-    const sanityCheckNumeric = (val) => {
+    const sanityCheckInt = (val) => {
         /** 
          * Here, input is considered valid only if
          * it is a positive number (integer) >= 1 and 
@@ -65,7 +65,7 @@ const RotationPeriod = ({setRotationPeriod, curRotationPeriod, validRange}) => {
                 unit="year(s)"
                 textColor={textColorRotation}
                 startVal={curRotationPeriod}
-                sanityCheck={sanityCheckNumeric} 
+                sanityCheck={sanityCheckInt} 
                 handleVal={handleChange}
             />
         </div>

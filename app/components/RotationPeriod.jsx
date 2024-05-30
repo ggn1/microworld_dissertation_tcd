@@ -13,7 +13,8 @@ const RotationPeriod = ({setRotationPeriod, curRotationPeriod, validRange}) => {
      */
 
     const colorBad = "#F44A4A"
-    const colorDefault = "#6E6E6E"
+    const colorDefault = "#232323"
+    const placeholder = 40
     const [textColorRotation, setTextColorRotation] = useState(colorDefault)
 
     const sanityCheckInt = (val) => {
@@ -45,7 +46,7 @@ const RotationPeriod = ({setRotationPeriod, curRotationPeriod, validRange}) => {
         
         if (val == "") { // Invalid / empty value.
             setTextColorRotation(colorBad)
-            val = validRange[0]
+            val = placeholder
         } else { // Valid value.
             setTextColorRotation(colorDefault)
             val = parseInt(val)
@@ -61,10 +62,9 @@ const RotationPeriod = ({setRotationPeriod, curRotationPeriod, validRange}) => {
         <div>
             <TextInput 
                 label="ROTATION PERIOD :"
-                placeholder="1"
+                placeholder="40"
                 unit="year(s)"
                 textColor={textColorRotation}
-                startVal={curRotationPeriod}
                 sanityCheck={sanityCheckInt} 
                 handleVal={handleChange}
             />

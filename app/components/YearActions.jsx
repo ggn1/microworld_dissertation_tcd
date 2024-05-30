@@ -1,7 +1,4 @@
-"use client"
-
 import Tag from "./Tag"
-import { useEffect } from "react"
 
 const YearActions = ({
     year, isRotationYear, actions, maxHeight,

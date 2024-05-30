@@ -2,11 +2,11 @@ import Switch from "./Switch"
 import TextInput from "./TextInput"
 import {useState, useEffect } from "react"
 
-let TARGETS = {
+let targets = {
     "co2": null,
     "income": null
 }
-let IS_EXP_MODE = true
+let isExpMode = true
 
 const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) => {
     /**
@@ -25,19 +25,19 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
      * @param startValIncome: The starting income target value.
      */
 
-    const colorTextDefault = "#6e6e6e"
+    const colorTextDefault = "#232323"
     const colorBorderDefault = "#ffffff"
     const colorGood = "#32BE51"
     const colorBad = "#F44A4A"
 
-    const [expMode, setExpMode] = useState(IS_EXP_MODE)
+    const [expMode, setExpMode] = useState(isExpMode)
     const [targetCO2, setTargetCO2] = useState(
-        TARGETS.co2 != null && TARGETS.co2 != startValCO2
-        ? TARGETS.co2 : startValCO2
+        targets.co2 != null && targets.co2 != startValCO2
+        ? targets.co2 : startValCO2
     ) 
     const [targetIncome, setTargetIncome] = useState(
-        TARGETS.income != null && TARGETS.income != startValIncome
-        ? TARGETS.income : startValIncome
+        targets.income != null && targets.income != startValIncome
+        ? targets.income : startValIncome
     ) 
     const [borderColorCO2, setBorderColorCO2] = useState(colorBorderDefault)
     const [textColorCO2, setTextColorCO2] = useState(colorTextDefault)
@@ -92,15 +92,15 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
         if (targetType == "co2") {
             if (isTargetMet("co2", val)) setBorderColorCO2(colorGood)
             else setBorderColorCO2(colorBad)
-            TARGETS.co2 = val
-            setTargetCO2(TARGETS.co2)
+            targets.co2 = val
+            setTargetCO2(targets.co2)
         }
 
         if (targetType == "income") {
             if (isTargetMet("income", val)) setBorderColorIncome(colorGood)
             else setBorderColorIncome(colorBad)
-            TARGETS.income = val
-            setTargetIncome(TARGETS.income)
+            targets.income = val
+            setTargetIncome(targets.income)
         }
     }
 
@@ -110,8 +110,8 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
          * @param toggledState: Whether the serious mode toggle switch
          *                      is in the true / false state. 
          */
-        IS_EXP_MODE = !toggledState
-        setExpMode(IS_EXP_MODE)
+        isExpMode = !toggledState
+        setExpMode(isExpMode)
     }
 
     useEffect(() => {
@@ -147,21 +147,19 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
             </div>
             <TextInput 
                 label="CO2 :"
-                placeholder="0"
+                placeholder={targetCO2}
                 borderColor={expMode ? colorBorderDefault : borderColorCO2}
                 textColor={textColorCO2}
-                startVal={targetCO2}
                 unit="ppm"
                 sanityCheck={sanityCheckNumeric} 
                 handleVal={(val) => handleVal("co2", val)}
             />
             <TextInput 
                 label="Income :"
-                placeholder="0"
+                placeholder={targetIncome}
                 unit="Bc"
                 borderColor={expMode ? colorBorderDefault : borderColorIncome}
                 textColor={textColorIncome}
-                startVal={targetIncome}
                 sanityCheck={sanityCheckNumeric} 
                 handleVal={(val) => handleVal("income", val)}
             />

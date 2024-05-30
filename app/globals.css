@@ -3,3 +3,7 @@
 @tailwind utilities;
 
 * { color: #232323 }
+
+div {
+    transition: height 1s;
+}

@@ -5,9 +5,12 @@ import Switch from './Switch.jsx'
 import TextInput from './TextInput.jsx'
 import YearActions from './YearActions.jsx'
 import { useEffect, useState } from 'react'
+import ActionSelector from './ActionSelector.jsx'
+import TreeTypeSelector from './TreeTypeSelector.jsx'
+import Veil from './Veil.jsx'
 
 let yearActions = {}
-let yearRotationYearMap = {}
+let rotationYears = []
 
 const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
     /**
@@ -19,14 +22,20 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
      */
 
     const colorBad = "#F44A4A"
-    const colorDefault = "#AAAAAA"
+    const colorDefaultText = "#232323"
+    const placeholderTreeCount = 1
     
     const [yearActionObjects, setYearActionsObjects] = useState([])
+    const [selectedAction, setSelectedAction] = useState("none")
+    const [selectedTreeType, setSelectedTreeType] = useState("none")
+    const [selectedTreeLifeStage, setSelectedTreeLifeStage] = useState("none")
+    const [selectedYear, setSelectedYear] = useState(rotationPeriod) 
     const [treeCount, setTreeCount] = useState(0)
-    const [textColorTreeCount, setTextColorTreeCount] = useState(colorDefault)
+    const [textColorTreeCount, setTextColorTreeCount] = useState(colorDefaultText)
+    const [textColorYear, setTextColorYear] = useState(colorDefaultText)
     const [repeat, setRepeat] = useState(false)
 
-    const sanityCheckInt = (val) => {
+    const sanityCheckTreeCount = (val) => {
         /** 
          * Here, input is considered valid only if
          * it is a positive number (integer) >= 1 and 
@@ -42,7 +51,22 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
         // Check if the parsed number is a positive 
         // number >= 0, <= size of land and not NaN.
         const landSize = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
-        return !isNaN(num) && num >= 0 && num <= (landSize.rows * landSize.columns)
+        return !isNaN(num) && num > 0 && num <= (landSize.rows * landSize.columns)
+    }
+
+    const sanityCheckYear = (val) => {
+        /** 
+         * Checks if this year input is valid.
+         * A year input is considered valid only
+         * if it is one of the rotation years
+         * as per current rotation period.
+         * @param val: New year entered by the user.
+         * @return: True if the input was deemed valid and
+         *          false otherwise.
+        */
+
+        const num = parseInt(val)
+        return !isNaN(num) && rotationYears.includes(num)
     }
 
     const handleActionTagClick = (
@@ -72,16 +96,11 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
         let years = new Set(Object.keys(getPlan()))
         const maxTime = JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
         let t = rotationPeriod
-        let rotationYears = []
+        rotationYears = []
         while (t >= 0 && t <= maxTime) {
             rotationYears.push(t)
             years.add(t)
             t += rotationPeriod
-        }
-        
-        yearRotationYearMap = {}
-        for (const year of years) {
-            yearRotationYearMap[year] = rotationYears.includes(year)
         }
 
         // Get actions for each year of interest.
@@ -103,10 +122,11 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
 
         // Returns renderable tags to visualize actions.
         const objs = []
-        for (const [year, actions] of Object.entries(yearActions)) {
+        for (let [year, actions] of Object.entries(yearActions)) {
+            year = parseInt(year)
             objs.push(<YearActions 
                 year={year} 
-                isRotationYear={yearRotationYearMap[year]}
+                isRotationYear={rotationYears.includes(year)}
                 actions={actions}
                 maxHeight="120px"
                 onActionTagClick={handleActionTagClick}
@@ -119,15 +139,31 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
     const handleTreeCountChange = (val) => {
         /**
          * Handles a change in the tree count value text box.
+         * @param val: New tree count.
          */
         if (val == "") { // Invalid / empty value.
             setTextColorTreeCount(colorBad)
-            val = 0
+            val = 1
         } else { // Valid value.
-            setTextColorTreeCount(colorDefault)
+            setTextColorTreeCount(colorDefaultText)
             val = parseInt(val)
         }
         setTreeCount(val)
+    }
+
+    const handleYearChange = (val) => {
+        /**
+         * Handles a change in the year text box.
+         * @param val: New year value.
+         */
+        if (val == "") { // Invalid / empty value.
+            setTextColorYear(colorBad)
+            val = rotationPeriod
+        } else { // Valid value.
+            setTextColorYear(colorDefaultText)
+            val = parseInt(val)
+        }
+        setSelectedYear(val)
     }
 
     const handleRepeatChange = (val) => {
@@ -146,7 +182,8 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
 
         // Determine actions to delete.
         let actionsToKeep = []
-        for (const [year, actions] of Object.entries(yearActions)) {
+        for (let [year, actions] of Object.entries(yearActions)) {
+            year = parseInt(year)
             actionsToKeep = []
             for (let i=0; i<yearActions[year].length; i++) {
                 if (!actions[i].selected) {
@@ -164,7 +201,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
             yearActions[year] = actionsToKeep
             if (
                 yearActions[year].length == 0
-                && !yearRotationYearMap[year]
+                && !(rotationYears.includes(year))
             ) delete(yearActions[year])
         }
         setYearActionsObjects(getYearActionsObjects())
@@ -173,10 +210,43 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
         setYearActionsObjects(getYearActionsObjects())
     }
 
+    const handleActionSelection = (selection) => {
+        /**
+         * Changes data and UI to reflect a new action that
+         * was selected by the user.
+         * @param selection: The action that was selected 
+         *                        by the user.
+         */
+        setSelectedAction(selection)
+    }
+
+    const handleTreeSelection = (selection) => {
+        /**
+         * Changes data and UI to reflect a new tree
+         * type and life stage that was selected by the user.
+         * @param selection: User's latest selection.
+         */
+        selection = selection.split("_")
+        setSelectedTreeType(selection.pop())
+        setSelectedTreeLifeStage(selection.join("_"))
+    }
+
     useEffect(() => {
         initYearActions()
         setYearActionsObjects(getYearActionsObjects())
     }, [rotationPeriod])
+
+    useEffect(() => {
+        console.log("Selected action =", selectedAction)
+    }, [selectedAction])
+
+    useEffect(() => {
+        console.log("Selected tree type =", selectedTreeType)
+    }, [selectedTreeType])
+
+    useEffect(() => {
+        console.log("Selected tree life stage =", selectedTreeLifeStage)
+    }, [selectedTreeLifeStage])
 
     return (
         <div>
@@ -216,110 +286,93 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
             </div>
             {/* ACTION & TREE TYPE SELECTION */}
             <div className='
-                flex justify-between gap-3 items-center 
-                rounded-lg bg-[#AAAAAA] p-3 box-border
+                grid grid-rows-1 grid-cols-8 justify-between gap-3 
+                rounded-lg bg-[#AAAAAA] p-3 h-60 w-full
             '>
                 {/* ACTION BUTTONS */}
-                <div className='py-2 px-5 bg-[#D0D0D0] rounded-lg text-center'>
-                    <p className='mb-2 font-bold'>ACTIONS</p>
-                    <div className='mb-2'>
-                        <Button 
-                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                            onClick={() => {console.log("PLANT button clicked.")}}
-                        ><img src="shovel.png" className='max-h-16 w-auto'/></Button>
-                    </div>
-                    <div>
-                        <Button 
-                        outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                            onClick={() => {console.log("FELL button clicked.")}}
-                        ><img src="axe.png" className='max-h-16 w-auto'/></Button>
-                    </div>
+                <div className='col-span-2 row-span-1'>
+                    <ActionSelector handleSelection={handleActionSelection}/>
                 </div>
                 
                 {/* TREE TYPE BUTTONS */}
-                <div className='py-2 px-5 bg-[#D0D0D0] rounded-lg text-center'>
-                    <p className='mb-2 font-bold'>TREE TYPES</p>
-                    {/* DECIDUOUS */}
-                    <div className='flex justify-center gap-2'> 
-                        <div className='mb-2'>
-                            <Button 
-                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                                onClick={() => {console.log("MATURE DECIDUOUS button clicked.")}}
-                            ><img src="mature_deciduous.png" className='max-h-16 w-auto'/></Button>
-                        </div>
-                        <div>
-                            <Button 
-                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                                onClick={() => {console.log("OLD GROWTH DECIDUOUS button clicked.")}}
-                            ><img src="old_growth_deciduous.png" className='max-h-16 w-auto'/></Button>
-                        </div>
-                        <div>
-                            <Button 
-                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                                onClick={() => {console.log("SENESCENT DECIDUOUS button clicked.")}}
-                            ><img src="senescent_deciduous.png" className='max-h-16 w-auto'/></Button>
-                        </div>
-                    </div>
-                    {/* CONIFEROUS */}
-                    <div className='flex justify-center gap-2'> 
-                        <div className='mb-2'>
-                            <Button 
-                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                                onClick={() => {console.log("MATURE CONIFEROUS button clicked.")}}
-                            ><img src="mature_coniferous.png" className='max-h-16 w-auto'/></Button>
-                        </div>
-                        <div>
-                            <Button 
-                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                                onClick={() => {console.log("OLD GROWTH CONIFEROUS button clicked.")}}
-                            ><img src="old_growth_coniferous.png" className='max-h-16 w-auto'/></Button>
-                        </div>
-                        <div>
-                            <Button 
-                            outlineColor='#DDDDDD' bgColor='#F1F1F1'
-                                onClick={() => {console.log("SENESCENT CONIFEROUS button clicked.")}}
-                            ><img src="senescent_coniferous.png" className='max-h-16 w-auto'/></Button>
-                        </div>
-                    </div>
+                <div className='col-span-4 row-span-1'>
+                    <Veil 
+                        borderRadius={8} 
+                        isVeiled={selectedAction == "none"}
+                        veilColor='#101626'
+                    >
+                        <TreeTypeSelector handleSelection={handleTreeSelection}/>
+                    </Veil>
                 </div>
                 
-                {/* COUNT & REPEAT SETTINGS */}
-                <div className='flex flex-col gap-3 justify-center'>
-                    <div className='flex items-center p-2 bg-[#D0D0D0] rounded-lg'>
-                        <b className='mr-2'>COUNT:</b>
-                        <TextInput 
-                            placeholder="0"
-                            textColor={textColorTreeCount}
-                            startVal={0}
-                            sanityCheck={sanityCheckInt} 
-                            handleVal={handleTreeCountChange}
-                            maxWidth="30px"
-                        />
-                    </div>
-                    <div className='
-                        flex items-center justify-between 
-                        gap-2 p-2 bg-[#D0D0D0] rounded-lg
-                    '>
-                        <b>REPEAT:</b>
-                        <Switch 
-                            isOnStart={repeat} 
-                            onToggle={handleRepeatChange}
-                            onColor="#32BE51"
-                            offColor="#6E6E6E"
-                        />
-                    </div>
-                    
-                    {/* ADD, FILTER BUTTONS */}
-                    <div className='flex flex-wrap gap-3 justify-center'>
-                        <Button 
-                            outlineColor='#B9DEB5' bgColor='#99cc93'
-                            onClick={() => {console.log("ADD button clicked.")}}
-                        ><img src="plus.png" className='max-h-8 p-1 w-auto'/></Button>
-                        <Button 
-                            outlineColor='#e0dd87' bgColor='#faf8c5'
-                            onClick={() => {console.log("FILTER button clicked.")}}
-                        ><img src="filter.png" className='max-h-8 p-1 w-auto'/></Button>
-                    </div>
+                <div className='col-span-2 row-span-1'>
+                    <Veil
+                        borderRadius={8} 
+                        isVeiled={
+                            selectedAction == "none" ||
+                            selectedTreeType == "none"
+                        }
+                        veilColor='#101626'
+                    >
+                        <div className='
+                            grid grid-rows-4 grid-cols-1 gap-2
+                            max-h-full
+                        '>
+                            {/* COUNT SELECTOR */}
+                            <TextInput 
+                                label='COUNT:'
+                                placeholder={placeholderTreeCount}
+                                textColor={textColorTreeCount}
+                                sanityCheck={sanityCheckTreeCount} 
+                                handleVal={handleTreeCountChange}
+                                maxWidth="30px"
+                                bgColor='#EEEEEE'
+                                borderColor='#EEEEEE'
+                            />
+
+                            {/* YEAR SELECTOR */}
+                            <TextInput 
+                                label='YEAR:'
+                                placeholder={rotationPeriod}
+                                textColor={textColorYear}
+                                sanityCheck={sanityCheckYear} 
+                                handleVal={handleYearChange}
+                                maxWidth="30px"
+                                bgColor='#EEEEEE'
+                                borderColor='#EEEEEE'
+                            />
+
+                            {/* REPEAT SELECTOR */}
+                            <div className='
+                                flex items-center justify-between 
+                                gap-2 p-3 bg-[#EEEEEE] rounded-full
+                                h-full w-full
+                            '>
+                                <b>REPEAT:</b>
+                                <Switch 
+                                    isOnStart={repeat} 
+                                    onToggle={handleRepeatChange}
+                                    onColor="#32BE51"
+                                    offColor="#6E6E6E"
+                                />
+                            </div>
+
+                            {/* ADD, FILTER BUTTONS */}
+                            <div className='
+                                flex flex-wrap gap-3 justify-center
+                                place-content-center h-full w-full
+                            '>
+                                <Button 
+                                    outlineColor='#B9DEB5' bgColor='#99cc93'
+                                    onClick={() => {console.log("ADD button clicked.")}}
+                                ><img src="plus.png" className='max-h-8 p-1 w-auto'/></Button>
+                                <Button 
+                                    outlineColor='#e0dd87' bgColor='#faf8c5'
+                                    onClick={() => {console.log("FILTER button clicked.")}}
+                                ><img src="filter.png" className='max-h-8 p-1 w-auto'/></Button>
+                            </div>
+                        </div>
+                    </Veil>
                 </div>
             </div>
         </div>

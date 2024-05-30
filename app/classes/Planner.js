@@ -130,8 +130,36 @@ export default class Planner {
              * @param treeType: The type of tree that this action targets.
              * @param treeLifeStage: The lifestage of the targeted tree.
              */
-            // TO DO
+            let toDeleteIdx = -1
+
+            // Find matching action to delete.
+            let action = null
+            if (year in this.#plan) {
+                const actions = this.#plan[year][actionType]
+                for (let i = 0; i < actions.length; i++) {
+                    action = actions[i]
+                    if (
+                        action.type == treeType &&
+                        actionType == "plant" ||
+                        actionType == "fell" &&
+                        action.stage == treeLifeStage
+                    ){
+                       toDeleteIdx = i
+                       break
+                    }
+                }
+            }
+
+            // If found, then delete.
+            if (toDeleteIdx >= 0) {
+                this.#plan[year][actionType].splice(toDeleteIdx, 1)
+                if (
+                    this.#plan[year]["plant"].length == 0 &&
+                    this.#plan[year]["fell"].length == 0
+                ) delete(this.#plan[year])
+            }
         }
+        
         this.executeAction = (year, actionType, treeType, treeLifeStage="") => {
             /** 
              * Executes given action and records 

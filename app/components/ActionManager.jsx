@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 let yearActions = {}
 let yearRotationYearMap = {}
 
-const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
+const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
     /**
      * Provides an interface using which learners
      * may add, remove or filter management actions.
@@ -155,6 +155,10 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
                     if ("setTagSelectionState" in actions[i]) {
                         actions[i].setTagSelectionState(false)
                     }
+                    deleteAction(
+                        year, actions[i].actionType, actions[i].treeType, 
+                        "treeLifeStage" in actions[i] ? actions[i].treeLifeStage : ""
+                    )
                 }
             }
             yearActions[year] = actionsToKeep

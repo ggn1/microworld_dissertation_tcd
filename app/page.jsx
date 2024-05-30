@@ -23,8 +23,6 @@ const Home = () => {
     const [incomeSources, setIncomeSources] = useState({})
     const [rotationPeriod, setRotationPeriod] = useState()
 
-    const refSvgLand = useRef()
-
     const updateSimUI = () => {
         setLandContent([...sim.env.land.content])
         setAirCO2(sim.env.getAirCO2ppm())

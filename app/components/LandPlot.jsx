@@ -1,7 +1,7 @@
 "use client"
 
 import * as d3 from "d3"
-import React, { useEffect, useRef, useLayoutEffect } from "react"
+import React, { useEffect, useRef } from "react"
 
 let svg
 let widthSvg
@@ -60,7 +60,7 @@ const LandPlot = ({content}) => {
      */
     const refSvg = useRef()
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         // Initializes SVG elements.
 
         // Get SVG and it's dimensions.

@@ -1,6 +1,5 @@
 "use client"
 
-import * as d3 from "d3"
 import Button from './Button.jsx'
 import Switch from './Switch.jsx'
 import TextInput from './TextInput.jsx'
@@ -8,6 +7,7 @@ import YearActions from './YearActions.jsx'
 import { useEffect, useState } from 'react'
 
 let yearActions = {}
+let yearRotationYearMap = {}
 
 const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
     /**
@@ -19,7 +19,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
      */
 
     const colorBad = "#F44A4A"
-    const colorDefault = "#FFFFFF"
+    const colorDefault = "#AAAAAA"
     
     const [yearActionObjects, setYearActionsObjects] = useState([])
     const [treeCount, setTreeCount] = useState(0)
@@ -69,14 +69,21 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
          */
         
         // Get years of interest based on latest rotation period.
+        let years = new Set(Object.keys(getPlan()))
         const maxTime = JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
         let t = rotationPeriod
-        let years = []
+        let rotationYears = []
         while (t >= 0 && t <= maxTime) {
-            years.push(t)
+            rotationYears.push(t)
+            years.add(t)
             t += rotationPeriod
         }
         
+        yearRotationYearMap = {}
+        for (const year of years) {
+            yearRotationYearMap[year] = rotationYears.includes(year)
+        }
+
         // Get actions for each year of interest.
         yearActions = {}
         for (const year of years) {
@@ -99,6 +106,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
         for (const [year, actions] of Object.entries(yearActions)) {
             objs.push(<YearActions 
                 year={year} 
+                isRotationYear={yearRotationYearMap[year]}
                 actions={actions}
                 maxHeight="120px"
                 onActionTagClick={handleActionTagClick}
@@ -136,26 +144,28 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
          * choice to delete selected action tags.
          */
 
-        // Delete selections actions from yearActions.
-        let actions = []
-        let action = null
-        for (const year of Object.keys(yearActions)) {
-            actions = yearActions[year]
-            for (let i=0; i<actions.length; i++) {
-                action = actions[i]
-                if (action.selected) {
-                    // Deselect selected tag.
-                    if ("setTagSelectionState" in action) {
-                        action.setTagSelectionState(false)
+        // Determine actions to delete.
+        let actionsToKeep = []
+        for (const [year, actions] of Object.entries(yearActions)) {
+            actionsToKeep = []
+            for (let i=0; i<yearActions[year].length; i++) {
+                if (!actions[i].selected) {
+                    actionsToKeep.push(JSON.parse(JSON.stringify(actions[i])))
+                } else {
+                    if ("setTagSelectionState" in actions[i]) {
+                        actions[i].setTagSelectionState(false)
                     }
-                    // Remove this action
-                    yearActions[year].splice(i, 1)
                 }
             }
+            yearActions[year] = actionsToKeep
+            if (
+                yearActions[year].length == 0
+                && !yearRotationYearMap[year]
+            ) delete(yearActions[year])
         }
+        setYearActionsObjects(getYearActionsObjects())
 
         // Update UI.
-        // setYearActionsObjects([])
         setYearActionsObjects(getYearActionsObjects())
     }
 

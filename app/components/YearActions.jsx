@@ -4,7 +4,7 @@ import Tag from "./Tag"
 import { useEffect } from "react"
 
 const YearActions = ({
-    year, actions, maxHeight, 
+    year, isRotationYear, actions, maxHeight,
     onActionTagClick=()=>{}
 }) => {
     /**
@@ -13,6 +13,7 @@ const YearActions = ({
      * @param year: The year of interest.
      * @param actions: All actions associated with this year.
      * @param maxHeight: Max height of the viewer.
+     * @param isRotationYear: Whether this year is part of current rotation.
      * @param onActionTagClick: Function that handles changes 
      *                              associated with an action tag being
      *                              clicked. This function takes 2 inputs
@@ -26,8 +27,12 @@ const YearActions = ({
     const borderColorDefault = "#DDDDDD"
     const borderColorSelected = "#FCF412"
     const actionSuccessColors = {"-1": colorDefault, "1":colorGood, "0":colorBad}
+    const colorRotationYear = "#6892FF"
+    const colorNotRotationYear = "#d94343"
 
-    const handleActionTagClick = (selected, setSelected, year, actionIdx) => {
+    const handleActionTagClick = (
+        selected, setSelected, year, actionIdx
+    ) => {
         /** 
          * Handles the event wherein the user clicks on an action tag. 
          * @param selected: Whether tag is selected or not.
@@ -42,7 +47,11 @@ const YearActions = ({
 
     return (
         <div>
-            <Tag borderColor="#6892FF" bgColor="#6892FF">
+            <Tag borderColor={
+                isRotationYear ? colorRotationYear : colorNotRotationYear
+            } bgColor={
+                isRotationYear ? colorRotationYear : colorNotRotationYear
+            }>
                 <div className='
                     rounded-full py-1 w-32 text-center
                     font-bold text-[#FFFFFF]

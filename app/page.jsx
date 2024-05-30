@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Simulation from "./classes/Simulation.js"
 import Timeline from './components/Timeline.jsx'
 import LandPlot from "./components/LandPlot.jsx"
@@ -22,6 +22,8 @@ const Home = () => {
     const [bdCat, setBdCat] = useState("")
     const [incomeSources, setIncomeSources] = useState({})
     const [rotationPeriod, setRotationPeriod] = useState()
+
+    const refSvgLand = useRef()
 
     const updateSimUI = () => {
         setLandContent([...sim.env.land.content])
@@ -51,8 +53,12 @@ const Home = () => {
                     startValIncome={sim.planner.getTargets().income}
                 />
             </div>
-            <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-4 row-span-7">
-                <LandPlot content={landContent}/>
+            <div id="home-land" className="
+                rounded-xl bg-[#FDEBDE] col-span-4 row-span-7 p-3
+            ">
+                <div class="flex w-full h-full items-center justify-center">
+                    <LandPlot content={landContent}/>
+                </div>
             </div>
             <div id="home-world-state" className="
                 rounded-xl bg-[#EEEEEE] col-span-3 row-span-9 p-5

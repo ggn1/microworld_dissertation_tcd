@@ -1,7 +1,7 @@
 "use client"
 
 import * as d3 from "d3"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useLayoutEffect } from "react"
 
 let svg
 let widthSvg
@@ -60,16 +60,16 @@ const LandPlot = ({content}) => {
      */
     const refSvg = useRef()
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         // Initializes SVG elements.
 
         // Get SVG and it's dimensions.
         svg = d3.select(refSvg.current)
-        widthSvg = Number(svg.style('width').replace('px', ''))
-        heightSvg = Number(svg.style('height').replace('px', ''))
+        if (!widthSvg) widthSvg = Number(svg.style('width').replace('px', ''))
+        if (!heightSvg) heightSvg = Number(svg.style('height').replace('px', ''))
         margins = {
-            left: heightSvg*0.05, right: 0,
-            top: heightSvg*0.1, bottom: 0
+            left: 15, right: 0,
+            top: 5, bottom: 0
         }
         widthPlot = widthSvg - margins.left - margins.right;
         heightPlot = heightSvg - margins.top - margins.bottom;
@@ -140,7 +140,7 @@ const LandPlot = ({content}) => {
     }, [content])
 
     return (
-        <svg className="w-full h-full" ref={refSvg}></svg>
+        <svg style={{height:"350px", width:"400px"}} ref={refSvg}></svg>
     )
 }
 

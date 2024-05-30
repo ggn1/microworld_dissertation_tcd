@@ -68,8 +68,8 @@ const LandPlot = ({content}) => {
         widthSvg = Number(svg.style('width').replace('px', ''))
         heightSvg = Number(svg.style('height').replace('px', ''))
         margins = {
-            left: widthSvg/(size.rows*2+1), right: 0,
-            top: heightSvg/(size.columns*3+1), bottom: 0
+            left: heightSvg*0.05, right: 0,
+            top: heightSvg*0.1, bottom: 0
         }
         widthPlot = widthSvg - margins.left - margins.right;
         heightPlot = heightSvg - margins.top - margins.bottom;
@@ -89,20 +89,21 @@ const LandPlot = ({content}) => {
                     .join('g')
                     .attr('opacity', 0)
                     .attr('class', 'group-x-axis')
-                    .attr('transform', `translate(${0}, ${heightPlot})`)
+                    .attr('transform', `translate(${0}, ${heightPlot+margins.top})`)
         gYAxis = gPlot.selectAll('.group-y-axis')
                     .data(['g'])
                     .attr('opacity', 0)
                     .join('g')
                     .attr('class', 'group-y-axis')
+                    .attr('transform', `translate(${margins.left}, ${0})`)
         
         // Set the scale of both x and y axes.
         scaleX = d3.scaleBand()
                     .domain(d3.range(size.rows))
-                    .range([0, widthPlot])
+                    .range([0, widthSvg])
         scaleY = d3.scaleBand()
                     .domain(d3.range(size.columns))
-                    .range([heightPlot, 0])
+                    .range([heightSvg, 0])
         gXAxis.call(d3.axisBottom(scaleX))
         gYAxis.call(d3.axisLeft(scaleY))
 

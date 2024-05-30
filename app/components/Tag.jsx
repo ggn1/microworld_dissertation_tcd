@@ -1,12 +1,11 @@
 "use client"
 
-import {useState } from "react"
+import { useState } from "react"
 
 const Tag = ({
-    children, selectable=false, borderRadius="9999px",
+    children, borderRadius="9999px",
     bgColor="#EEEEEE", borderColor="#EEEEEE", 
-    borderColorSelected="#FFD738",
-    onClick=()=>{}, onDoubleClick=()=>{}
+    borderColorSelected="", onClick=()=>{}
 }) => {
     /**
      * A generic tag that may or maynot be selectable. 
@@ -15,32 +14,35 @@ const Tag = ({
      * @param borderRadius: How curved the borders must be.
      * @param bgColor: Fill color of the tag.
      * @param borderColor: Color of the border.
-     * @param borderColorSelected: Color that the border changes 
-     *                             to upon selection.
-     * @param selectable: Whether or not this tag may be selected.
-     * @param onClick: Some function to execute upon clicking this
-     *                 object.
-     * @param onDoubleClick: Some function to execute upon double 
-     *                       clicking this object.
+     * @param selectable: Whether it is possible to select this tag.
+     * @param onClick: Some function to execute upon clicking this tag.
      */
 
     const [selected, setSelected] = useState(false)
 
-    const handleClick = (e) => {
-        if (selectable) setSelected(prevVal => !prevVal)
-        onClick(e)
+    const selectable = borderColorSelected != ""
+
+    const handleClick = () => {
+        /** 
+         * Sends a regetrence to this tag, its "selected" state 
+         * and a function to change the selected state to the
+         * given onClick function.
+         */
+        onClick(selected, setSelected)
     }
 
     return (
         <div 
-            onDoubleClick={onDoubleClick} 
             onClick={handleClick}
-            className={selectable ? "hover:brightness-110" : ""}
+            className={selectable && "hover:brightness-110"}
             style={{
-                backgroundColor: bgColor,
                 borderWidth: "3px",
+                backgroundColor: bgColor,
                 borderRadius: borderRadius,
-                borderColor: selected ? borderColorSelected : borderColor
+                borderColor: 
+                    selectable && selected ? 
+                    borderColorSelected : 
+                    borderColor
             }}
         >{children}</div>
     )

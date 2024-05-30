@@ -7,6 +7,8 @@ import TextInput from './TextInput.jsx'
 import YearActions from './YearActions.jsx'
 import { useEffect, useState } from 'react'
 
+let yearActions = {}
+
 const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
     /**
      * Provides an interface using which learners
@@ -18,8 +20,6 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
 
     const colorBad = "#F44A4A"
     const colorDefault = "#FFFFFF"
-
-    let yearActions = {}
     
     const [yearActionObjects, setYearActionsObjects] = useState([])
     const [treeCount, setTreeCount] = useState(0)
@@ -45,30 +45,30 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
         return !isNaN(num) && num >= 0 && num <= (landSize.rows * landSize.columns)
     }
 
-    const handleActionTagClick = (year, actionIdx) => {
+    const handleActionTagClick = (
+        tagSelectionState, setTagSelectionState, year, actionIdx
+    ) => {
         /** 
          * Updates data and UI to reflect the user
          * having selected a specific action tag.
-         * @param tagId: Unique ID of the action tag that was clicked.
+         * @param tagSelectionState: Latest selection state of clicked tag.
+         * @param setTagSelectionState: Function that can be used to change
+         *                              the tag's selection state.
+         * @param year: Year associated with the tag that was clicked.
+         * @param actionIdx: The index of the action that was clicked.
+         * @param isSelected: Whether this tag is selected or not.
          */
-        const e = d3.select(`#action-tag-${year}-${actionIdx}`)
-        let eClass = e.attr("class")
-        if (eClass.includes("border-[#DDDDDD]")) {
-            e.attr("class", eClass.replace("border-[#DDDDDD]", "border-yellow"))
-        } else if (eClass.includes("border-yellow")) {
-            e.attr("class", eClass.replace("border-yellow", "border-[#DDDDDD]"))
-        }
-        console.log("Clicked tag", e.attr('class'))
+        yearActions[year][actionIdx].selected = tagSelectionState
+        yearActions[year][actionIdx]["setTagSelectionState"] = setTagSelectionState
     }
 
-    const getYearActionsObjects = () => {
+    const initYearActions = () => {
         /**
-         * Computes the years after which actions 
-         * may be taken as per current rotation interval.
-         * @return: A list of rotation years as renderable tags.
+         * Initializes actions for years of interest based
+         * on current set rotation interval.
          */
-
-        // Get years of intereest based on latest rotation period.
+        
+        // Get years of interest based on latest rotation period.
         const maxTime = JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
         let t = rotationPeriod
         let years = []
@@ -85,18 +85,27 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
                 yearActions[year].push({selected: false, ...action})
             }
         }
+    }
+
+    const getYearActionsObjects = () => {
+        /**
+         * Generates a list of year actions objects from 
+         * latest yearActions.
+         * @return: A list of rotation years as renderable tags.
+         */
 
         // Returns renderable tags to visualize actions.
-        const yearActionsObjects = []
+        const objs = []
         for (const [year, actions] of Object.entries(yearActions)) {
-            yearActionsObjects.push(<YearActions 
+            objs.push(<YearActions 
                 year={year} 
                 actions={actions}
                 maxHeight="120px"
+                onActionTagClick={handleActionTagClick}
             />)
         }
         
-        return yearActionsObjects
+        return objs
     }
 
     const handleTreeCountChange = (val) => {
@@ -121,7 +130,37 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
         console.log("Repeat Change =", val)
     }
 
+    const handleDelete = () => {
+        /** 
+         * Updates data and UI to reflect the user's
+         * choice to delete selected action tags.
+         */
+
+        // Delete selections actions from yearActions.
+        let actions = []
+        let action = null
+        for (const year of Object.keys(yearActions)) {
+            actions = yearActions[year]
+            for (let i=0; i<actions.length; i++) {
+                action = actions[i]
+                if (action.selected) {
+                    // Deselect selected tag.
+                    if ("setTagSelectionState" in action) {
+                        action.setTagSelectionState(false)
+                    }
+                    // Remove this action
+                    yearActions[year].splice(i, 1)
+                }
+            }
+        }
+
+        // Update UI.
+        // setYearActionsObjects([])
+        setYearActionsObjects(getYearActionsObjects())
+    }
+
     useEffect(() => {
+        initYearActions()
         setYearActionsObjects(getYearActionsObjects())
     }, [rotationPeriod])
 
@@ -136,15 +175,15 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
                         <b>{"Actions ↓"}</b>
                     </div>
                     <div className='flex gap-3 jusify-center'>
-                        <Button 
+                        <Button // DELETE BUTTON
                             outlineColor='#D28282' bgColor='#FFC5C5'
-                            onClick={() => {console.log("DELETE button clicked.")}}
+                            onClick={handleDelete}
                         ><img src="bin.png" className='max-h-8 p-1 w-auto'/></Button>
-                        <Button 
+                        <Button // SAVE BUTTON
                             outlineColor='#9FCBFF' bgColor='#C5E0FF'
                             onClick={() => {console.log("SAVE button clicked.")}}
                         ><img src="save.png" className='max-h-8 p-1 w-auto'/></Button>
-                        <Button 
+                        <Button // UPLOAD BUTTON
                             outlineColor='#F0BDFE' bgColor='#F7D9FF'
                             onClick={() => {console.log("UPLOAD button clicked.")}}
                         ><img src="upload.png" className='max-h-8 p-1 w-auto'/></Button>
@@ -166,7 +205,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction}) => {
                 flex justify-between gap-3 items-center 
                 rounded-lg bg-[#AAAAAA] p-3 box-border
             '>
-                {/* ACTIONS BUTTONS */}
+                {/* ACTION BUTTONS */}
                 <div className='py-2 px-5 bg-[#D0D0D0] rounded-lg text-center'>
                     <p className='mb-2 font-bold'>ACTIONS</p>
                     <div className='mb-2'>

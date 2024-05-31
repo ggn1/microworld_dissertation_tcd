@@ -1,14 +1,14 @@
 const dummyPlan = {
     "40": {
-        "fell": [{count: 1, type:"coniferous", stage:"mature", success:0}],
-        "plant": [{count:1, type:"coniferous", success:1}, {count:1, type:"deciduous", success:0}]
+        "fell": [],
+        "plant": [{count:1, type:"deciduous", success:-1}]
     },
-    "80": {
-        "fell": [
-            {count: 1, type:"coniferous", stage:"mature", success:-1}, 
-            {count: 1, type:"deciduous", stage:"old_growth", success:-1}],
-        "plant": []
-    }
+    // "80": {
+    //     "fell": [
+    //         {count: 1, type:"coniferous", stage:"mature", success:-1}, 
+    //         {count: 1, type:"deciduous", stage:"old_growth", success:-1}],
+    //     "plant": []
+    // }
 }
 
 
@@ -27,7 +27,7 @@ export default class Planner {
         /**
          * Logical planner that allows learns to draft forest management plans.
          */
-        this.plan = {}
+        this.plan = dummyPlan
         this.rotationPeriod = JSON.parse(process.env.NEXT_PUBLIC_ROTATION_START)
         this.incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
 
@@ -165,7 +165,7 @@ export default class Planner {
         }
     }
 
-    updateActionStatus(year, actionType, actionIdx, status) {
+    updateActionStatus(year, actionType, actionIdx, successStatus) {
         /** 
          * Update the status of whether it was possible to 
          * execute this action (if such an action exists).
@@ -173,12 +173,12 @@ export default class Planner {
          * @param actionType: The kind of action that was attempted
          *                    to be executed.
          * @param actionIdx: The index of the specific action that was executed.
-         * @param status: The new status of that action (-1 => not yet attempted
-         *                to execute, 1 => was succcessfully executed, 0 => could
-         *                not be sucessfully executed).
+         * @param successStatus: The new status of that action (-1 => not yet attempted
+         *                       to execute, 1 => was succcessfully executed, 0 => could
+         *                       not be sucessfully executed).
          */
         if (year in this.plan && this.plan[year][actionType].length > actionIdx) {
-            this.plan[year][actionType][actionIdx].status = status
+            this.plan[year][actionType][actionIdx].success = successStatus
         }
     }
 

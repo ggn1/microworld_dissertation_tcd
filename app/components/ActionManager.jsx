@@ -253,6 +253,12 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
         setYearActionsObjects(getYearActionsObjects())
     }, [rotationPeriod])
 
+    useEffect(() => {
+        console.log("Action Manager!!!")
+        updateYearActions()
+        setYearActionsObjects(getYearActionsObjects())
+    }, [])
+
     return (
         <div>
             {/* VIEWER */}

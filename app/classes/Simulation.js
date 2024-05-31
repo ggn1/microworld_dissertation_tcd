@@ -19,8 +19,6 @@ export default class Simulation {
         this.#createFreshWorld()
         this.planner = new Planner()
         this.updateSimUI = updateSimUI
-        this.income = 0
-        this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
         this.resources = {
             timber: new Timber(
                 this.#incomeSources.timber.unit,
@@ -114,6 +112,8 @@ export default class Simulation {
                 this.funds -= this.#mgmtActionCosts.plant
                 // Plant the tree seedling.
                 status = this.env.land.plantTree(treeType, pos)
+                if (typeof(status) != "number") status = 1
+                else status = 0
             } else {
                 // No suitable spot found.
                 status = 0
@@ -132,11 +132,11 @@ export default class Simulation {
             const actions = this.planner.plan[year]
             // First execute fell actions, then plant actions.
             for (const actionType of ["fell", "plant"]) {
-                for (let i=0; i<actions.fell.length; i++) {
-                    action = actions.fell[i]
+                for (let i = 0; i < actions[actionType].length; i++) {
+                    action = actions[actionType][i]
                     for (let c = 0; c < action.count; c++) {
                         this.#executeAction(
-                            year, actionType, action.type, 
+                            year, actionType, i, action.type, 
                             "stage" in action ? action.stage : "none"
                         )
                     }
@@ -157,7 +157,7 @@ export default class Simulation {
     #takeTimeStep() {
         /** Step forward in time by one step. */
         this.time += 1
-        // this.#executePlans()
+        this.#executePlans(this.time)
         this.env.land.takeTimeStep()
         this.updateSimUI()
     } 
@@ -166,5 +166,7 @@ export default class Simulation {
         /** Initializes the simulation with starting world state. */
         this.time = 0
         this.env = new Environment()
+        this.income = 0
+        this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
     }
 }

@@ -83,18 +83,18 @@ export default class Simulation {
         if(actionType == "fell") {
             // Select a tree to fell.
             const pos = this.env.land.getTree(treeType, treeLifeStage)
-            let woodHarvested = 0
-            if (
+            if ( // Suitable tree found.
                 pos[0] >= 0 && 
                 treeLifeStage != "seedling" &&
                 treeLifeStage != "sapling"
             ) { 
-                // Suitable tree found.
-                status = 1 
                 // Pay the price for felling.
                 this.funds -= this.#mgmtActionCosts.fell
                 // Fell the tree.
-                [status, woodHarvested] = this.env.land.fellTree(pos) // g
+                const [success, woodHarvested] = this.env.land.fellTree(
+                    pos, treeType, treeLifeStage
+                ) // g
+                status = success
                 // Add harvested wood to available timber resource.
                 this.resources.timber.available += woodHarvested
             } else {
@@ -104,10 +104,8 @@ export default class Simulation {
         } else { // actionType == "plant"
             // Select a spot on the land wherein to plant.
             let pos = this.env.land.getFreeSpaces()
-            if (pos.length > 0) {
+            if (pos.length > 0) { // Suitable spot found.
                 pos = pos[0]
-                // Suitable spot found.
-                status = 1
                 // Pay the price for planting.
                 this.funds -= this.#mgmtActionCosts.plant
                 // Plant the tree seedling.

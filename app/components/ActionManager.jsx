@@ -226,7 +226,6 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
         /**
          * Facilitates addition of selected action to the plan.
          */
-        console.log("add button clicked")
         if (!isCountInvalid && !isYearInvalid) {
             let years = [selectedYear]
             if (repeat) {
@@ -234,10 +233,6 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                 years = rotationYears.slice(curYearIdx)
             }
             for (const year of years) {
-                // console.log(
-                //     year, selectedAction, treeCount,
-                //     selectedTreeType, selectedTreeLifeStage 
-                // )
                 addAction(
                     year, selectedAction, treeCount,
                     selectedTreeType, selectedTreeLifeStage 

@@ -1,7 +1,7 @@
 const dummyPlan = {
     "40": {
-        "fell": [],
-        "plant": [{count:1, type:"deciduous", success:-1}]
+        "fell": [{count:1, type:"coniferous", success:-1, stage:"mature"}],
+        "plant": []
     },
     // "80": {
     //     "fell": [

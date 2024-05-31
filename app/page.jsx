@@ -13,7 +13,6 @@ import PlanViewer from './components/PlanViewer.jsx'
 import Funds from './components/Funds.jsx'
 
 export let sim = null
-let challengePassed = null
 
 const Home = () => {
     const [isInitialized, setIsInitialized] = useState(false)

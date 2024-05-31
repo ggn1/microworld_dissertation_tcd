@@ -92,6 +92,41 @@ export default class Land {
             this.content[position[0]][position[1]] = newTree
             return newTree
         }
+        this.fellTree = (position, treeType, treeLifeStage) => {
+            /**
+             * Fells one or more trees on the land.
+             * @param position: Position of the tree to fell
+             * @param treeType: The type of tree to fell (deciduous/coniferous).
+             * @param treeLifeStage: The stage of life at which the tree to be 
+             *                       felled must be at.
+             * @return: Whether it was possible to execute this action 
+             *          (1) or not (0).
+             */ 
+            const tree = this.content[position[0]][position[1]]
+            if (
+                tree == null ||
+                tree.treeType != treeType ||
+                tree.lifeStage != treeLifeStage
+            ) return [0, 0]
+            
+            // Tree is chopped. So, it's stress levels 
+            // are set to 1.
+            tree.updateStress((1-tree.stress))
+
+            // Get volume of the tree that will be harvested.
+            const heightHarvested = tree.height * (1 - JSON.parse(
+                process.env.NEXT_PUBLIC_TREE_VOLUME_REMAINS_AFTER_FELL
+            ))
+            const radius = tree.diameter/2
+            const volumeHarvested = utils.volumeCylinder(heightHarvested, radius)
+
+            // Remove harvested portion of the tree.
+            tree.updateHeight(-1*heightHarvested)
+
+            // Compute weight of the tree that is harvested.
+            const weightHarvested = volumeHarvested * tree.woodDensity
+            return [1, weightHarvested]
+        }
         this.#initialize()
     }
 
@@ -322,7 +357,7 @@ export default class Land {
          */
         let entity = null
         for (let i = 0; i < this.size.rows; i++) {
-            for (let k = 0; j < this.size.columns; j++) {
+            for (let j = 0; j < this.size.columns; j++) {
                 entity = this.content[i][j]
                 if (
                     entity != null // Entity is a tree.
@@ -332,17 +367,5 @@ export default class Land {
             }
         }
         return [-1, -1]
-    }
-
-    fellTree (position) {
-        /**
-         * Fells one or more trees on the land.
-         * @param count: No. of trees to fell.
-         * @param treeType: The type of tree to fell (deciduous/coniferous).
-         * @param treeLifeStage: The stage of life at which the tree to be 
-         *                       felled must be at.
-         * @return: Whether it was possible to execute this action or not.
-         */ 
-        // TO DO
     }
 }

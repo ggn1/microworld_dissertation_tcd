@@ -66,6 +66,25 @@ export default class Tree {
         this.#processCarbon(utils.volumeCylinder(
             this.height, this.diameter/2
         ), "air", "vegetation")
+        this.updateStress = (change) => {
+            /**
+             * Changes stress on this tree.
+             * @param change: The amount by which stress is to be
+             *                changed (in either positive or negative
+             *                directions).
+             */
+            this.stress += change
+            this.lifeStage = this.#computeLifeStage()
+        }
+        this.updateHeight = (change) => {
+            /**
+             * Updates height value by given amount.
+             * @param change: The amount by which the height of
+             *                the tree changes.
+             */
+            this.height += change
+            this.diameter = this.#getDiameterFromHeight(this.height)
+        }
     }
 
     #computeBiodiversityReductionFactor() {

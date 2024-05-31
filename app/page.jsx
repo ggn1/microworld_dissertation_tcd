@@ -10,8 +10,10 @@ import BdStatus from './components/BdStatus.jsx'
 import IncDepBar from './components/IncDepBar.jsx'
 import Targets from './components/Targets.jsx'
 import PlanViewer from './components/PlanViewer.jsx'
+import Funds from './components/Funds.jsx'
 
 export let sim = null
+let challengePassed = null
 
 const Home = () => {
     const [isInitialized, setIsInitialized] = useState(false)
@@ -22,6 +24,8 @@ const Home = () => {
     const [bdCat, setBdCat] = useState("")
     const [incomeSources, setIncomeSources] = useState({})
     const [rotationPeriod, setRotationPeriod] = useState()
+    const [income, setIncome] = useState(0)
+    const [funds, setFunds] = useState(0)
 
     const updateSimUI = () => {
         setLandContent([...sim.env.land.content])
@@ -31,14 +35,13 @@ const Home = () => {
         setBdCat(sim.env.land.biodiversityCategory)
         setIncomeSources({...sim.planner.incomeSources})
         setRotationPeriod(sim.planner.rotationPeriod)
+        setIncome(sim.income)
+        setFunds(sim.funds)
     }
 
     useEffect(() => {
-        if (sim == null) {
-            sim = new Simulation(updateSimUI)
-        } else {
-            sim.updateSimUI = updateSimUI
-        }
+        if (sim == null) sim = new Simulation(updateSimUI)
+        else sim.updateSimUI = updateSimUI
         updateSimUI()
         setIsInitialized(true)
     }, [])
@@ -49,8 +52,9 @@ const Home = () => {
             <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-3 row-span-3">
                 <Targets 
                     setTargets={sim.planner.setTargets} 
-                    getCO2={sim.env.getAirCO2ppm}
-                    getIncome={sim.getIncome}
+                    curCO2={airCO2}
+                    curIncome={income}
+                    curFunds={funds}
                     startValCO2={sim.planner.getTargets().co2}
                     startValIncome={sim.planner.getTargets().income}
                 />
@@ -69,6 +73,7 @@ const Home = () => {
                 <CO2Scale concentration={airCO2}/>
                 <CarbonDist distribution={envC}/>
                 <BdStatus bdScore={bdScore} bdCategory={bdCat}/>
+                <Funds funds={funds}/>
                 <IncDepBar
                     proportions={Object.values(
                         incomeSources

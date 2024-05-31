@@ -5,7 +5,8 @@ import { useState } from "react"
 const Tag = ({
     children, borderRadius="9999px",
     bgColor="#EEEEEE", borderColor="#EEEEEE", 
-    borderColorSelected="", onClick=()=>{}
+    borderColorSelected="", onClick=()=>{},
+    width="auto", height="auto", borderWidth="3px"
 }) => {
     /**
      * A generic tag that may or maynot be selectable. 
@@ -36,13 +37,15 @@ const Tag = ({
             onClick={handleClick}
             className={selectable && "hover:brightness-110"}
             style={{
-                borderWidth: "3px",
+                borderWidth: borderWidth,
                 backgroundColor: bgColor,
                 borderRadius: borderRadius,
                 borderColor: 
                     selectable && selected ? 
                     borderColorSelected : 
-                    borderColor
+                    borderColor,
+                width: width,
+                height: height
             }}
         >{children}</div>
     )

@@ -10,7 +10,7 @@ export default class Tree {
     #updateCarbon
     #isLandFree
     #ageLastReproduced = 0
-    #sow
+    #plantTree
     #lifeStages
     #getAirCO2ppm
     #volumeDecay
@@ -19,7 +19,7 @@ export default class Tree {
         position, treeType, 
         getBiodiversityCategory, 
         isLandFree, updateCarbon, 
-        sow, getAirCO2ppm
+        plantTree, getAirCO2ppm
     ) {
         /** 
          * Constructor.
@@ -31,7 +31,7 @@ export default class Tree {
          * @param updateCarbon: Function that can be used to update the amount of carbon
          *                      in the atmosphere.
          * @param isLandFree: Function that can be used to check if a given spot is free.
-         * @param sow: Function that can be used to sow a new seedling to reproduce.
+         * @param plantTree: Function that can be used to sow a new seedling to reproduce.
          * @param getAirCO2ppm: Function that gets current concentration of CO2 in the
          *                      atmosphere. 
          */
@@ -45,7 +45,7 @@ export default class Tree {
         this.#getBiodiversityCategory = getBiodiversityCategory
         this.#updateCarbon = updateCarbon
         this.#isLandFree = isLandFree
-        this.#sow = sow
+        this.#plantTree = plantTree
         this.#getAirCO2ppm = getAirCO2ppm
         this.lifeStage = "seedling"
         this.#volumeDecay = -1 // Initially unknown
@@ -343,16 +343,9 @@ export default class Tree {
         }
         if (positionsFree.length == 0) return -1
 
-        // // If it is indeed possible to reproduce,
-        // // pick a random free position to add a 
-        // // sapling to.
-        // this.#sow(this.treeType, positionsFree[
-        //     utils.getRandomIntegerBetween(0, positionsFree.length-1)
-        // ])
-
         // If it is indeed possible to reproduce,
         // add a sapling to the first available space.
-        this.#sow(this.treeType, positionsFree[0])
+        this.#plantTree(this.treeType, positionsFree[0])
     }
 
     getOlder() {

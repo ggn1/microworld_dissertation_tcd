@@ -64,7 +64,7 @@ export default class Land {
             ) return false
             return this.content[row][column] == null
         }
-        this.sow = (treeType, position=null) => {
+        this.plantTree = (treeType, position) => {
             /**
              * Function that adds a new seedling onto the land.
              * This action is successful only if there is a free
@@ -75,52 +75,24 @@ export default class Land {
              *                  case, the position is a random free spot.
              *                  If a position is defined, then this is where
              *                  the plant is sown.
-             * @return: The tree that was planted or null if it was 
+             * @return: The tree that was planted or 0 if it was 
              *          not possible to sow.
              */
 
-            let spot = position
-            if (spot == null) {
-                spot = this.#getRandomFreeSpot()
-            }
-
-            // If no free spot then cannot sow.
-            if (typeof(spot) == 'number') {
-                return null
-            }
+            // Can only plant at a position if it is free.
+            const landFree = this.isLandFree(position[0], position[1])
+            if (!landFree) return 0
             
             const newTree = new Tree(
-                spot, treeType,
+                position, treeType,
                 this.getBiodiversityCategory,
                 this.isLandFree, this.#updateCarbon,
-                this.sow, this.#getAirCO2ppm
+                this.plantTree, this.#getAirCO2ppm
             )
-            this.content[spot[0]][spot[1]] = newTree
-            
+            this.content[position[0]][position[1]] = newTree
             return newTree
         }
         this.#initialize()
-        this.fellTree = (position) => {
-            /**
-             * Fells one or more trees on the land.
-             * @param count: No. of trees to fell.
-             * @param treeType: The type of tree to fell (deciduous/coniferous).
-             * @param treeLifeStage: The stage of life at which the tree to be 
-             *                       felled must be at.
-             * @return: Whether it was possible to execute this action or not.
-             */
-            
-            
-        }
-        this.plantTree = (position) => {
-            /**
-             * Plants a new seedling of a given tree type on the land.
-             * @param count: No. of trees to plant.
-             * @param treeType: The type of tree to plant (deciduous/coniferous).
-             * @return: Whether it was possible to execute this action or not.
-             */
-            // TO DO
-        }
     }
 
     #initialize() {
@@ -148,7 +120,7 @@ export default class Land {
                     if (typeof(spot) == "number") return // No more space on land.
                     initSowPositions.push(spot)
                 } else spot = initSowPositions[spotIdx]
-                this.sow(typeName, spot)
+                this.plantTree(typeName, spot)
                 spotIdx += 1
             }
         }
@@ -360,5 +332,17 @@ export default class Land {
             }
         }
         return [-1, -1]
+    }
+
+    fellTree (position) {
+        /**
+         * Fells one or more trees on the land.
+         * @param count: No. of trees to fell.
+         * @param treeType: The type of tree to fell (deciduous/coniferous).
+         * @param treeLifeStage: The stage of life at which the tree to be 
+         *                       felled must be at.
+         * @return: Whether it was possible to execute this action or not.
+         */ 
+        // TO DO
     }
 }

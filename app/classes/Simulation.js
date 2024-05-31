@@ -8,8 +8,7 @@ export default class Simulation {
 
     #incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
     #mgmtActionCosts = JSON.parse(process.env.NEXT_PUBLIC_COST_MGMT_ACTION)
-    #income
-
+    
     constructor(updateSimUI) {
         /**
          * Constructor.
@@ -20,6 +19,22 @@ export default class Simulation {
         this.#createFreshWorld()
         this.planner = new Planner()
         this.updateSimUI = updateSimUI
+        this.income = 0
+        this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
+        this.resources = {
+            timber: new Timber(
+                this.#incomeSources.timber.unit,
+                this.#incomeSources.timber.price_per_unit
+            ),
+            ntfp: new NTFP(
+                this.#incomeSources.ntfp.unit,
+                this.#incomeSources.ntfp.price_per_unit
+            ),
+            recActs: new RecreationalActivities(
+                this.#incomeSources.recreational_activities.unit,
+                this.#incomeSources.recreational_activities.price_per_unit
+            )
+        }
         this.goto = (time) => {
             /** 
              * Given a point in time, runs the simulation
@@ -57,7 +72,9 @@ export default class Simulation {
          * Executes given action and records 
          * whether or not it was possible to carry
          * through with that action. No effect if
-         * given action does not exist.
+         * given action does not exist. Only trees that
+         * are at least old enough to have matured, can
+         * be chopped.
          * @param year: Year associated with this action.
          * @param actionIdx: Index of this action.
          * @param actionType: The type of this action.
@@ -68,13 +85,18 @@ export default class Simulation {
         if(actionType == "fell") {
             // Select a tree to fell.
             const pos = this.env.land.getTree(treeType, treeLifeStage)
-            if (pos[0] >= 0) { 
+            let woodHarvested = 0
+            if (
+                pos[0] >= 0 && 
+                treeLifeStage != "seedling" &&
+                treeLifeStage != "sapling"
+            ) { 
                 // Suitable tree found.
                 status = 1 
                 // Pay the price for felling.
                 this.funds -= this.#mgmtActionCosts.fell
                 // Fell the tree.
-                const woodHarvested = this.env.land.fellTree(pos) // g
+                [status, woodHarvested] = this.env.land.fellTree(pos) // g
                 // Add harvested wood to available timber resource.
                 this.resources.timber.available += woodHarvested
             } else {
@@ -91,7 +113,7 @@ export default class Simulation {
                 // Pay the price for planting.
                 this.funds -= this.#mgmtActionCosts.plant
                 // Plant the tree seedling.
-                this.env.land.plantTree(pos)
+                status = this.env.land.plantTree(treeType, pos)
             } else {
                 // No suitable spot found.
                 status = 0
@@ -123,6 +145,15 @@ export default class Simulation {
         }
     }
 
+    #generateIncome() {
+        /**
+         * Sells resources available at the end of
+         * this time step and updates income
+         * generated from them.
+         */
+        // TO DO
+    }
+
     #takeTimeStep() {
         /** Step forward in time by one step. */
         this.time += 1
@@ -134,29 +165,6 @@ export default class Simulation {
     #createFreshWorld() {
         /** Initializes the simulation with starting world state. */
         this.time = 0
-        this.#income = 0
-        this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
-        this.resources = {
-            timber: new Timber(
-                this.#incomeSources.timber.unit,
-                this.#incomeSources.timber.price_per_unit
-            ),
-            ntfp: new NTFP(
-                this.#incomeSources.ntfp.unit,
-                this.#incomeSources.ntfp.price_per_unit
-            ),
-            recActs: new RecreationalActivities(
-                this.#incomeSources.recreational_activities.unit,
-                this.#incomeSources.recreational_activities.price_per_unit
-            )
-        }
         this.env = new Environment()
-        this.getIncome = () => {
-            /**
-             * Returns latest income.
-             * @return: User's latest income.
-             */
-            return this.#income
-        }
     }
 }

@@ -1,14 +1,17 @@
 import Switch from "./Switch"
+import Tag from "./Tag"
 import TextInput from "./TextInput"
 import {useState, useEffect } from "react"
 
-let targets = {
-    "co2": null,
-    "income": null
-}
+let targets = {"co2": null, "income": null, "funds":JSON.parse(
+    process.env.NEXT_PUBLIC_TARGET_FUNDS_START
+)}
 let isExpMode = true
 
-const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) => {
+const Targets = ({
+    setTargets, curCO2, curIncome, curFunds,
+    startValCO2, startValIncome
+}) => {
     /**
      * This component both displays targets and allows 
      * users to set them. It is possible to turn consideration
@@ -16,11 +19,12 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
      * between serious (challenge shall be failed if targets are
      * not met) and experimentation modes.
      * @param setTargets: Function that allows targets to
-     *                       be updated in the simulation. It must
-     *                       accept a dictionary of target: value 
-     *                       key pairs as input.
-     * @param getCO2: Gets current atmospheric CO2 concentration.
-     * @param getIncome: Gets latest user income.
+     *                    be updated in the simulation. It must
+     *                    accept a dictionary of target: value 
+     *                    key pairs as input.
+     * @param curCO2: Current atmospheric CO2 concentration.
+     * @param curIncome: Latest user income.
+     * @param curFunds: Latest funds that the user has.
      * @param startValCO2: The starting CO2 target value.
      * @param startValIncome: The starting income target value.
      */
@@ -32,27 +36,39 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
 
     const [expMode, setExpMode] = useState(isExpMode)
     const [targetCO2, setTargetCO2] = useState(
-        targets.co2 != null && targets.co2 != startValCO2
+        targets.co2 != null && 
+        targets.co2 != startValCO2
         ? targets.co2 : startValCO2
     ) 
     const [targetIncome, setTargetIncome] = useState(
-        targets.income != null && targets.income != startValIncome
+        targets.income != null && 
+        targets.income != startValIncome
         ? targets.income : startValIncome
     ) 
-    const [borderColorCO2, setBorderColorCO2] = useState(colorBorderDefault)
-    const [textColorCO2, setTextColorCO2] = useState(colorTextDefault)
-    const [borderColorIncome, setBorderColorIncome] = useState(colorBorderDefault)
-    const [textColorIncome, setTextColorIncome] = useState(colorTextDefault)
+
+    const [isValidCO2, setIsValidCO2] = useState(false)
+    const [isValidIncome, setIsValidIncome] = useState(false)
+    const [isTargetMetCO2, setIsTargetMetCO2] = useState(false)
+    const [isTargetMetIncome, setIsTargetMetIncome] = useState(false)
+    const [isTargetMetFunds, setIsTargetMetFunds] = useState(false)
 
     const isTargetMet = (targetType, target) => {
         /** 
-         * Checks whether current values meet the target or not.
+         * Checks whether current values meet the target or not
+         * and changes state accordingly.
          * @param targetType: Type of target being 
-         *                    checked (co2 / income).
+         *                    checked (co2 / income / funds).
+         * @param target: The target value checked against.
          */
-        
-        if (targetType == "co2") return getCO2() <= target
-        if (targetType == "income") return getIncome() >= target
+        if (targetType == "co2") {
+            setIsTargetMetCO2(curCO2 <= target)
+        }
+        if (targetType == "income") {
+            setIsTargetMetIncome(curIncome >= target)
+        }
+        if (targetType == "funds") {
+            setIsTargetMetFunds(curFunds >= target)
+        }
     }
 
     const sanityCheckNumeric = (val) => {
@@ -79,26 +95,24 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
          * @param val: User input from the CO2 text box as a string value.
         */
         if (val == "") {
-            if (targetType == "co2") setTextColorCO2(colorBad)
-            if (targetType == "income") setTextColorIncome(colorBad)
+            if (targetType == "co2") setIsValidCO2(false)
+            if (targetType == "income") setIsValidIncome(false)
             val = 0
         }
         else {
-            setTextColorCO2(colorTextDefault)
-            setTextColorIncome(colorTextDefault)
+            setIsValidCO2(true)
+            setIsValidIncome(true)
             val = parseFloat(val)
         }
 
         if (targetType == "co2") {
-            if (isTargetMet("co2", val)) setBorderColorCO2(colorGood)
-            else setBorderColorCO2(colorBad)
+            isTargetMet("co2", val)
             targets.co2 = val
             setTargetCO2(targets.co2)
         }
 
         if (targetType == "income") {
-            if (isTargetMet("income", val)) setBorderColorIncome(colorGood)
-            else setBorderColorIncome(colorBad)
+            isTargetMet("income", val)
             targets.income = val
             setTargetIncome(targets.income)
         }
@@ -115,11 +129,24 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
     }
 
     useEffect(() => {
+        isTargetMet("funds", targets.funds)
+    }, [curFunds])
+
+    useEffect(() => {
+        isTargetMet("co2", targetCO2)
+    }, [curCO2])
+
+    useEffect(() => {
+        isTargetMet("income", targetIncome)
+    }, [curIncome])
+
+    useEffect(() => {
         /** 
          * Initially, check if default targets are met.
          */
         handleVal("co2", targetCO2) 
         handleVal("income", targetIncome)
+        isTargetMet("funds", targets.funds)
     }, [])
 
     useEffect(() => {
@@ -132,11 +159,11 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
 
     return (
         <div className="
-            grid p-3 auto-rows-auto grid-cols-1
+            grid p-3 grid-rows-4 grid-cols-1
             justify-content-center justify-items-center h-full
-            gap-3
+            gap-2
         ">
-            <div className="flex gap-5 justify-center -mb-3">
+            <div className="flex gap-5 h-full w-full justify-center items-center">
                 <div className="font-bold">TARGETS</div>
                 <Switch 
                     isOnStart={!expMode} 
@@ -146,23 +173,44 @@ const Targets = ({setTargets, getCO2, getIncome, startValCO2, startValIncome}) =
                 />
             </div>
             <TextInput 
-                label="CO2 :"
+                label="CO2 <="
                 placeholder={targetCO2}
-                borderColor={expMode ? colorBorderDefault : borderColorCO2}
-                textColor={textColorCO2}
+                borderColor={
+                    expMode ? colorBorderDefault : 
+                    isTargetMetCO2 ? colorGood : colorBad
+                }
+                textColor={isValidCO2 ? colorTextDefault : colorBad}
                 unit="ppm"
                 sanityCheck={sanityCheckNumeric} 
                 handleVal={(val) => handleVal("co2", val)}
             />
             <TextInput 
-                label="Income :"
+                label="Income >="
                 placeholder={targetIncome}
                 unit="Bc"
-                borderColor={expMode ? colorBorderDefault : borderColorIncome}
-                textColor={textColorIncome}
+                borderColor={
+                    expMode ? colorBorderDefault : 
+                    isTargetMetIncome ? colorGood : colorBad
+                }
+                textColor={isValidIncome ? colorTextDefault : colorBad}
                 sanityCheck={sanityCheckNumeric} 
                 handleVal={(val) => handleVal("income", val)}
             />
+            <Tag 
+                width="100%" 
+                height="100%"
+                bgColor="#FFFFFF" 
+                borderWidth="4px"
+                borderColor={
+                    expMode ? colorBorderDefault : 
+                    isTargetMetFunds ? colorGood : colorBad
+                } 
+            >
+                <div className="flex gap-2 w-full h-full justify-between items-center px-1">
+                    <div className="font-bold">Funds {`>= ${targets.funds}`}</div>
+                    <div>Bc</div>
+                </div>
+            </Tag>
         </div>
     )
 }

@@ -65,8 +65,8 @@ const LandPlot = ({content}) => {
 
         // Get SVG and it's dimensions.
         svg = d3.select(refSvg.current)
-        if (!widthSvg) widthSvg = Number(svg.style('width').replace('px', ''))
-        if (!heightSvg) heightSvg = Number(svg.style('height').replace('px', ''))
+        widthSvg = Number(svg.style('width').replace('px', ''))
+        heightSvg = Number(svg.style('height').replace('px', ''))
         margins = {
             left: 15, right: 0,
             top: 5, bottom: 0

@@ -100,6 +100,27 @@ export default class Land {
             return newTree
         }
         this.#initialize()
+        this.fellTree = (position) => {
+            /**
+             * Fells one or more trees on the land.
+             * @param count: No. of trees to fell.
+             * @param treeType: The type of tree to fell (deciduous/coniferous).
+             * @param treeLifeStage: The stage of life at which the tree to be 
+             *                       felled must be at.
+             * @return: Whether it was possible to execute this action or not.
+             */
+            
+            
+        }
+        this.plantTree = (position) => {
+            /**
+             * Plants a new seedling of a given tree type on the land.
+             * @param count: No. of trees to plant.
+             * @param treeType: The type of tree to plant (deciduous/coniferous).
+             * @return: Whether it was possible to execute this action or not.
+             */
+            // TO DO
+        }
     }
 
     #initialize() {
@@ -236,22 +257,6 @@ export default class Land {
         }
     }
 
-    #getFreeSpaces() {
-        /**
-         * Returns an array of spaces that are free.
-         * @return: List of [x, y] spots on the land with no entities.
-         */
-        let freeSpaces = []
-        for (let i = 0; i < this.size.rows; i++) {
-            for (let j = 0; j < this.size.columns; j++) {
-                if (this.content[i][j] == null) {
-                    freeSpaces.push([i, j])
-                }
-            }
-        }
-        return freeSpaces
-    }
-
     #getRandomFreeSpot() {
         /**
          * Returns a random free spot on land.
@@ -259,7 +264,7 @@ export default class Land {
          *          on the forest floor where there are not entities.
          *          If no such spot exists, then -1 is returned.
          */
-        const freeSpots = this.#getFreeSpaces()
+        const freeSpots = this.getFreeSpaces()
         const numFreeSpots = freeSpots.length
         if (numFreeSpots == 0) return -1 
         const randomSpotIdx = utils.getRandomIntegerBetween(0, numFreeSpots-1)
@@ -273,6 +278,22 @@ export default class Land {
          */
         this.biodiversityScore = this.#computeBiodiversityScore()
         this.biodiversityCategory = this.#computeBiodiversityCategory()
+    }
+
+    getFreeSpaces() {
+        /**
+         * Returns an array of spaces that are free.
+         * @return: List of [x, y] spots on the land with no entities.
+         */
+        let freeSpaces = []
+        for (let i = 0; i < this.size.rows; i++) {
+            for (let j = 0; j < this.size.columns; j++) {
+                if (this.content[i][j] == null) {
+                    freeSpaces.push([i, j])
+                }
+            }
+        }
+        return freeSpaces
     }
 
     takeTimeStep() {
@@ -316,5 +337,28 @@ export default class Land {
         //         "[ideally 1.87]"
         //     )
         // }
+    }
+
+    getTree (treeType, treeLifeStage) {
+        /** 
+         * Returns the position of a given type of tree
+         * if available.
+         * @param treeType: Type of the tree.
+         * @param treeLifeStage: Life stage of the tree.
+         * @return: Position [x, y] of the tree or [-1, -1]
+         *          if no such tree is present on land.
+         */
+        let entity = null
+        for (let i = 0; i < this.size.rows; i++) {
+            for (let k = 0; j < this.size.columns; j++) {
+                entity = this.content[i][j]
+                if (
+                    entity != null // Entity is a tree.
+                    && entity.treeType == treeType
+                    && entity.lifeStage == treeLifeStage
+                ) return [i, j]
+            }
+        }
+        return [-1, -1]
     }
 }

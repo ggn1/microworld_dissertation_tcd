@@ -34,7 +34,11 @@ const Home = () => {
     }
 
     useEffect(() => {
-        if (sim == null) sim = new Simulation(updateSimUI)
+        if (sim == null) {
+            sim = new Simulation(updateSimUI)
+        } else {
+            sim.updateSimUI = updateSimUI
+        }
         updateSimUI()
         setIsInitialized(true)
     }, [])

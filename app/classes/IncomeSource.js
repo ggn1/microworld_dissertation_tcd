@@ -7,14 +7,19 @@ export default class IncomeSource {
      *  from the forest. */
     
     constructor(unit, price_per_unit) {
-        this.demand = 0
         this.available = 0
         this.unit = unit
         this.price_per_unit = price_per_unit
     }
 
-    getIncome() {
-        // TO DO ...
+    sell() {
+        /**
+         * Sells available amount of the resource
+         * and returns funds received.
+         */
+        const fundsReceived = this.available * this.price_per_unit
+        this.available = 0
+        return fundsReceived
     }
 }
 
@@ -24,10 +29,10 @@ export class Timber extends IncomeSource {
 
     constructor(unit, price_per_unit) {
         super(unit, price_per_unit)
-        const timber_usage = JSON.parse(process.env.NEXT_PUBLIC_TIMBER_USAGE)
+        const timberUsage = JSON.parse(process.env.NEXT_PUBLIC_TIMBER_USAGE)
         this.usage = {
-            lumber: timber_usage.lumber,
-            energy: timber_usage.energy
+            lumber: timberUsage.lumber,
+            energy: timberUsage.energy
         }
     }
 

@@ -7,7 +7,7 @@ export default class Simulation {
      *  entire simulated world. */
 
     #incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
-    #updateSimUI
+    #mgmtActionCosts = JSON.parse(process.env.NEXT_PUBLIC_COST_MGMT_ACTION)
     #income
 
     constructor(updateSimUI) {
@@ -19,7 +19,7 @@ export default class Simulation {
          */
         this.#createFreshWorld()
         this.planner = new Planner()
-        this.#updateSimUI = updateSimUI
+        this.updateSimUI = updateSimUI
         this.goto = (time) => {
             /** 
              * Given a point in time, runs the simulation
@@ -32,7 +32,7 @@ export default class Simulation {
             if (timesteps < 0) {
                 timesteps = time
                 this.#createFreshWorld() // Reset world.
-                this.#updateSimUI()
+                this.updateSimUI()
             }
 
             // For as manu timesteps as required, 
@@ -49,12 +49,86 @@ export default class Simulation {
         }
     }
 
+    #executeAction = (
+        year, actionType, actionIdx, 
+        treeType, treeLifeStage="none"
+    ) => {
+        /** 
+         * Executes given action and records 
+         * whether or not it was possible to carry
+         * through with that action. No effect if
+         * given action does not exist.
+         * @param year: Year associated with this action.
+         * @param actionIdx: Index of this action.
+         * @param actionType: The type of this action.
+         * @param treeType: The type of tree that this action targets.
+         * @param treeLifeStage: The lifestage of the targeted tree.
+         */
+        let status = -1
+        if(actionType == "fell") {
+            // Select a tree to fell.
+            const pos = this.env.land.getTree(treeType, treeLifeStage)
+            if (pos[0] >= 0) { 
+                // Suitable tree found.
+                status = 1 
+                // Pay the price for felling.
+                this.funds -= this.#mgmtActionCosts.fell
+                // Fell the tree.
+                const woodHarvested = this.env.land.fellTree(pos) // g
+                // Add harvested wood to available timber resource.
+                this.resources.timber.available += woodHarvested
+            } else {
+                // No suitable tree found.
+                status = 0
+            }
+        } else { // actionType == "plant"
+            // Select a spot on the land wherein to plant.
+            let pos = this.env.land.getFreeSpaces()
+            if (pos.length > 0) {
+                pos = pos[0]
+                // Suitable spot found.
+                status = 1
+                // Pay the price for planting.
+                this.funds -= this.#mgmtActionCosts.plant
+                // Plant the tree seedling.
+                this.env.land.plantTree(pos)
+            } else {
+                // No suitable spot found.
+                status = 0
+            }
+        }
+        this.planner.updateActionStatus(year, actionType, actionIdx, status)
+    }
+
+    #executePlans(year) {
+        /** 
+         * Executes all plans for given year if possible.
+         * @param year: The year for which all plans are to be executed.
+         */
+        let action = null
+        if (year in this.planner.plan) {
+            const actions = this.planner.plan[year]
+            // First execute fell actions, then plant actions.
+            for (const actionType of ["fell", "plant"]) {
+                for (let i=0; i<actions.fell.length; i++) {
+                    action = actions.fell[i]
+                    for (let c = 0; c < action.count; c++) {
+                        this.#executeAction(
+                            year, actionType, action.type, 
+                            "stage" in action ? action.stage : "none"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     #takeTimeStep() {
         /** Step forward in time by one step. */
         this.time += 1
+        // this.#executePlans()
         this.env.land.takeTimeStep()
-        this.#updateSimUI()
-        // this.plan.takeTimeStep()
+        this.updateSimUI()
     } 
 
     #createFreshWorld() {

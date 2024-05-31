@@ -17,19 +17,20 @@ export default class Planner {
      *  updating and saving of management plans. 
      */
 
-    #plan = dummyPlan
-    
     #targets = {
         co2: JSON.parse(process.env.NEXT_PUBLIC_TARGET_CO2_START), // Atmospheric PPM
-        income: JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START) // x Barcons
+        income: JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START), // x Bc
+        funds: JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START) // x Bc
     }
     
     constructor() {
-        
+        /**
+         * Logical planner that allows learns to draft forest management plans.
+         */
+        this.plan = {}
         this.rotationPeriod = JSON.parse(process.env.NEXT_PUBLIC_ROTATION_START)
-        
         this.incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
-        
+
         this.getTargets = () => {
             /** 
              * Returns current value of targets. 
@@ -37,7 +38,6 @@ export default class Planner {
             */
             return this.#targets
         }
-
         this.setTargets = (targets) => {
             /** 
              * Sets new values for targets.
@@ -47,7 +47,6 @@ export default class Planner {
                 if (key in this.#targets) this.#targets[key] = val
             }
         }
-
         this.getPlan = (year=null) => {
             /** 
              * Returns actions planned for a given year,
@@ -57,14 +56,14 @@ export default class Planner {
              *              returned.
              * @return: Latest plan.
              */
-            let toReturn = this.#plan
+            let toReturn = this.plan
             if (year != null) {
                 toReturn = []
-                if (year in this.#plan) {
+                if (year in this.plan) {
                     const actionTypes = ["plant", "fell"]
                     let actionToReturn = null
                     for (const actionType of actionTypes){
-                        for (const action of this.#plan[year][actionType]) {
+                        for (const action of this.plan[year][actionType]) {
                             actionToReturn = {
                                 actionType: actionType,
                                 count: action.count,
@@ -81,7 +80,6 @@ export default class Planner {
             }
             return toReturn
         }
-
         this.addAction = (
             year, actionType, count, 
             treeType, treeLifeStage="none"
@@ -102,8 +100,8 @@ export default class Planner {
             // tree type with different count) exists already,
             // then just change the count in that action.
             let existingAction = null
-            if (year in this.#plan) {
-                const plannedActions = this.#plan[year][actionType]
+            if (year in this.plan) {
+                const plannedActions = this.plan[year][actionType]
                 for (let i = 0; i < plannedActions.length; i++) {
                     existingAction = plannedActions[i]
                     if (
@@ -114,20 +112,19 @@ export default class Planner {
                         )
                     ) {
                         // Remove old instance of the action.
-                        this.#plan[year][actionType].splice(i, 1) 
+                        this.plan[year][actionType].splice(i, 1) 
                         break
                     }
                 }          
             } else {
                 // If the year does not exist yet, create it.
-                this.#plan[year] = {"plant":[], "fell":[]}
+                this.plan[year] = {"plant":[], "fell":[]}
             }
     
             // Add new action to the list.
-            this.#plan[year][actionType].push(action)
+            this.plan[year][actionType].push(action)
         }
-
-        this.deleteAction = (year, actionType, treeType, treeLifeStage="") => {
+        this.deleteAction = (year, actionType, treeType, treeLifeStage="none") => {
             /** 
              * Deletes an existing action.
              * No effect if
@@ -141,8 +138,8 @@ export default class Planner {
 
             // Find matching action to delete.
             let action = null
-            if (year in this.#plan) {
-                const actions = this.#plan[year][actionType]
+            if (year in this.plan) {
+                const actions = this.plan[year][actionType]
                 for (let i = 0; i < actions.length; i++) {
                     action = actions[i]
                     if (
@@ -159,26 +156,29 @@ export default class Planner {
 
             // If found, then delete.
             if (toDeleteIdx >= 0) {
-                this.#plan[year][actionType].splice(toDeleteIdx, 1)
+                this.plan[year][actionType].splice(toDeleteIdx, 1)
                 if (
-                    this.#plan[year]["plant"].length == 0 &&
-                    this.#plan[year]["fell"].length == 0
-                ) delete(this.#plan[year])
+                    this.plan[year]["plant"].length == 0 &&
+                    this.plan[year]["fell"].length == 0
+                ) delete(this.plan[year])
             }
         }
+    }
 
-        this.executeAction = (year, actionType, treeType, treeLifeStage="") => {
-            /** 
-             * Executes given action and records 
-             * whether or not it was possible to carry
-             * through with that action. No effect if
-             * given action does not exist.
-             * @param year: The year that the action is associated with.
-             * @param actionType: The type of this action.
-             * @param treeType: The type of tree that this action targets.
-             * @param treeLifeStage: The lifestage of the targeted tree.
-             */
-            // TO DO
+    updateActionStatus(year, actionType, actionIdx, status) {
+        /** 
+         * Update the status of whether it was possible to 
+         * execute this action (if such an action exists).
+         * @param year: The year of the action.
+         * @param actionType: The kind of action that was attempted
+         *                    to be executed.
+         * @param actionIdx: The index of the specific action that was executed.
+         * @param status: The new status of that action (-1 => not yet attempted
+         *                to execute, 1 => was succcessfully executed, 0 => could
+         *                not be sucessfully executed).
+         */
+        if (year in this.plan && this.plan[year][actionType].length > actionIdx) {
+            this.plan[year][actionType][actionIdx].status = status
         }
     }
 

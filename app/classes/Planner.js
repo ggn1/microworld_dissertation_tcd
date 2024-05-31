@@ -25,8 +25,11 @@ export default class Planner {
     }
     
     constructor() {
+        
         this.rotationPeriod = JSON.parse(process.env.NEXT_PUBLIC_ROTATION_START)
+        
         this.incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
+        
         this.getTargets = () => {
             /** 
              * Returns current value of targets. 
@@ -34,6 +37,7 @@ export default class Planner {
             */
             return this.#targets
         }
+
         this.setTargets = (targets) => {
             /** 
              * Sets new values for targets.
@@ -43,6 +47,7 @@ export default class Planner {
                 if (key in this.#targets) this.#targets[key] = val
             }
         }
+
         this.getPlan = (year=null) => {
             /** 
              * Returns actions planned for a given year,
@@ -76,9 +81,10 @@ export default class Planner {
             }
             return toReturn
         }
+
         this.addAction = (
             year, actionType, count, 
-            treeType, treeLifeStage=""
+            treeType, treeLifeStage="none"
         ) => {
             /**
              * Adds a new action to the plan.
@@ -90,7 +96,7 @@ export default class Planner {
              * @param treeLifeStage: The life stage of the tree 
              *                       (only valid w.r.t the "fell" action).
              */
-            let action = {type: treeType, count: count, stage: treeLifeStage, success:false}
+            let action = {type: treeType, count: count, stage: treeLifeStage, success:-1}
     
             // If a similar action (same action type on same
             // tree type with different count) exists already,
@@ -105,7 +111,7 @@ export default class Planner {
                             actionType == "plant" || 
                             actionType == "fell" && 
                             treeLifeStage == existingAction.treeLifeStage
-                        ) && count != existingAction.count
+                        )
                     ) {
                         // Remove old instance of the action.
                         this.#plan[year][actionType].splice(i, 1) 
@@ -120,6 +126,7 @@ export default class Planner {
             // Add new action to the list.
             this.#plan[year][actionType].push(action)
         }
+
         this.deleteAction = (year, actionType, treeType, treeLifeStage="") => {
             /** 
              * Deletes an existing action.
@@ -159,7 +166,7 @@ export default class Planner {
                 ) delete(this.#plan[year])
             }
         }
-        
+
         this.executeAction = (year, actionType, treeType, treeLifeStage="") => {
             /** 
              * Executes given action and records 

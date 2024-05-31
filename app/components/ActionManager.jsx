@@ -30,10 +30,10 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
     const [selectedTreeType, setSelectedTreeType] = useState("none")
     const [selectedTreeLifeStage, setSelectedTreeLifeStage] = useState("none")
     const [selectedYear, setSelectedYear] = useState(rotationPeriod) 
-    const [treeCount, setTreeCount] = useState(0)
-    const [textColorTreeCount, setTextColorTreeCount] = useState(colorDefaultText)
-    const [textColorYear, setTextColorYear] = useState(colorDefaultText)
+    const [treeCount, setTreeCount] = useState(placeholderTreeCount)
     const [repeat, setRepeat] = useState(false)
+    const [isCountInvalid, setIsCountInvalid] = useState(false)
+    const [isYearInvalid, setIsYearInvalid] = useState(false)
 
     const sanityCheckTreeCount = (val) => {
         /** 
@@ -86,7 +86,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
         yearActions[year][actionIdx]["setTagSelectionState"] = setTagSelectionState
     }
 
-    const initYearActions = () => {
+    const updateYearActions = () => {
         /**
          * Initializes actions for years of interest based
          * on current set rotation interval.
@@ -142,11 +142,11 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
          * @param val: New tree count.
          */
         if (val == "") { // Invalid / empty value.
-            setTextColorTreeCount(colorBad)
             val = 1
+            setIsCountInvalid(true)
         } else { // Valid value.
-            setTextColorTreeCount(colorDefaultText)
             val = parseInt(val)
+            setIsCountInvalid(false)
         }
         setTreeCount(val)
     }
@@ -157,21 +157,13 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
          * @param val: New year value.
          */
         if (val == "") { // Invalid / empty value.
-            setTextColorYear(colorBad)
             val = rotationPeriod
+            setIsYearInvalid(true)
         } else { // Valid value.
-            setTextColorYear(colorDefaultText)
             val = parseInt(val)
+            setIsYearInvalid(false)
         }
         setSelectedYear(val)
-    }
-
-    const handleRepeatChange = (val) => {
-        /** 
-         * Handles a change in the repeat setting. 
-         * @param val: New repeat setting value (true / false).
-         */
-        console.log("Repeat Change =", val)
     }
 
     const handleDelete = () => {
@@ -204,7 +196,6 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                 && !(rotationYears.includes(year))
             ) delete(yearActions[year])
         }
-        setYearActionsObjects(getYearActionsObjects())
 
         // Update UI.
         setYearActionsObjects(getYearActionsObjects())
@@ -231,22 +222,36 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
         setSelectedTreeLifeStage(selection.join("_"))
     }
 
+    const handleAdd = () => {
+        /**
+         * Facilitates addition of selected action to the plan.
+         */
+        console.log("add button clicked")
+        if (!isCountInvalid && !isYearInvalid) {
+            let years = [selectedYear]
+            if (repeat) {
+                const curYearIdx = rotationYears.indexOf(selectedYear)
+                years = rotationYears.slice(curYearIdx)
+            }
+            for (const year of years) {
+                // console.log(
+                //     year, selectedAction, treeCount,
+                //     selectedTreeType, selectedTreeLifeStage 
+                // )
+                addAction(
+                    year, selectedAction, treeCount,
+                    selectedTreeType, selectedTreeLifeStage 
+                )
+            }
+            updateYearActions()
+            setYearActionsObjects(getYearActionsObjects())
+        }
+    }
+
     useEffect(() => {
-        initYearActions()
+        updateYearActions()
         setYearActionsObjects(getYearActionsObjects())
     }, [rotationPeriod])
-
-    useEffect(() => {
-        console.log("Selected action =", selectedAction)
-    }, [selectedAction])
-
-    useEffect(() => {
-        console.log("Selected tree type =", selectedTreeType)
-    }, [selectedTreeType])
-
-    useEffect(() => {
-        console.log("Selected tree life stage =", selectedTreeLifeStage)
-    }, [selectedTreeLifeStage])
 
     return (
         <div>
@@ -284,6 +289,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                     '>{[yearActionObjects]}</div>
                 </div>
             </div>
+            
             {/* ACTION & TREE TYPE SELECTION */}
             <div className='
                 grid grid-rows-1 grid-cols-8 justify-between gap-3 
@@ -305,6 +311,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                     </Veil>
                 </div>
                 
+                {/* COUNT, YEAR, REPEAT SETTERS + BUTTONS */}
                 <div className='col-span-2 row-span-1'>
                     <Veil
                         borderRadius={8} 
@@ -322,7 +329,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                             <TextInput 
                                 label='COUNT:'
                                 placeholder={placeholderTreeCount}
-                                textColor={textColorTreeCount}
+                                textColor={isCountInvalid ? colorBad : colorDefaultText}
                                 sanityCheck={sanityCheckTreeCount} 
                                 handleVal={handleTreeCountChange}
                                 maxWidth="30px"
@@ -334,7 +341,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                             <TextInput 
                                 label='YEAR:'
                                 placeholder={rotationPeriod}
-                                textColor={textColorYear}
+                                textColor={isYearInvalid ? colorBad : colorDefaultText}
                                 sanityCheck={sanityCheckYear} 
                                 handleVal={handleYearChange}
                                 maxWidth="30px"
@@ -351,7 +358,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                                 <b>REPEAT:</b>
                                 <Switch 
                                     isOnStart={repeat} 
-                                    onToggle={handleRepeatChange}
+                                    onToggle={(val) => setRepeat(val)}
                                     onColor="#32BE51"
                                     offColor="#6E6E6E"
                                 />
@@ -362,14 +369,16 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                                 flex flex-wrap gap-3 justify-center
                                 place-content-center h-full w-full
                             '>
+                                {/* ADD BUTTON */}
                                 <Button 
                                     outlineColor='#B9DEB5' bgColor='#99cc93'
-                                    onClick={() => {console.log("ADD button clicked.")}}
+                                    onClick={handleAdd}
                                 ><img src="plus.png" className='max-h-8 p-1 w-auto'/></Button>
-                                <Button 
+                                {/* FILTER BUTTON */}
+                                {/* <Button 
                                     outlineColor='#e0dd87' bgColor='#faf8c5'
                                     onClick={() => {console.log("FILTER button clicked.")}}
-                                ><img src="filter.png" className='max-h-8 p-1 w-auto'/></Button>
+                                ><img src="filter.png" className='max-h-8 p-1 w-auto'/></Button> */}
                             </div>
                         </div>
                     </Veil>

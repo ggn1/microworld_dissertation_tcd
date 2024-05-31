@@ -8,7 +8,11 @@ const Button = ({
      */
     return (
         <button 
-            className="button font-bold px-1 rounded-md hover:brightness-110 hover:drop-shadow-lg" 
+            className={
+                disabledColor != "" ?
+                "button font-bold px-1 rounded-md" :
+                "button font-bold px-1 rounded-md hover:brightness-110 hover:drop-shadow-lg"
+            }
             onClick={onClick} 
             style={{
                 backgroundColor: disabledColor != "" ? disabledColor : bgColor, 

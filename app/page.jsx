@@ -7,7 +7,7 @@ import LandPlot from "./components/LandPlot.jsx"
 import CO2Scale from "./components/CO2Scale.jsx"
 import CarbonDist from "./components/CarbonDist.jsx"
 import BdStatus from './components/BdStatus.jsx'
-import IncDepBar from './components/IncDepBar.jsx'
+import PropBar from './components/PropBar.jsx'
 import Targets from './components/Targets.jsx'
 import PlanViewer from './components/PlanViewer.jsx'
 import Funds from './components/Funds.jsx'
@@ -21,7 +21,7 @@ const Home = () => {
     const [envC, setEnvC] = useState({})
     const [bdScore, setBdScore] = useState(0)
     const [bdCat, setBdCat] = useState("")
-    const [incomeSources, setIncomeSources] = useState({})
+    const [incomeDependency, setIncomeDependency] = useState({})
     const [rotationPeriod, setRotationPeriod] = useState()
     const [income, setIncome] = useState(0)
     const [funds, setFunds] = useState(0)
@@ -32,7 +32,7 @@ const Home = () => {
         setEnvC({...sim.env.carbon})
         setBdScore(sim.env.land.biodiversityScore)
         setBdCat(sim.env.land.biodiversityCategory)
-        setIncomeSources({...sim.planner.incomeSources})
+        setIncomeDependency({...sim.planner.incomeDependency})
         setRotationPeriod(sim.planner.rotationPeriod)
         setIncome(sim.income)
         setFunds(sim.funds)
@@ -73,16 +73,14 @@ const Home = () => {
                 <CarbonDist distribution={envC}/>
                 <BdStatus bdScore={bdScore} bdCategory={bdCat}/>
                 <Funds funds={funds}/>
-                <IncDepBar
-                    proportions={Object.values(
-                        incomeSources
-                    ).map(source => source.dependency)}
+                <PropBar
+                    proportions={Object.values(incomeDependency)}
                     colors={Object.values(
-                        incomeSources
-                    ).map(source => "#" + source.color)}
+                        sim.resources
+                    ).map(resource => resource.color)}
                     labels={Object.values(
-                        incomeSources
-                    ).map(source => source.label)}
+                        sim.resources
+                    ).map(resource => resource.label)}
                 />
             </div>
             <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5">

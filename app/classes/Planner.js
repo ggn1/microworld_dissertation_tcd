@@ -1,8 +1,8 @@
 const dummyPlan = {
-    "40": {
-        "fell": [{count:1, type:"coniferous", success:-1, stage:"mature"}],
-        "plant": []
-    },
+    // "40": {
+    //     "fell": [{count:1, type:"coniferous", success:-1, stage:"mature"}],
+    //     "plant": []
+    // },
     // "80": {
     //     "fell": [
     //         {count: 1, type:"coniferous", stage:"mature", success:-1}, 
@@ -29,7 +29,10 @@ export default class Planner {
          */
         this.plan = dummyPlan
         this.rotationPeriod = JSON.parse(process.env.NEXT_PUBLIC_ROTATION_START)
-        this.incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
+        this.incomeDependency = {}
+        for (const [resource, value] of Object.entries(JSON.parse(
+            process.env.NEXT_PUBLIC_INCOME_SOURCES
+        ))) this.incomeDependency[resource] = value.dependency
 
         this.getTargets = () => {
             /** 
@@ -163,6 +166,20 @@ export default class Planner {
                 ) delete(this.plan[year])
             }
         }
+        this.setIncDep = (newIncDep) => {
+            /**
+             * Sets income dependency values.
+             * @param newIncDep: Values to set as an object
+             *                   {resource: new value}.
+             * 
+             */
+            // console.log("newIncDep =", newIncDep)
+            for (const [key, value] of Object.entries(newIncDep)) {
+                if (key in this.incomeDependency) {
+                    this.incomeDependency[key] = value
+                }
+            }
+        } 
     }
 
     updateActionStatus(year, actionType, actionIdx, successStatus) {

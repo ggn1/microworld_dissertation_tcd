@@ -6,10 +6,17 @@ export default class IncomeSource {
     /** Class that represents one source of income
      *  from the forest. */
     
-    constructor(unit, price_per_unit) {
+    constructor(type) {
+        this.type = type
+        const resourceDef = JSON.parse(
+            process.env.NEXT_PUBLIC_INCOME_SOURCES
+        )[type]
+        this.color = "#"+resourceDef.color
+        this.unit = resourceDef.unit
+        this.price_per_unit = resourceDef.price_per_unit
+        this.label = resourceDef.label
+        this.image = resourceDef.image
         this.available = 0
-        this.unit = unit
-        this.price_per_unit = price_per_unit
     }
 
     sell() {
@@ -27,8 +34,8 @@ export class Timber extends IncomeSource {
     /** Class embodies income that the means of income
      *  that wood presents. */
 
-    constructor(unit, price_per_unit) {
-        super(unit, price_per_unit)
+    constructor(type) {
+        super(type)
         const timberUsage = JSON.parse(process.env.NEXT_PUBLIC_TIMBER_USAGE)
         this.usage = {
             lumber: timberUsage.lumber,
@@ -60,16 +67,16 @@ export class RecreationalActivities extends IncomeSource {
     /** Class embodies income that hunting and fishing
      *  activities present. */
 
-    getIncome(biodiversity) {
+    getIncome() {
         // TO DO ...
     }
 }
 
-export class EcosystemServices extends IncomeSource {
-    /** Class embodies income that can be earned 
-     *  due to funds for ecosystem services. */
+// export class EcosystemServices extends IncomeSource {
+//     /** Class embodies income that can be earned 
+//      *  due to funds for ecosystem services. */
     
-    getIncome(biodiversity) {
-        // TO DO ...
-    }
-}
+//     getIncome(biodiversity) {
+//         // TO DO ...
+//     }
+// }

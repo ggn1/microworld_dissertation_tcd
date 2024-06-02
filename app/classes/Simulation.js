@@ -19,20 +19,6 @@ export default class Simulation {
         this.#createFreshWorld()
         this.planner = new Planner()
         this.updateSimUI = updateSimUI
-        this.resources = {
-            timber: new Timber(
-                this.#incomeSources.timber.unit,
-                this.#incomeSources.timber.price_per_unit
-            ),
-            ntfp: new NTFP(
-                this.#incomeSources.ntfp.unit,
-                this.#incomeSources.ntfp.price_per_unit
-            ),
-            recActs: new RecreationalActivities(
-                this.#incomeSources.recreational_activities.unit,
-                this.#incomeSources.recreational_activities.price_per_unit
-            )
-        }
         this.goto = (time) => {
             /** 
              * Given a point in time, runs the simulation
@@ -166,5 +152,10 @@ export default class Simulation {
         this.env = new Environment()
         this.income = 0
         this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
+        this.resources = {
+            timber: new Timber("timber"),
+            ntfp: new NTFP("ntfp"),
+            recreational_activities: new RecreationalActivities("recreational_activities")
+        }
     }
 }

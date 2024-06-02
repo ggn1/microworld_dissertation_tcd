@@ -7,8 +7,10 @@ import { useRouter } from "next/navigation"
 import Button from "../components/Button.jsx"
 import ActionManager from "../components/ActionManager.jsx"
 import RotationPeriod from "../components/RotationPeriod.jsx"
+import PercentSlider from "../components/IncDepSlider.jsx"
+import IncDepSetter from "../components/IncDepSetter.jsx"
 
-const Planner = () => {
+const Planner = ({getIncomeDep, setIncomeDep}) => {
     /**
      * This page allows learners to draft forest and 
      * income management plans.
@@ -18,6 +20,8 @@ const Planner = () => {
 
     const [simNotNull, setSimNotNull] = useState(false)
     const [rotationPeriod, setRotationPeriod] = useState(sim ? sim.planner.rotationPeriod : 0)
+
+    let incomeDepSliders = []
 
     useEffect(() => {
         // Upon refresh, reload to the home page
@@ -76,8 +80,11 @@ const Planner = () => {
                 id="planner-income-dependency" 
                 className="bg-[#F2EAD5] col-span-4 row-span-9 p-3 rounded-xl"
             >
-                <div className="font-bold text-center">INCOME DEPENDENCY</div>
-                {/* TO DO */}
+                <div className="font-bold text-center mb-3">INCOME DEPENDENCY</div>
+                {simNotNull && <IncDepSetter 
+                    incDepStart={sim.planner.incomeDependency}
+                    setIncDep={sim.planner.setIncDep}
+                />}
             </div>
         </main>
     )

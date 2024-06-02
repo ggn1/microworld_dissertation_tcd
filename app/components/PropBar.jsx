@@ -1,9 +1,17 @@
 import Card from './Card'
 import { Tooltip } from 'react-tooltip'
 
-const IncDepBar = ({proportions, labels, colors}) => {
-
+const PropBar = ({proportions, labels, colors}) => {
+    /** 
+     * Displays given proportions using a single
+     * stacked bar plot.
+     * @param proportions: List of proportions.
+     * @param labels: List of labels, one for each proportion.
+     * @param colors: List of a color per proportion.
+     */
+    
     let propBars = []
+
     for(let i = 0; i < proportions.length; i++) {
         const prop = Math.round(proportions[i]*100)
         propBars.push(
@@ -33,4 +41,4 @@ const IncDepBar = ({proportions, labels, colors}) => {
     )
 }
 
-export default IncDepBar
+export default PropBar

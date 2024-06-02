@@ -249,7 +249,6 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
     }, [rotationPeriod])
 
     useEffect(() => {
-        console.log("Action Manager!!!")
         updateYearActions()
         setYearActionsObjects(getYearActionsObjects())
     }, [])
@@ -285,7 +284,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                     style={{height: "200px"}}
                 >
                     <div className='
-                        flex max-w-full gap-5 overflow-hidden
+                        flex w-full h-full gap-5 overflow-hidden
                         hover:overflow-scroll
                     '>{[yearActionObjects]}</div>
                 </div>

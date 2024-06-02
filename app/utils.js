@@ -91,3 +91,16 @@ export function shuffle(array) {
     }
     return array
 }
+
+export function roundToNDecimalPlaces(value, decimals) {
+    /** 
+     * Rounds a number to given no. of decimal places.
+     * @param value: Value to round.
+     * @param decimals: The no. of decimal places to round to.
+     */
+    if (isNaN(value) || isNaN(decimals)) {
+        throw new Error('Both value and decimals must be numbers.');
+    }
+    const factor = Math.pow(10, decimals);
+    return Math.round(value * factor) / factor;
+}

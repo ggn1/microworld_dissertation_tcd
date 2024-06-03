@@ -44,13 +44,14 @@ const Planner = () => {
     }, [rotationPeriod])
 
     return (
-        simNotNull && <main className="p-5 w-full grid grid-cols-5 grid-rows-3 gap-3">
+        simNotNull && 
+        <main className="p-5 w-full grid grid-cols-5 grid-rows-2 gap-3 max-h-min">
             {/* ACTION MANAGER */}
             <div 
                 id="planner-main" 
                 className="
-                    bg-[#EEEEEE] col-span-3 p-3 row-span-3 rounded-xl
-                    flex flex-col h-full gap-5
+                    bg-[#EEEEEE] col-span-3 row-span-2 rounded-xl
+                    flex flex-col gap-5 p-3
                 "
             >
                 {/* HOME BUTTON & ROTATION SETTER */}
@@ -79,7 +80,7 @@ const Planner = () => {
             {/* INCOME DEPENDENCY */}
             <div 
                 id="planner-income-dependency" 
-                className="bg-[#F2EAD5] col-span-2 row-span-1 p-3 rounded-xl"
+                className="bg-[#F2EAD5] col-span-2 row-span-1 p-3 rounded-xl max-h-fit"
             >
                 <div className="font-bold text-center mb-3">INCOME DEPENDENCY</div>
                 <IncDepSetter 
@@ -97,7 +98,7 @@ const Planner = () => {
             {/* ROTATION SALES TARGETS */}
             <div 
                 id="planner-sales-targets" 
-                className="bg-[#FFECFB] col-span-2 row-span-2 p-3 rounded-xl"
+                className="bg-[#FFECFB] col-span-2 row-span-1 p-3 rounded-xl"
             >
                 <div className="font-bold text-center mb-3">
                     REQUIRED SALES PER ROTATION

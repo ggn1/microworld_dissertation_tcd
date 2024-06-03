@@ -292,7 +292,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
             
             {/* ACTION & TREE TYPE SELECTION */}
             <div className='
-                grid grid-rows-1 grid-cols-8 justify-between gap-3 
+                grid grid-rows-1 grid-cols-9 justify-between gap-3 
                 rounded-lg bg-[#AAAAAA] p-3 h-60 w-full
             '>
                 {/* ACTION BUTTONS */}
@@ -312,7 +312,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                 </div>
                 
                 {/* COUNT, YEAR, REPEAT SETTERS + BUTTONS */}
-                <div className='col-span-2 row-span-1'>
+                <div className='col-span-3 row-span-1'>
                     <Veil
                         borderRadius={8} 
                         isVeiled={
@@ -323,7 +323,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                     >
                         <div className='
                             grid grid-rows-4 grid-cols-1 gap-2
-                            max-h-full
+                            max-h-full p-3
                         '>
                             {/* COUNT SELECTOR */}
                             <TextInput 

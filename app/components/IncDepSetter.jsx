@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react"
 import IncDepSlider from "./IncDepSlider"
-import * as utils from '../utils.js'
 
-const IncDepSetter = ({incDepStart, setIncDep}) => {
+const IncDepSetter = ({incDepStart, setIncDep, updateSalesTargets}) => {
     /** 
      * Component used to set income dependency proportions. 
      * @param incDepStart: Starting income dependency values.
-     * @param setIncDep: Functiont hat sets new income dependency values.
+     * @param setIncDep: Function that sets new income dependency values.
+     * @param updateSalesTargets: Function that sets the income target 
+     *                            to be met per rotation for each resource.
      */
 
     const incDepDef = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
@@ -36,11 +37,7 @@ const IncDepSetter = ({incDepStart, setIncDep}) => {
                     if (incDep[resource].disabled) return () => {} 
                     const otherResources = getOtherResources(resource)
                     const otherUnlockedResources = otherResources[0]
-                    const otherLockedResources = otherResources[1]
-                    return handleChange(
-                        resource, value, 
-                        otherUnlockedResources, otherLockedResources
-                    )
+                    return handleChange(resource, value, otherUnlockedResources)
                 }}
                 getValueSetter={(valueSetter) => {
                     incDep[resource].setSliderValue = valueSetter
@@ -50,7 +47,7 @@ const IncDepSetter = ({incDepStart, setIncDep}) => {
         setSliders(slidersNew)
     }
 
-    const handleChange = (thisResource, value, unlockedResources, lockedResources) => {
+    const handleChange = (thisResource, value, unlockedResources) => {
         /** 
          * Handles change to income dependency value
          * of some resource.
@@ -95,21 +92,6 @@ const IncDepSetter = ({incDepStart, setIncDep}) => {
             const val = Math.round(incDepNew[key].value)
             incDep[key].value = val/100
         }
-
-        // let runningSum = incDep[thisResource].value
-        // for (const lockedResource of lockedResources) {
-        //     runningSum += incDep[lockedResource].value
-        // }
-        // for (let i = 0; i < unlockedResources.length; i++) {
-        //     const otherResource = unlockedResources[i]
-        //     if (i == unlockedResources.length - 1) {
-        //         runningSum = utils.roundToNDecimalPlaces(runningSum, 2)
-        //         incDep[otherResource].value = utils.roundToNDecimalPlaces(1 - runningSum, 2)
-        //     }
-        //     else {
-        //         runningSum += incDep[otherResource].value
-        //     }
-        // }
         
         // Update sliders.
         for (const resource of Object.keys(incDep)) {
@@ -132,6 +114,7 @@ const IncDepSetter = ({incDepStart, setIncDep}) => {
             toSet[key] = val.value
         }
         setIncDep(toSet)
+        updateSalesTargets()
     }
 
     const getOtherResources = (resource) => {
@@ -163,8 +146,6 @@ const IncDepSetter = ({incDepStart, setIncDep}) => {
          */
         incDep[resource].disabled = !isDisabled
         setIsDisabled(!isDisabled)
-
-        console.log(incDep)
     }
 
     useEffect(() => {

@@ -5,7 +5,7 @@
 export default class IncomeSource {
     /** Class that represents one source of income
      *  from the forest. */
-    
+
     constructor(type) {
         this.type = type
         const resourceDef = JSON.parse(
@@ -17,6 +17,23 @@ export default class IncomeSource {
         this.label = resourceDef.label
         this.image = resourceDef.image
         this.available = 0
+        this.salesTarget = JSON.parse( // per rotation
+            process.env.NEXT_PUBLIC_FUNDS_START
+        ) * JSON.parse(
+            process.env.NEXT_PUBLIC_INCOME_SOURCES
+        )[this.type].dependency
+        this.setSalesTarget = (funds, dependency) => {
+            /**
+             * Computes how much of funds should be obtained from
+             * this income source per rotation as per current 
+             * income target and dependency settings.
+             * @param funds: The total amount of funds currently held
+             *               by the user.
+             * @param dependency: The amount of dependency placed upon
+             *                    this income stream for funds [0, 1].
+             */
+            this.salesTarget = funds * dependency
+        }
     }
 
     sell() {

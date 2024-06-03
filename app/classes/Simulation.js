@@ -6,7 +6,6 @@ export default class Simulation {
     /** This class shall encapsulate the
      *  entire simulated world. */
 
-    #incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
     #mgmtActionCosts = JSON.parse(process.env.NEXT_PUBLIC_COST_MGMT_ACTION)
     
     constructor(updateSimUI) {
@@ -45,6 +44,30 @@ export default class Simulation {
                     this.#takeTimeStep()
                 }
             }
+        }
+        this.updateResourceSalesTargets = () => {
+            /**
+             * Updates target incomes per rotation 
+             * for each income stream based on latest 
+             * income target and dependency settings.
+             */
+            for(const resource of Object.keys(this.resources)) {
+                this.resources[resource].setSalesTarget(
+                    this.funds, this.planner.incomeDependency[resource]
+                )
+            }
+        }
+        this.getResourceSalesTargets = () => {
+            /**
+             * Returns current per rotation sales
+             * target for each income stream.
+             * @return: Sales targets.
+             */
+            let salesTargets = {}
+            for(const resource of Object.keys(this.resources)) {
+                salesTargets[resource] = this.resources[resource].salesTarget
+            }
+            return salesTargets
         }
     }
 

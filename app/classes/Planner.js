@@ -173,13 +173,12 @@ export default class Planner {
              *                   {resource: new value}.
              * 
              */
-            // console.log("newIncDep =", newIncDep)
             for (const [key, value] of Object.entries(newIncDep)) {
                 if (key in this.incomeDependency) {
                     this.incomeDependency[key] = value
                 }
             }
-        } 
+        }
     }
 
     updateActionStatus(year, actionType, actionIdx, successStatus) {

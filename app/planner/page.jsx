@@ -5,12 +5,12 @@ import { sim } from "../page.jsx"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Button from "../components/Button.jsx"
+import IncDepSetter from "../components/IncDepSetter.jsx"
 import ActionManager from "../components/ActionManager.jsx"
 import RotationPeriod from "../components/RotationPeriod.jsx"
-import PercentSlider from "../components/IncDepSlider.jsx"
-import IncDepSetter from "../components/IncDepSetter.jsx"
+import ResourceSales from "../components/ResourceSales.jsx"
 
-const Planner = ({getIncomeDep, setIncomeDep}) => {
+const Planner = () => {
     /**
      * This page allows learners to draft forest and 
      * income management plans.
@@ -20,8 +20,9 @@ const Planner = ({getIncomeDep, setIncomeDep}) => {
 
     const [simNotNull, setSimNotNull] = useState(false)
     const [rotationPeriod, setRotationPeriod] = useState(sim ? sim.planner.rotationPeriod : 0)
-
-    let incomeDepSliders = []
+    const [resourceSalesTargets, setResourceSalesTargets] = useState(
+        sim.getResourceSalesTargets()
+    )
 
     useEffect(() => {
         // Upon refresh, reload to the home page
@@ -43,12 +44,12 @@ const Planner = ({getIncomeDep, setIncomeDep}) => {
     }, [rotationPeriod])
 
     return (
-        <main className="w-full p-5 grid grid-cols-10 grid-rows-9 gap-3">
+        simNotNull && <main className="p-5 w-full grid grid-cols-5 grid-rows-3 gap-3">
             {/* ACTION MANAGER */}
             <div 
                 id="planner-main" 
                 className="
-                    bg-[#EEEEEE] col-span-6 p-3 row-span-9 rounded-xl
+                    bg-[#EEEEEE] col-span-3 p-3 row-span-3 rounded-xl
                     flex flex-col h-full gap-5
                 "
             >
@@ -78,13 +79,30 @@ const Planner = ({getIncomeDep, setIncomeDep}) => {
             {/* INCOME DEPENDENCY */}
             <div 
                 id="planner-income-dependency" 
-                className="bg-[#F2EAD5] col-span-4 row-span-9 p-3 rounded-xl"
+                className="bg-[#F2EAD5] col-span-2 row-span-1 p-3 rounded-xl"
             >
                 <div className="font-bold text-center mb-3">INCOME DEPENDENCY</div>
-                {simNotNull && <IncDepSetter 
+                <IncDepSetter 
                     incDepStart={sim.planner.incomeDependency}
                     setIncDep={sim.planner.setIncDep}
-                />}
+                    updateSalesTargets={() => {
+                        sim.updateResourceSalesTargets()
+                        setResourceSalesTargets(
+                            sim.getResourceSalesTargets()
+                        )
+                    }}
+                />
+            </div>
+
+            {/* ROTATION SALES TARGETS */}
+            <div 
+                id="planner-sales-targets" 
+                className="bg-[#FFECFB] col-span-2 row-span-2 p-3 rounded-xl"
+            >
+                <div className="font-bold text-center mb-3">
+                    REQUIRED SALES PER ROTATION
+                </div>
+                <ResourceSales targets={resourceSalesTargets}/>
             </div>
         </main>
     )

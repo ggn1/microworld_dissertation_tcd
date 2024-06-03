@@ -8,7 +8,7 @@ import Button from "../components/Button.jsx"
 import IncDepSetter from "../components/IncDepSetter.jsx"
 import ActionManager from "../components/ActionManager.jsx"
 import RotationPeriod from "../components/RotationPeriod.jsx"
-import ResourceSales from "../components/ResourceSales.jsx"
+import ResourceSalesTargets from "../components/ResourceSalesTargets.jsx"
 
 const Planner = () => {
     /**
@@ -103,7 +103,7 @@ const Planner = () => {
                 <div className="font-bold text-center mb-3">
                     REQUIRED SALES PER ROTATION
                 </div>
-                <ResourceSales targets={resourceSalesTargets}/>
+                <ResourceSalesTargets targets={resourceSalesTargets}/>
             </div>
         </main>
     )

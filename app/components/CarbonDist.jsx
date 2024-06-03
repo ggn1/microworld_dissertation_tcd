@@ -23,7 +23,7 @@ const CarbonDist = ({distribution}) => {
 
     return (
         <Card bgColor="#FFFFFF" heading="CARBON (Gt)">
-            <div className='w-full flex flex-wrap gap-2'>{reservoirs}</div>
+            <div className='w-full flex flex-col gap-2'>{reservoirs}</div>
         </Card>
     )
 }

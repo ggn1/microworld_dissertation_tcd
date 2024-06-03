@@ -185,7 +185,7 @@ const Targets = ({
                 handleVal={(val) => handleVal("co2", val)}
             />
             <TextInput 
-                label="Income >="
+                label="Income Per Rotation >="
                 placeholder={targetIncome}
                 unit="Bc"
                 borderColor={

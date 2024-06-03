@@ -177,10 +177,7 @@ export default class Tree {
          * @return: Weight of carbon in given tree volume.
          */
         const weight = this.woodDensity * volume // g
-        const dryPc = JSON.parse(process.env.NEXT_PUBLIC_WOOD_DRY_WEIGHT_PC) // g
-        const weightDry = weight * dryPc
-        const carbonPc = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE)
-        return carbonPc * weightDry
+        return utils.computeCarbonInWoodWeight(weight)
     }
 
     #processCarbon(volume, srcReservoir, dstReservoir) {

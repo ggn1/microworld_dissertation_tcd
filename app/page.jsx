@@ -11,6 +11,7 @@ import PropBar from './components/PropBar.jsx'
 import Targets from './components/Targets.jsx'
 import PlanViewer from './components/PlanViewer.jsx'
 import Funds from './components/Funds.jsx'
+import RotationIncomeViewer from './components/RotationIncomeViewer.jsx'
 
 export let sim = null
 
@@ -23,8 +24,11 @@ const Home = () => {
     const [bdCat, setBdCat] = useState("")
     const [incomeDependency, setIncomeDependency] = useState({})
     const [rotationPeriod, setRotationPeriod] = useState()
-    const [income, setIncome] = useState(0)
+    const [incomeTotal, setIncomeTotal] = useState(0)
     const [funds, setFunds] = useState(0)
+    const [curRotation, setCurRotation] = useState(1)
+    const [rotationIncomeTargets, setRotationIncomeTargets] = useState({})
+    const [rotationIncome, setRotationIncome] = useState({})
 
     const updateSimUI = () => {
         setLandContent([...sim.env.land.content])
@@ -34,8 +38,11 @@ const Home = () => {
         setBdCat(sim.env.land.biodiversityCategory)
         setIncomeDependency({...sim.planner.incomeDependency})
         setRotationPeriod(sim.planner.rotationPeriod)
-        setIncome(sim.income)
+        setIncomeTotal(sim.income.total)
         setFunds(sim.funds)
+        setCurRotation(sim.rotation)
+        setRotationIncomeTargets(sim.getResourceSalesTargets())
+        setRotationIncome({...sim.income})
     }
 
     useEffect(() => {
@@ -47,49 +54,62 @@ const Home = () => {
     
     return (
         isInitialized &&
-        <main className="w-full p-5 grid grid-cols-10 grid-rows-9 gap-2">
-            <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-3 row-span-3">
+        <main className="w-full p-5 grid grid-cols-12 grid-rows-6 gap-2">
+            <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-4 row-span-2
+                place-content-center
+            ">
                 <Targets 
                     setTargets={sim.planner.setTargets} 
                     curCO2={airCO2}
-                    curIncome={income}
+                    curIncome={incomeTotal}
                     curFunds={funds}
                     startValCO2={sim.planner.getTargets().co2}
                     startValIncome={sim.planner.getTargets().income}
                 />
             </div>
-            <div id="home-land" className="
-                rounded-xl bg-[#FDEBDE] col-span-4 row-span-7 p-3
+            <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3
+                place-content-center
             ">
                 <div class="flex w-full h-full items-center justify-center">
                     <LandPlot content={landContent}/>
                 </div>
             </div>
-            <div id="home-world-state" className="
-                rounded-xl bg-[#EEEEEE] col-span-3 row-span-9 p-5
-                flex flex-col gap-5
+            <div id="home-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-6 p-3
+                place-content-center
             ">
-                <CO2Scale concentration={airCO2}/>
-                <CarbonDist distribution={envC}/>
-                <BdStatus bdScore={bdScore} bdCategory={bdCat}/>
-                <Funds funds={funds}/>
-                <PropBar
-                    proportions={Object.values(incomeDependency)}
-                    colors={Object.values(
-                        sim.resources
-                    ).map(resource => resource.color)}
-                    labels={Object.values(
-                        sim.resources
-                    ).map(resource => resource.label)}
+                <div className='flex flex-col gap-3'>
+                    <CO2Scale concentration={airCO2}/>
+                    <CarbonDist distribution={envC}/>
+                    <BdStatus bdScore={bdScore} bdCategory={bdCat}/>
+                    <Funds funds={funds}/>
+                    <PropBar
+                        proportions={Object.values(incomeDependency)}
+                        colors={Object.values(
+                            sim.resources
+                        ).map(resource => resource.color)}
+                        labels={Object.values(
+                            sim.resources
+                        ).map(resource => resource.label)}
+                    />
+                </div>
+            </div>
+            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-3
+                place-content-center
+            ">
+                <PlanViewer rotationPeriod={rotationPeriod}/>
+            </div>
+            <div id="home-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2
+                place-content-center
+            ">
+                <RotationIncomeViewer 
+                    targets={rotationIncomeTargets} 
+                    income={rotationIncome}
+                    rotation={curRotation}
                 />
             </div>
-            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-3 row-span-5">
-                <PlanViewer rotationPeriod={rotationPeriod} />
-            </div>
-            <div id="home-sold" className="
-                rounded-xl bg-[#FFECFB] col-span-4 row-span-2
-            "></div>
-            <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-3 row-span-1">
+            <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 
+                place-content-center
+            ">
                 <Timeline goToTime={sim.goto}/>
             </div>
         </main>

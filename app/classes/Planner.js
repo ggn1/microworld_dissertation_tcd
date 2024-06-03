@@ -197,8 +197,4 @@ export default class Planner {
             this.plan[year][actionType][actionIdx].success = successStatus
         }
     }
-
-    updateIncomeDep() {
-        // TO DO ...
-    }
 }

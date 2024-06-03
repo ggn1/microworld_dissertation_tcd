@@ -12,8 +12,8 @@ export default class Simulation {
         /**
          * Constructor.
          * @param updateSimUI: Function that may be called after each
-         *                   time step update with latest simulation
-         *                   state to update the UI.
+         *                     time step update with latest simulation
+         *                     state to update the UI.
          */
         this.#createFreshWorld()
         this.planner = new Planner()
@@ -53,7 +53,7 @@ export default class Simulation {
              */
             for(const resource of Object.keys(this.resources)) {
                 this.resources[resource].setSalesTarget(
-                    this.funds, this.planner.incomeDependency[resource]
+                    this.income.total, this.planner.incomeDependency[resource]
                 )
             }
         }
@@ -158,27 +158,59 @@ export default class Simulation {
          * this time step and updates income
          * generated from them.
          */
-        // TO DO
-    }
+
+        let incomeTotal = 0
+        let incomeResource = 0
+        // Sell and/or use all available resources.
+        for (const [resource, incomeSource] of Object.entries(this.resources)) {
+            incomeResource = incomeSource.sell()
+            this.income[resource] += incomeResource
+            incomeTotal += incomeResource
+        }
+        this.income["total"] += incomeTotal
+        this.funds += incomeTotal
+    } 
 
     #takeTimeStep() {
         /** Step forward in time by one step. */
         this.time += 1
+        this.#updateRotation()
         this.#executePlans(this.time)
         this.env.land.takeTimeStep()
         this.updateSimUI()
+        this.#generateIncome()
     } 
+
+    #updateRotation() {
+        /**
+         * Computes which rotation it is based on
+         * current time. When new rotation starts,
+         * resets income targets.
+         */
+        let newRotation = Math.floor(this.time/(this.planner.rotationPeriod - 1))
+        if (newRotation != this.rotation) {
+            // Update rotation count.
+            this.rotation = newRotation
+            // Reset income for this rotation.
+            for (const resource of Object.keys(this.income)) {
+                this.income[resource] = 0
+            }
+        }
+        
+    }
 
     #createFreshWorld() {
         /** Initializes the simulation with starting world state. */
         this.time = 0
         this.env = new Environment()
-        this.income = 0
+        this.rotation = 0
         this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
         this.resources = {
-            timber: new Timber("timber"),
+            timber: new Timber("timber", this.env.updateCarbon),
             ntfp: new NTFP("ntfp"),
             recreational_activities: new RecreationalActivities("recreational_activities")
         }
+        this.income = { "total": 0 }
+        for (const resource of Object.keys(this.resources)) this.income[resource] = 0
     }
 }

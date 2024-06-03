@@ -1,5 +1,3 @@
-import { createInterpolationFunction } from '../utils.js'
-
 export default class Tolerance {
     /** Models tolerance of different trees for
      *  environmental stressors. */

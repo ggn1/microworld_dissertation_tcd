@@ -104,3 +104,16 @@ export function roundToNDecimalPlaces(value, decimals) {
     const factor = Math.pow(10, decimals);
     return Math.round(value * factor) / factor;
 }
+
+export function computeCarbonInWoodWeight (weight) {
+    /** 
+     * Computes amount of carbon in given amount of
+     * wood in grams.
+     * @param weight: Weight of wood in grams.
+     * @return: Weight of carbon in grams.
+     */
+    const dryPc = JSON.parse(process.env.NEXT_PUBLIC_WOOD_DRY_WEIGHT_PC) // g
+    const weightDry = weight * dryPc
+    const carbonPc = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE)
+    return carbonPc * weightDry
+}

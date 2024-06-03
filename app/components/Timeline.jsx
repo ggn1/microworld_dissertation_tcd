@@ -159,7 +159,7 @@ const Timeline = ({goToTime}) => {
     }, [])
 
     return (
-        <div className="timeline p-2 flex gap-3 justify-center h-full">
+        <div className="timeline p-2 flex gap-3 justify-center items-center">
             <div className="flex items-center h-full font-bold">
                 {unit.toUpperCase()}:
             </div>
@@ -196,7 +196,12 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handlePlayPause}
                     >
-                        <img className="max-h-6 w-auto p-1" src={isPaused ? "play.png" : "pause.png"}/>
+                        <div className="h-7 w-6 py-1 px-0.5 flex items-center">
+                            <img 
+                                className="w-full h-auto" 
+                                src={isPaused ? "play.png" : "pause.png"}
+                            />
+                        </div>
                     </Button>
 
                     {/* Reset Button */}
@@ -204,7 +209,12 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleReset}
                     >
-                        <img className="max-h-6 w-auto p-1" src="reset.png" />
+                        <div className="h-7 w-6 py-1 px-0.5 flex items-center">
+                            <img 
+                                className="w-full h-auto" 
+                                src="reset.png"
+                            />
+                        </div>
                     </Button>
                 </>
             }

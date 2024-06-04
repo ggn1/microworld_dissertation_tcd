@@ -1,8 +1,8 @@
 import Tree from './Tree'
 import * as utils from '../utils.js'
 
-let initSowPositions = []
-let timeStepOrder = []
+let initSowPositions = [] // Initial positions wherein plants were sown.
+let timeStepOrder = [] // The which each spot on land is visited.
 
 export default class Land {
     /** 
@@ -128,6 +128,35 @@ export default class Land {
             return [1, weightHarvested]
         }
         this.#initialize()
+        this.getInitSowPositions = () => {
+            /**
+             * Returns initial sowing positions as currently saved.
+             * @return: Initial sow positions.
+             */
+            return initSowPositions
+        }
+        this.getTimeStepOrder = () => {
+            /**
+             * Returns current random order in which to
+             * visit each spot on the land.
+             * @return: Time step order.
+             */
+            return timeStepOrder
+        }
+        this.setInitSowPositions = (sowPositions) => {
+            /**
+             * Updates initial sowing positions.
+             * @param sowPositions: New positions.
+             */
+            initSowPositions = sowPositions
+        }
+        this.setTimeStepOrder = (order) => {
+            /**
+             * Updates time step order.
+             * @param order: New order.
+             */
+            timeStepOrder = order
+        }
     }
 
     #initialize() {

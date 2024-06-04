@@ -12,13 +12,22 @@ import Veil from './Veil.jsx'
 let yearActions = {}
 let rotationYears = []
 
-const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
+const ActionManager = ({
+    rotationPeriod, getPlan, addAction, 
+    deleteAction, onSave, onLoad, updateTrigger
+}) => {
     /**
      * Provides an interface using which learners
      * may add, remove or filter management actions.
      * @param rotationPeriod: Current rotation period.
      * @param getPlan: Fetches current plan.
      * @param addAction: Adds a new action to the plan. 
+     * @param onSave: Function that triggers saving of 
+     *                current starting world and plan.
+     * @param onLoad: Function that triggers loading of 
+     *                a previously saved microworld state.
+     * @param updateTrigger: A 0/1 value that is updated
+     *                       to trigger plan refreshing.
      */
 
     const colorBad = "#F44A4A"
@@ -246,7 +255,7 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
     useEffect(() => {
         updateYearActions()
         setYearActionsObjects(getYearActionsObjects())
-    }, [rotationPeriod])
+    }, [rotationPeriod, updateTrigger])
 
     useEffect(() => {
         updateYearActions()
@@ -270,12 +279,21 @@ const ActionManager = ({rotationPeriod, getPlan, addAction, deleteAction}) => {
                         ><img src="bin.png" className='max-h-8 p-1 w-auto'/></Button>
                         <Button // SAVE BUTTON
                             outlineColor='#9FCBFF' bgColor='#C5E0FF'
-                            onClick={() => {console.log("SAVE button clicked.")}}
+                            onClick={onSave}
                         ><img src="save.png" className='max-h-8 p-1 w-auto'/></Button>
                         <Button // UPLOAD BUTTON
                             outlineColor='#F0BDFE' bgColor='#F7D9FF'
-                            onClick={() => {console.log("UPLOAD button clicked.")}}
-                        ><img src="upload.png" className='max-h-8 p-1 w-auto'/></Button>
+                            onClick={()=>{document.getElementById('file-input').click()}}
+                        >
+                            <img src="upload.png" className='max-h-8 p-1 w-auto'/>
+                            <input
+                                type="file"
+                                accept="application/json"
+                                onChange={onLoad}
+                                style={{ display: 'none' }}
+                                id="file-input"
+                            ></input>
+                        </Button>
                     </div>
                 </div>
                 {/* YEAR & ACTION TAGS */}

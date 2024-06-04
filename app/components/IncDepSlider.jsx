@@ -35,6 +35,10 @@ const IncDepSlider = ({
         getValueSetter(setCurVal)
     })
 
+    useEffect(() => {
+        setCurVal(value)
+    }, [value])
+
     return (
         <div 
             className="p-2 rounded-lg bg-[#FFFFFF]"

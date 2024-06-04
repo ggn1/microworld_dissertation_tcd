@@ -1,6 +1,5 @@
 "use client"
 
-import Tag from "./Tag"
 import Link from "next/link"
 import Button from "./Button"
 import { useEffect, useState } from "react"

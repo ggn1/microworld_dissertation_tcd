@@ -83,6 +83,16 @@ export default class Simulation {
                 }
             }
         }
+        this.loadState = (state) => {
+            /**
+             * Loads a saved state and restores it.
+             */
+            this.planner.plan = state.plan
+            this.planner.incomeDependency = state.incomeDependency
+            this.planner.setTargets(state.targetSettings)
+            this.env.land.setInitSowPositions(state.initSowPositions)
+            this.env.land.setTimeStepOrder(state.timeStepOrder)
+        }
     }
 
     #executeAction = (
@@ -217,6 +227,17 @@ export default class Simulation {
         }
         this.income = { "total": 0 }
         for (const resource of Object.keys(this.resources)) this.income[resource] = 0
+        // Set status of all plans to -1.
+        for (const y of Object.keys(this.planner.plan)) {
+            for (const actionType of Object.keys(this.planner.plan[y])) {
+                let actions = []
+                for (let action of this.planner.plan[y][actionType]) {
+                    action.success = -1
+                    actions.push(action)
+                }
+                this.planner.plan[y][actionType] = actions
+            }
+        }
     }
 
     #takeTimeStep() {

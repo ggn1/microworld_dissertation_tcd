@@ -3,13 +3,16 @@
 import { useState, useEffect } from "react"
 import IncDepSlider from "./IncDepSlider"
 
-const IncDepSetter = ({incDepStart, setIncDep, updateSalesTargets}) => {
+const IncDepSetter = ({
+    getIncomeDependency, setIncDep, updateSalesTargets, sliderUpdateTrigger}) => {
     /** 
      * Component used to set income dependency proportions. 
      * @param incDepStart: Starting income dependency values.
      * @param setIncDep: Function that sets new income dependency values.
      * @param updateSalesTargets: Function that sets the income target 
      *                            to be met per rotation for each resource.
+     * @param sliderUpdateTrigger: A value (0/1) that can be set to trigger
+     *                             refreshing of slider values.
      */
 
     const incDepDef = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
@@ -23,6 +26,22 @@ const IncDepSetter = ({incDepStart, setIncDep, updateSalesTargets}) => {
          * slider components reflecting latest
          * income dependency values.
          */
+        
+        // If incDep is uninitialized, initialize it
+        // based on latest income dependency setting
+        // as fetched from the simulation.
+        if (Object.keys(incDep).length == 0) {
+            const latestIncDep = getIncomeDependency()
+            for (const key of Object.keys(incDepDef)) {
+                incDep[key] = {
+                    value: latestIncDep[key],
+                    disabled: false
+                }
+            }
+        }
+        console.log("incDep =", incDep)
+
+        // Set slider values.
         let slidersNew = []
         for (const resource of Object.keys(incDepDef)) {
             slidersNew.push(<IncDepSlider 
@@ -149,14 +168,13 @@ const IncDepSetter = ({incDepStart, setIncDep, updateSalesTargets}) => {
     }
 
     useEffect(() => {
-        for (const key of Object.keys(incDepDef)) {
-            incDep[key] = {
-                value: incDepStart[key],
-                disabled: false
-            }
-        }
         updateSliders()
     }, [])
+
+    useEffect(() => {
+        incDep = {}
+        updateSliders()
+    }, [sliderUpdateTrigger])
 
     return (
         <div className="flex flex-col gap-3">

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { sim } from "../page.jsx"
+import { saveAs } from 'file-saver'
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Button from "../components/Button.jsx"
@@ -21,8 +22,87 @@ const Planner = () => {
     const [simNotNull, setSimNotNull] = useState(false)
     const [rotationPeriod, setRotationPeriod] = useState(sim ? sim.planner.rotationPeriod : 0)
     const [resourceSalesTargets, setResourceSalesTargets] = useState(
-        sim.getResourceSalesTargets()
+        sim ? sim.getResourceSalesTargets() : {}
     )
+    const [planRefreshTrigger, setPlanRefreshTrigger] = useState(0)
+    const [incDepRefreshTrigger, setIncDepRefreshTrigger] = useState(0)
+
+    const handleSave = () => {
+        /** 
+         * Saves current starting world and plan
+         * as JSON data.
+         */
+
+        // Gather data to save.
+        const data = {
+            plan: sim.planner.plan,
+            targetSettings: sim.planner.getTargets(),
+            initSowPositions: sim.env.land.getInitSowPositions(),
+            timeStepOrder: sim.env.land.getTimeStepOrder(),
+            incomeDependency: sim.planner.incomeDependency
+        }
+
+        // Set status of all plans to -1.
+        for (const y of Object.keys(data.plan)) {
+            for (const actionType of Object.keys(data.plan[y])) {
+                let actions = []
+                for (let action of data.plan[y][actionType]) {
+                    action.success = -1
+                    actions.push(action)
+                }
+                data.plan[y][actionType] = actions
+            }
+        }
+        
+        // Convert to JSON and create a BLOB object.
+        const json = JSON.stringify(data, null, 2)
+        const blob = new Blob([json], { type: 'application/json' })
+        
+        // Download the data.
+        saveAs(blob, "microworld.json")
+    }
+
+    const handleLoad = (e) => {
+        /**
+         * Loads previously saved world state.
+         * @param e: File upload event.
+         */
+        const regex = /^[a-zA-Z0-9\s\[\]\{\}:_\-.,"]+$/
+
+        const file = e.target.files[0]
+        const reader = new FileReader()
+
+        reader.onload = (e) => {
+            let isContentValid = true
+            let data = {}
+            const content = e.target.result
+            if (!regex.test(content)) isContentValid = false
+            if (isContentValid) {
+                try {
+                    data = JSON.parse(content)
+                    if (
+                        Object.keys(data).length != 5 ||
+                        !("plan" in data) ||
+                        !("targetSettings" in data) ||
+                        !("initSowPositions" in data) ||
+                        !("timeStepOrder" in data) ||
+                        !("incomeDependency" in data)
+                    ) isContentValid = false
+                } catch (error) {
+                    alert('Invalid File')
+                }
+            }
+            if (!isContentValid) {
+                alert("Invalid Content")
+            } else { // Valid content.
+                sim.loadState(data)
+                setPlanRefreshTrigger(prevVal => 1 - prevVal)
+                setIncDepRefreshTrigger(prevVal => 1 - prevVal)
+            }
+        }
+
+        reader.readAsText(file);
+    }
 
     useEffect(() => {
         // Upon refresh, reload to the home page
@@ -74,6 +154,9 @@ const Planner = () => {
                     getPlan={sim.planner.getPlan}
                     addAction={sim.planner.addAction}
                     deleteAction={sim.planner.deleteAction}
+                    onSave={handleSave}
+                    onLoad={handleLoad}
+                    updateTrigger={planRefreshTrigger}
                 />}
             </div>
 
@@ -84,7 +167,7 @@ const Planner = () => {
             >
                 <div className="font-bold text-center mb-3">INCOME DEPENDENCY</div>
                 <IncDepSetter 
-                    incDepStart={sim.planner.incomeDependency}
+                    getIncomeDependency={() => sim.planner.incomeDependency}
                     setIncDep={sim.planner.setIncDep}
                     updateSalesTargets={() => {
                         sim.updateResourceSalesTargets()
@@ -92,6 +175,7 @@ const Planner = () => {
                             sim.getResourceSalesTargets()
                         )
                     }}
+                    sliderUpdateTrigger={incDepRefreshTrigger}
                 />
             </div>
 

@@ -22,11 +22,16 @@ export default class Planner {
         income: JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START), // x Bc
         funds: JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START) // x Bc
     }
+    #updateResourceSalesTargets
     
-    constructor() {
+    constructor(updateResourceSalesTargets) {
         /**
          * Logical planner that allows learns to draft forest management plans.
+         * @param updateResourceSalesTargets: Function used to update
+         *                                    sales targets for each income stream
+         *                                    based on latest total income target.
          */
+        this.#updateResourceSalesTargets = updateResourceSalesTargets
         this.plan = dummyPlan
         this.rotationPeriod = JSON.parse(process.env.NEXT_PUBLIC_ROTATION_START)
         this.incomeDependency = {}
@@ -49,6 +54,7 @@ export default class Planner {
             for (const [key, val] of Object.entries(targets)) {
                 if (key in this.#targets) this.#targets[key] = val
             }
+            this.#updateResourceSalesTargets()
         }
         this.getPlan = (year=null) => {
             /** 

@@ -1,13 +1,21 @@
 import Big from 'big.js'
 import Land from "./Land.js"
+import * as utils from '../utils.js'
 
 export default class Environment {
     /** Environment comprises the atmosphere and the land. */
 
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
+    #updateResourceAvailability
 
-    constructor() {
+    constructor(updateResourceAvailability) {
+        /**
+         * Constructor.
+         * @param updateResourceAvailability: Function that can be used to 
+         *                                    set availability of resources.
+         */
         const carbonAmounts = JSON.parse(process.env.NEXT_PUBLIC_C_START)
+        this.#updateResourceAvailability = updateResourceAvailability
         this.carbon = {} // g
         for (const [reservoir, carbonAmount] of Object.entries(carbonAmounts)) {
             this.carbon[reservoir] = Big(carbonAmount)
@@ -72,5 +80,24 @@ export default class Environment {
         const molecularMassC = 12 // g/mol
         const molecularMassCO2 = 44 // g/mol
         return massCO2 * (molecularMassC/molecularMassCO2)
+    }
+
+    updateNTFPAvailability() {
+        /**
+         * Computes and sets resource availability for non-timber forest products
+         * like mushrooms, honey and berries based on current conditions.
+         */
+        const def = JSON.parse(process.env.NEXT_PUBLIC_AVAILABILITY_NTFP)
+        let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
+        const biodiversityPc = this.land.biodiversityScore
+        let availabilityBd = Math.max(
+            0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
+        )
+        const deadwoodPc = this.land.getDeadWoodPc()
+        let availabilityDw = Math.max(
+            0, availabilityMax - (availabilityMax * (1 - deadwoodPc))
+        )
+        const availability = (availabilityBd + availabilityDw) / 2
+        this.#updateResourceAvailability("ntfp", availability)
     }
 }

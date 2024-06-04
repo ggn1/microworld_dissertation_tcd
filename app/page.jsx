@@ -41,7 +41,6 @@ const Home = () => {
         setIncomeTotal(sim.income.total)
         setFunds(sim.funds)
         setCurRotation(sim.rotation)
-        setRotationIncomeTargets(sim.getResourceSalesTargets())
         setRotationIncome({...sim.income})
     }
 
@@ -65,6 +64,10 @@ const Home = () => {
                     curFunds={funds}
                     startValCO2={sim.planner.getTargets().co2}
                     startValIncome={sim.planner.getTargets().income}
+                    updateTargetIncome={sim.planner.setTargets}
+                    updateIncTargetsUI={() => setRotationIncomeTargets(
+                        sim.getResourceSalesTargets()
+                    )}
                 />
             </div>
             <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3

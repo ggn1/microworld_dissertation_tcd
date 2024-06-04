@@ -15,9 +15,43 @@ export default class Simulation {
          *                     time step update with latest simulation
          *                     state to update the UI.
          */
-        this.#createFreshWorld()
-        this.planner = new Planner()
+        this.updateResourceSalesTargets = () => {
+            /**
+             * Updates target incomes per rotation 
+             * for each income stream based on latest 
+             * income target and dependency settings.
+             */
+            let targetIncome = this.planner.getTargets()
+            targetIncome = targetIncome.income
+            for(const resource of Object.keys(this.resources)) {
+                this.resources[resource].setSalesTarget(
+                    targetIncome, this.planner.incomeDependency[resource]
+                )
+            }
+        }
+        this.planner = new Planner(this.updateResourceSalesTargets)
         this.updateSimUI = updateSimUI
+        this.updateResourceAvailability = (resource, availability) => {
+            /**
+             * Updates the availability of a particular resource.
+             * @param resource: Type of the resource being updated.
+             * @param availability: New value for availability.
+             */
+            this.resources[resource].available = availability
+        }
+        this.getResourceSalesTargets = () => {
+            /**
+             * Returns current per rotation sales
+             * target for each income stream.
+             * @return: Sales targets.
+             */
+            let salesTargets = {}
+            for(const resource of Object.keys(this.resources)) {
+                salesTargets[resource] = this.resources[resource].salesTarget
+            }
+            return salesTargets
+        }
+        this.#createFreshWorld()
         this.goto = (time) => {
             /** 
              * Given a point in time, runs the simulation
@@ -44,30 +78,6 @@ export default class Simulation {
                     this.#takeTimeStep()
                 }
             }
-        }
-        this.updateResourceSalesTargets = () => {
-            /**
-             * Updates target incomes per rotation 
-             * for each income stream based on latest 
-             * income target and dependency settings.
-             */
-            for(const resource of Object.keys(this.resources)) {
-                this.resources[resource].setSalesTarget(
-                    this.income.total, this.planner.incomeDependency[resource]
-                )
-            }
-        }
-        this.getResourceSalesTargets = () => {
-            /**
-             * Returns current per rotation sales
-             * target for each income stream.
-             * @return: Sales targets.
-             */
-            let salesTargets = {}
-            for(const resource of Object.keys(this.resources)) {
-                salesTargets[resource] = this.resources[resource].salesTarget
-            }
-            return salesTargets
         }
     }
 
@@ -169,17 +179,7 @@ export default class Simulation {
         }
         this.income["total"] += incomeTotal
         this.funds += incomeTotal
-    } 
-
-    #takeTimeStep() {
-        /** Step forward in time by one step. */
-        this.time += 1
-        this.#updateRotation()
-        this.#executePlans(this.time)
-        this.env.land.takeTimeStep()
-        this.updateSimUI()
-        this.#generateIncome()
-    } 
+    }  
 
     #updateRotation() {
         /**
@@ -202,7 +202,7 @@ export default class Simulation {
     #createFreshWorld() {
         /** Initializes the simulation with starting world state. */
         this.time = 0
-        this.env = new Environment()
+        this.env = new Environment(this.updateResourceAvailability)
         this.rotation = 0
         this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
         this.resources = {
@@ -212,5 +212,16 @@ export default class Simulation {
         }
         this.income = { "total": 0 }
         for (const resource of Object.keys(this.resources)) this.income[resource] = 0
+    }
+
+    #takeTimeStep() {
+        /** Step forward in time by one step. */
+        this.time += 1
+        this.#updateRotation()
+        this.#executePlans(this.time)
+        this.env.land.takeTimeStep()
+        this.env.updateNTFPAvailability()
+        this.#generateIncome()
+        this.updateSimUI()
     }
 }

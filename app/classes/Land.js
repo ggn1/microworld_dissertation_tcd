@@ -368,4 +368,22 @@ export default class Land {
         }
         return [-1, -1]
     }
+
+    getDeadWoodPc() {
+        /**
+         * Computes percent of the land that has deadwood.
+         * @return: Percent of the land with deadwood.
+         */
+        const landSpotsTotal = this.size.rows * this.size.columns
+        let landSpotsDeadWood = 0
+        for (let i = 0; i < this.size.rows; i++) {
+            for (let j = 0; j < this.size.columns; j++) {
+                if (
+                    this.content[i][j] != null &&
+                    this.content[i][j].lifeStage == "dead"
+                ) landSpotsDeadWood += 1
+            }
+        }
+        return landSpotsDeadWood/landSpotsTotal
+    }
 }

@@ -117,3 +117,26 @@ export function computeCarbonInWoodWeight (weight) {
     const carbonPc = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE)
     return carbonPc * weightDry
 }
+
+// CHAT GPT 4.0
+export function randomNormalSample(mean, stdDev) {
+    /**
+     * Generates a random sample from a normal distribution with 
+     * the given mean and standard deviation.
+     * @param mean: The mean of the normal distribution.
+     * @param stdDev: The standard deviation of the normal distribution.
+     * @return: A random sample from the specified normal distribution.
+     */
+
+    // Generate two uniformly distributed random numbers between 0 and 1.
+    let u1 = Math.random()
+    let u2 = Math.random()
+    
+    // Apply the Box-Muller transform to get two standard 
+    // normal distributed random numbers.
+    let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2)
+
+    // Scale and shift the result to match the specified 
+    // mean and standard deviation.
+    return z0 * stdDev + mean
+}

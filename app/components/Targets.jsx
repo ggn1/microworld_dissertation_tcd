@@ -10,7 +10,8 @@ let isExpMode = true
 
 const Targets = ({
     setTargets, curCO2, curIncome, curFunds,
-    startValCO2, startValIncome
+    startValCO2, startValIncome, updateTargetIncome,
+    updateIncTargetsUI
 }) => {
     /**
      * This component both displays targets and allows 
@@ -27,6 +28,12 @@ const Targets = ({
      * @param curFunds: Latest funds that the user has.
      * @param startValCO2: The starting CO2 target value.
      * @param startValIncome: The starting income target value.
+     * @param updateTargetIncome: Function that can be used to 
+     *                            update target total income
+     *                            in the simulation.
+     * @param updateIncTargetsUI: Function that can be used to update
+     *                            the UI to reflect effects of altered 
+     *                            income value.
      */
 
     const colorTextDefault = "#232323"
@@ -94,12 +101,12 @@ const Targets = ({
          * @param targetType: Type of target (co2 / income).
          * @param val: User input from the CO2 text box as a string value.
         */
-        if (val == "") {
+        if (val == "") { // Invalid input.
             if (targetType == "co2") setIsValidCO2(false)
             if (targetType == "income") setIsValidIncome(false)
             val = 0
         }
-        else {
+        else { // Valid input.
             setIsValidCO2(true)
             setIsValidIncome(true)
             val = parseFloat(val)
@@ -115,6 +122,8 @@ const Targets = ({
             isTargetMet("income", val)
             targets.income = val
             setTargetIncome(targets.income)
+            updateTargetIncome({income: targets.income})
+            updateIncTargetsUI()
         }
     }
 

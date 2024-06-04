@@ -9,6 +9,9 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
      * well as current values per rotation.
      */
 
+    const colorGood = "#32BE51"
+    const colorDefault = "#FFFFFF"
+
     const getResourceValues = () => {
         /**
          * Returns a list of renderable divs containing all
@@ -18,14 +21,18 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
         let resourceData = []
         for (const resource of Object.keys(incomeSources)) {
             resourceData.push(
-                <div className="flex gap-2 bg-[#FFFFFF] rounded-lg p-2 items-center">
+                <div 
+                    className="flex gap-2 rounded-lg p-2 bg-[#FFFFFF] items-center border-4" 
+                    style={{
+                        borderColor: income[resource] < targets[resource] 
+                                     ? colorDefault : colorGood
+                    }}
+                >
                     <img src={incomeSources[resource].image} className="h-10 w-auto"/>
                     <div>
                         <div className="flex gap-1 justify-center items-center">
                             <img src="barcon.png" className="h-4 r-auto"/>
-                            <div style={{
-                                color: income[resource] < targets[resource] ? "#888888" : "#46a13a"
-                            }}>{utils.roundToNDecimalPlaces(income[resource], 2)}</div>
+                            <div>{utils.roundToNDecimalPlaces(income[resource], 2)}</div>
                         </div>
                         <div className="bg-[#232323] h-[1px] rounded-full w-full"></div>
                         <div className="flex gap-1 justify-center items-center">
@@ -40,17 +47,23 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
     }
 
     const incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
-    const [resourceData, setResourceData] = useState(getResourceValues())
+    const [resourceData, setResourceData] = useState([])
 
     useEffect(() => {
+        Object.keys(targets).length > 0 && 
         setResourceData(getResourceValues())
-    }, [income])
+    }, [targets, income])
 
     return (
         <div className="p-3">
             <div className='flex justify-between gap-3 items-center'>
-                <div className='mb-3 font-bold text-center'>INCOME: ROTATION {rotation}</div>
-                <div className="mb-3"><b>Total =</b> {utils.roundToNDecimalPlaces(income.total, 2)}</div>
+                <div className='mb-3 font-bold text-center'>
+                    INCOME: ROTATION {rotation}
+                </div>
+                <div className="mb-3">
+                    <b>Total =</b> 
+                    {utils.roundToNDecimalPlaces(income.total, 2)}
+                </div>
             </div>
             <div className='flex justify-between gap-2'>
                 {resourceData}

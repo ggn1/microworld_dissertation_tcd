@@ -39,10 +39,6 @@ const TextInput = ({
         else handleVal("")
     }
 
-    useEffect(() => {
-        console.log()
-    }, [val])
-
     return (
         <div 
             className="

@@ -22,13 +22,14 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
         for (const resource of Object.keys(incomeSources)) {
             resourceData.push(
                 <div 
-                    className="flex gap-2 rounded-lg p-2 bg-[#FFFFFF] items-center border-4" 
-                    style={{
-                        borderColor: income[resource] < targets[resource] 
-                                     ? colorDefault : colorGood
+                    className="
+                        flex flex-col rounded-lg p-1 
+                        bg-[#FFFFFF] items-center border-4 px-3
+                    " style={{
+                        borderColor: income[resource]<targets[resource]?colorDefault:colorGood
                     }}
                 >
-                    <img src={incomeSources[resource].image} className="h-10 w-auto"/>
+                    <img src={incomeSources[resource].image} className="h-12 w-auto"/>
                     <div>
                         <div className="flex gap-1 justify-center items-center">
                             <img src="barcon.png" className="h-4 r-auto"/>
@@ -55,8 +56,8 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
     }, [targets, income])
 
     return (
-        <div className="p-3">
-            <div className='flex justify-between gap-3 items-center'>
+        <div className="px-3">
+            <div className='flex justify-center gap-3 items-center'>
                 <div className='mb-3 font-bold text-center'>
                     INCOME: ROTATION {rotation}
                 </div>
@@ -65,7 +66,7 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
                     {utils.roundToNDecimalPlaces(income.total, 2)}
                 </div>
             </div>
-            <div className='flex justify-between gap-2'>
+            <div className='flex justify-evenly gap-3'>
                 {resourceData}
             </div>
         </div>

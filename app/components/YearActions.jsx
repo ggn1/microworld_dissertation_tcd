@@ -59,8 +59,7 @@ const YearActions = ({
                 style={{maxHeight: maxHeight}}
             >{[
                 actions.map((action, i) => {
-                    return(<Tag 
-                        key={`action-tag-${year}-${i}`}
+                    return(<Tag
                         bgColor="#EEEEEE"
                         borderColor={borderColorDefault}
                         borderColorSelected={borderColorSelected}

@@ -29,6 +29,8 @@ const Home = () => {
     const [curRotation, setCurRotation] = useState(1)
     const [rotationIncomeTargets, setRotationIncomeTargets] = useState({})
     const [rotationIncome, setRotationIncome] = useState({})
+    const [plan, setPlan] = useState({})
+    const [time, setTime] = useState(0)
 
     const updateSimUI = () => {
         setLandContent([...sim.env.land.content])
@@ -42,12 +44,25 @@ const Home = () => {
         setFunds(sim.funds)
         setCurRotation(sim.rotation)
         setRotationIncome({...sim.income})
+        setTime(sim.time)
+    }
+
+    const updatePlanUI = () => {
+        /**
+         * Refreshes the plan in plan viewer.
+         */
+        setPlan({...sim.planner.plan})
     }
 
     useEffect(() => {
-        if (sim == null) sim = new Simulation(updateSimUI)
-        else sim.updateSimUI = updateSimUI
+        if (sim == null) {
+            sim = new Simulation(updateSimUI, updatePlanUI)
+        } else {
+            sim.updateSimUI = updateSimUI
+            sim.updatePlanUI = updatePlanUI
+        }
         updateSimUI()
+        updatePlanUI()
         setIsInitialized(true)
     }, [])
     
@@ -99,7 +114,11 @@ const Home = () => {
             <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-3
                 place-content-center
             ">
-                <PlanViewer rotationPeriod={rotationPeriod}/>
+                <PlanViewer 
+                    rotationPeriod={rotationPeriod} 
+                    plan={plan} 
+                    year={time}
+                />
             </div>
             <div id="home-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2
                 place-content-center

@@ -82,7 +82,7 @@ export default class Environment {
         return massCO2 * (molecularMassC/molecularMassCO2)
     }
 
-    updateNTFPAvailability() {
+    #updateNTFPAvailability() {
         /**
          * Computes and sets resource availability for non-timber forest products
          * like mushrooms, honey and berries based on current conditions.
@@ -99,5 +99,30 @@ export default class Environment {
         )
         const availability = (availabilityBd + availabilityDw) / 2
         this.#updateResourceAvailability("ntfp", availability)
+    }
+
+    #updateRecActAvailability() {
+        /**
+         * Computes and sets availability of people for
+         * recereational activities in the forest.
+         */
+        const def = JSON.parse(process.env.NEXT_PUBLIC_AVAILABILITY_RECACT)
+        let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
+        const biodiversityPc = this.land.biodiversityScore
+        let availabilityBd = Math.max(
+            0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
+        )
+        const availability = availabilityBd
+        this.#updateResourceAvailability("recreational_activities", availability)
+    }
+
+    takeTimeStep() {
+        /**
+         * Executes all functions/activities that take 
+         * place with each passing year.
+         */
+        this.land.takeTimeStep()
+        this.#updateNTFPAvailability()
+        this.#updateRecActAvailability()
     }
 }

@@ -8,12 +8,15 @@ export default class Simulation {
 
     #mgmtActionCosts = JSON.parse(process.env.NEXT_PUBLIC_COST_MGMT_ACTION)
     
-    constructor(updateSimUI) {
+    constructor(updateSimUI, updatePlanUI) {
         /**
          * Constructor.
          * @param updateSimUI: Function that may be called after each
          *                     time step update with latest simulation
          *                     state to update the UI.
+         * @param updatePlanUI: Function that when called, refreshes the
+         *                      plan displayed in the plan viewer
+         *                      as per latest changes.
          */
         this.updateResourceSalesTargets = () => {
             /**
@@ -31,6 +34,7 @@ export default class Simulation {
         }
         this.planner = new Planner(this.updateResourceSalesTargets)
         this.updateSimUI = updateSimUI
+        this.updatePlanUI = updatePlanUI
         this.updateResourceAvailability = (resource, availability) => {
             /**
              * Updates the availability of a particular resource.
@@ -137,6 +141,7 @@ export default class Simulation {
             }
         }
         this.planner.updateActionStatus(year, actionType, actionIdx, status)
+        this.updatePlanUI()
     }
 
     #executePlans(year) {
@@ -219,8 +224,7 @@ export default class Simulation {
         this.time += 1
         this.#updateRotation()
         this.#executePlans(this.time)
-        this.env.land.takeTimeStep()
-        this.env.updateNTFPAvailability()
+        this.env.takeTimeStep()
         this.#generateIncome()
         this.updateSimUI()
     }

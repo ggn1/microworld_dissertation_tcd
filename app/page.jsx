@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import Simulation from "./classes/Simulation.js"
+import { useEffect, useState } from 'react'
+import Simulation from "./model/Simulation.js"
 import Timeline from './components/Timeline.jsx'
 import LandPlot from "./components/LandPlot.jsx"
 import CO2Scale from "./components/CO2Scale.jsx"

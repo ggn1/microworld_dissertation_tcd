@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 const TextInput = ({
         sanityCheck, handleVal, maxWidth="50px", unit="", label="",

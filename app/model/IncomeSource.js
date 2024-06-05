@@ -23,11 +23,11 @@ export default class IncomeSource {
         this.label = resourceDef.label
         this.image = resourceDef.image
         this.available = 0
-        this.salesTarget = JSON.parse( // per rotation
+        this.salesTarget = Big(JSON.parse( // per rotation
             process.env.NEXT_PUBLIC_TARGET_INCOME_START
-        ) * JSON.parse(
+        )).mul(JSON.parse(
             process.env.NEXT_PUBLIC_INCOME_SOURCES
-        )[this.type].dependency
+        )[this.type].dependency)
         this.setSalesTarget = (incomeTarget, dependency) => {
             /**
              * Computes how much of funds should be obtained from
@@ -38,7 +38,7 @@ export default class IncomeSource {
              * @param dependency: The amount of dependency placed upon
              *                    this income stream for funds [0, 1].
              */
-            this.salesTarget = incomeTarget * dependency
+            this.salesTarget = incomeTarget.mul(dependency)
         }
     }
 
@@ -48,15 +48,15 @@ export default class IncomeSource {
          * and returns funds received.
          * @return: Income from sales.
          */
-        let fundsReceived = 0
+        let fundsReceived = Big(0)
         if (this.type == "timber") {
             // Because wood weight is in grams and
             // price is per kg, wood weight must be 
             // divided by 1000.
-            fundsReceived = (this.available/1000) * this.#pricePerUnit
+            fundsReceived = Big((this.available/1000) * this.#pricePerUnit)
             this.useWood(this.available)
         } else {
-            fundsReceived = this.available * this.#pricePerUnit
+            fundsReceived = Big(this.available * this.#pricePerUnit)
         }
         this.available = 0
         return fundsReceived
@@ -127,21 +127,70 @@ export class NTFP extends IncomeSource {
     /** Class embodies income that non-timber forest
      *  products like mushrooms, berries and honey presents. */
 
-    // TO DO ...
+    #getBiodiversityPc
+    #getDeadWoodPc
+
+    constructor(type, getBiodiversityPc, getDeadWoodPc) {
+        /**
+         * Constructor.
+         * @param type: Type of resource.
+         * @param getBiodiversityPc: Function that fetches latest 
+         *                           biodiversity score.
+         * @param getDeadWoodPc: Function that fetchest current 
+         *                       percent of the land with dead wood.
+         */
+        super(type)
+        this.#getBiodiversityPc = getBiodiversityPc
+        this.#getDeadWoodPc = getDeadWoodPc
+        this.updateAvailability = () => {
+            /** 
+             * Updates how much of this resource is available.
+             * Considers costs related to foraging/harvesting.
+             */
+            const def = JSON.parse(process.env.NEXT_PUBLIC_AVAILABILITY_NTFP)
+            let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
+            const biodiversityPc = this.#getBiodiversityPc()
+            let availabilityBd = Math.max(
+                0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
+            )
+            const deadwoodPc = this.#getDeadWoodPc()
+            let availabilityDw = Math.max(
+                0, availabilityMax - (availabilityMax * (1 - deadwoodPc))
+            )
+            this.available = (availabilityBd + availabilityDw) / 2
+        }
+    }
 }
 
 export class RecreationalActivities extends IncomeSource {
     /** Class embodies income that hunting and fishing
      *  activities present. */
 
-    // TO DO ...
-}
+    #getBiodiversityPc
 
-// export class EcosystemServices extends IncomeSource {
-//     /** Class embodies income that can be earned 
-//      *  due to funds for ecosystem services. */
-    
-//     getIncome(biodiversity) {
-//         // TO DO ...
-//     }
-// }
+    constructor(type, getBiodiversityPc) {
+        /**
+         * Constructor.
+         * @param type: Type of resource.
+         * @param getBiodiversityPc: Function that fetches latest 
+         *                           biodiversity score.
+         */
+        super(type)
+        this.isBuitUp = false // Whether facilities have been established yet.
+        this.#getBiodiversityPc = getBiodiversityPc
+        this.updateAvailability = () => {
+            /** 
+             * Updates how much of this resource is available.
+             * Handles payment of one time fixed amount as well
+             * as maintainance costs.
+             */
+            const def = JSON.parse(process.env.NEXT_PUBLIC_AVAILABILITY_RECACT)
+            let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
+            const biodiversityPc = this.#getBiodiversityPc()
+            let availabilityBd = Math.max(
+                0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
+            )
+            this.available = availabilityBd
+        }
+    }
+}

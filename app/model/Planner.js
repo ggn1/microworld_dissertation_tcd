@@ -1,3 +1,5 @@
+import Big from 'big.js'
+
 const dummyPlan = {
     // "40": {
     //     "fell": [{count:1, type:"coniferous", success:-1, stage:"mature"}],
@@ -11,7 +13,6 @@ const dummyPlan = {
     // }
 }
 
-
 export default class Planner {
     /** This class facilitates storing,
      *  updating and saving of management plans. 
@@ -19,8 +20,8 @@ export default class Planner {
 
     #targets = {
         co2: JSON.parse(process.env.NEXT_PUBLIC_TARGET_CO2_START), // Atmospheric PPM
-        income: JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START), // x Bc
-        funds: JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START) // x Bc
+        income: Big(JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START)), // x Bc
+        funds: Big(JSON.parse(process.env.NEXT_PUBLIC_TARGET_FUNDS_START)) // x Bc
     }
     #updateUISalesTargets
     

@@ -1,3 +1,4 @@
+import Big from 'big.js'
 import Planner from "./Planner.js"
 import Environment from "./Environment.js"
 import { Timber, RecreationalActivities, NTFP } from "./IncomeSource.js"
@@ -35,14 +36,6 @@ export default class Simulation {
         this.planner = new Planner(this.updateResourceSalesTargets)
         this.updateSimUI = updateSimUI
         this.updatePlanUI = updatePlanUI
-        this.updateResourceAvailability = (resource, availability) => {
-            /**
-             * Updates the availability of a particular resource.
-             * @param resource: Type of the resource being updated.
-             * @param availability: New value for availability.
-             */
-            this.resources[resource].available = availability
-        }
         this.getResourceSalesTargets = () => {
             /**
              * Returns current per rotation sales
@@ -89,6 +82,8 @@ export default class Simulation {
              */
             this.planner.plan = state.plan
             this.planner.incomeDependency = state.incomeDependency
+            state.targetSettings.income = Big(state.targetSettings.income)
+            state.targetSettings.funds = Big(state.targetSettings.funds)
             this.planner.setTargets(state.targetSettings)
             this.env.land.setInitSowPositions(state.initSowPositions)
             this.env.land.setTimeStepOrder(state.timeStepOrder)
@@ -122,7 +117,7 @@ export default class Simulation {
                 treeLifeStage != "sapling"
             ) { 
                 // Pay the price for felling.
-                this.funds -= this.#mgmtActionCosts.fell
+                this.funds = this.funds.minus(this.#mgmtActionCosts.fell)
                 // Fell the tree.
                 const [success, woodHarvested] = this.env.land.fellTree(
                     pos, treeType, treeLifeStage
@@ -140,7 +135,7 @@ export default class Simulation {
             if (pos.length > 0) { // Suitable spot found.
                 pos = pos[0]
                 // Pay the price for planting.
-                this.funds -= this.#mgmtActionCosts.plant
+                this.funds = this.funds.minus(this.#mgmtActionCosts.plant)
                 // Plant the tree seedling.
                 status = this.env.land.plantTree(treeType, pos)
                 if (typeof(status) != "number") status = 1
@@ -184,16 +179,16 @@ export default class Simulation {
          * generated from them.
          */
 
-        let incomeTotal = 0
-        let incomeResource = 0
+        let incomeTotal = Big(0)
+        let incomeResource = Big(0)
         // Sell and/or use all available resources.
         for (const [resource, incomeSource] of Object.entries(this.resources)) {
             incomeResource = incomeSource.sell()
-            this.income[resource] += incomeResource
-            incomeTotal += incomeResource
+            this.income[resource] = this.income[resource].plus(incomeResource)
+            incomeTotal = incomeTotal.plus(incomeResource)
         }
-        this.income["total"] += incomeTotal
-        this.funds += incomeTotal
+        this.income["total"] = this.income["total"].plus(incomeTotal)
+        this.funds = this.funds.plus(incomeTotal)
     }  
 
     #updateRotation() {
@@ -208,7 +203,7 @@ export default class Simulation {
             this.rotation = newRotation
             // Reset income for this rotation.
             for (const resource of Object.keys(this.income)) {
-                this.income[resource] = 0
+                this.income[resource] = Big(0)
             }
         }
         
@@ -228,14 +223,22 @@ export default class Simulation {
             timeStepOrder
         )
         this.rotation = 0
-        this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
+        this.funds = Big(JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START))
         this.resources = {
             timber: new Timber("timber", this.env.updateCarbon),
-            ntfp: new NTFP("ntfp"),
-            recreational_activities: new RecreationalActivities("recreational_activities")
+            ntfp: new NTFP(
+                "ntfp", this.env.land.getBiodiversityPc, 
+                this.env.land.getDeadWoodPc
+            ),
+            recreational_activities: new RecreationalActivities(
+                "recreational_activities", 
+                this.env.land.getBiodiversityPc
+            )
         }
-        this.income = { "total": 0 }
-        for (const resource of Object.keys(this.resources)) this.income[resource] = 0
+        this.income = { "total": Big(0) }
+        for (const resource of Object.keys(this.resources)) {
+            this.income[resource] = Big(0)
+        }
         // Set status of all plans to -1.
         for (const y of Object.keys(this.planner.plan)) {
             for (const actionType of Object.keys(this.planner.plan[y])) {
@@ -254,7 +257,9 @@ export default class Simulation {
         this.time += 1
         this.#updateRotation()
         this.#executePlans(this.time)
-        this.env.takeTimeStep()
+        this.env.land.takeTimeStep()
+        this.resources.ntfp.updateAvailability()
+        this.resources.recreational_activities.updateAvailability()
         this.#generateIncome()
         this.updateSimUI()
     }

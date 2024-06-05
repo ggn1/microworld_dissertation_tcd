@@ -26,19 +26,20 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
                         flex flex-col rounded-lg p-1 
                         bg-[#FFFFFF] items-center border-4 px-3
                     " style={{
-                        borderColor: income[resource]<targets[resource]?colorDefault:colorGood
+                        borderColor: income[resource].lt(targets[resource])
+                                     ? colorDefault : colorGood
                     }}
                 >
                     <img src={incomeSources[resource].image} className="h-12 w-auto"/>
                     <div>
                         <div className="flex gap-1 justify-center items-center">
                             <img src="barcon.png" className="h-4 r-auto"/>
-                            <div>{utils.roundToNDecimalPlaces(income[resource], 2)}</div>
+                            <div>{income[resource].toFixed(2).toString()}</div>
                         </div>
                         <div className="bg-[#232323] h-[1px] rounded-full w-full"></div>
                         <div className="flex gap-1 justify-center items-center">
                             <img src="barcon.png" className="h-4 r-auto"/>
-                            <div>{utils.roundToNDecimalPlaces(targets[resource], 2)}</div>
+                            <div>{targets[resource].toFixed(2).toString()}</div>
                         </div>
                     </div>
                 </div>
@@ -63,7 +64,7 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
                 </div>
                 <div className="mb-3">
                     <b>Total =</b> 
-                    {utils.roundToNDecimalPlaces(income.total, 2)}
+                    {income.total.toFixed(2).toString()}
                 </div>
             </div>
             <div className='flex justify-evenly gap-3'>

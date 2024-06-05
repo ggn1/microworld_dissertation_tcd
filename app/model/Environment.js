@@ -8,17 +8,14 @@ export default class Environment {
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
     #updateResourceAvailability
 
-    constructor(updateResourceAvailability, initSowPositions=null, timeStepOrder=null) {
+    constructor(initSowPositions=null, timeStepOrder=null) {
         /**
          * Constructor.
-         * @param updateResourceAvailability: Function that can be used to 
-         *                                    set availability of resources.
          * @param initSowPositions: Initial land sow positions.
          * @param timeStepOrder: The order in which to visit trees at 
          *                       each position on land.
          */
         const carbonAmounts = JSON.parse(process.env.NEXT_PUBLIC_C_START)
-        this.#updateResourceAvailability = updateResourceAvailability
         this.carbon = {} // g
         for (const [reservoir, carbonAmount] of Object.entries(carbonAmounts)) {
             this.carbon[reservoir] = Big(carbonAmount)
@@ -89,49 +86,5 @@ export default class Environment {
         const molecularMassC = 12 // g/mol
         const molecularMassCO2 = 44 // g/mol
         return massCO2 * (molecularMassC/molecularMassCO2)
-    }
-
-    #updateNTFPAvailability() {
-        /**
-         * Computes and sets resource availability for non-timber forest products
-         * like mushrooms, honey and berries based on current conditions.
-         */
-        const def = JSON.parse(process.env.NEXT_PUBLIC_AVAILABILITY_NTFP)
-        let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
-        const biodiversityPc = this.land.biodiversityScore
-        let availabilityBd = Math.max(
-            0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
-        )
-        const deadwoodPc = this.land.getDeadWoodPc()
-        let availabilityDw = Math.max(
-            0, availabilityMax - (availabilityMax * (1 - deadwoodPc))
-        )
-        const availability = (availabilityBd + availabilityDw) / 2
-        this.#updateResourceAvailability("ntfp", availability)
-    }
-
-    #updateRecActAvailability() {
-        /**
-         * Computes and sets availability of people for
-         * recereational activities in the forest.
-         */
-        const def = JSON.parse(process.env.NEXT_PUBLIC_AVAILABILITY_RECACT)
-        let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
-        const biodiversityPc = this.land.biodiversityScore
-        let availabilityBd = Math.max(
-            0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
-        )
-        const availability = availabilityBd
-        this.#updateResourceAvailability("recreational_activities", availability)
-    }
-
-    takeTimeStep() {
-        /**
-         * Executes all functions/activities that take 
-         * place with each passing year.
-         */
-        this.land.takeTimeStep()
-        this.#updateNTFPAvailability()
-        this.#updateRecActAvailability()
     }
 }

@@ -1,17 +1,19 @@
+import Big from 'big.js'
 import Switch from "./Switch"
 import Tag from "./Tag"
 import TextInput from "./TextInput"
+import * as utils from '../utils.js'
 import {useState, useEffect } from "react"
 
-let targets = {"co2": null, "income": null, "funds":JSON.parse(
+let targets = {"co2": null, "income": null, "funds": Big(JSON.parse(
     process.env.NEXT_PUBLIC_TARGET_FUNDS_START
-)}
+))}
 let isExpMode = true
 
 const Targets = ({
     setTargets, curCO2, curIncome, curFunds,
     startValCO2, startValIncome, updateTargetIncome,
-    updateIncTargetsUI
+    updateIncTargetsUI, getTargets
 }) => {
     /**
      * This component both displays targets and allows 
@@ -42,16 +44,8 @@ const Targets = ({
     const colorBad = "#F44A4A"
 
     const [expMode, setExpMode] = useState(isExpMode)
-    const [targetCO2, setTargetCO2] = useState(
-        targets.co2 != null && 
-        targets.co2 != startValCO2
-        ? targets.co2 : startValCO2
-    ) 
-    const [targetIncome, setTargetIncome] = useState(
-        targets.income != null && 
-        targets.income != startValIncome
-        ? targets.income : startValIncome
-    ) 
+    const [targetCO2, setTargetCO2] = useState(null) 
+    const [targetIncome, setTargetIncome] = useState(null) 
 
     const [isValidCO2, setIsValidCO2] = useState(false)
     const [isValidIncome, setIsValidIncome] = useState(false)
@@ -68,13 +62,13 @@ const Targets = ({
          * @param target: The target value checked against.
          */
         if (targetType == "co2") {
-            setIsTargetMetCO2(curCO2 <= target)
+            setIsTargetMetCO2(target >= curCO2)
         }
         if (targetType == "income") {
-            setIsTargetMetIncome(curIncome >= target)
+            setIsTargetMetIncome(target.lte(curIncome))
         }
         if (targetType == "funds") {
-            setIsTargetMetFunds(curFunds >= target)
+            setIsTargetMetFunds(target.lte(curFunds))
         }
     }
 
@@ -102,26 +96,35 @@ const Targets = ({
          * @param val: User input from the CO2 text box as a string value.
         */
         if (val == "") { // Invalid input.
-            if (targetType == "co2") setIsValidCO2(false)
-            if (targetType == "income") setIsValidIncome(false)
-            val = 0
+            if (targetType == "co2") {
+                setIsValidCO2(false)
+                val = 0
+            }
+            if (targetType == "income") {
+                setIsValidIncome(false)
+                val = Big(0)
+            }
         }
         else { // Valid input.
-            setIsValidCO2(true)
-            setIsValidIncome(true)
-            val = parseFloat(val)
+            if (targetType == "co2") {
+                setIsValidCO2(sanityCheckNumeric(val))
+            }
+            if (targetType == "income") {
+                setIsValidIncome(sanityCheckNumeric(val))
+                val = Big(val)
+            }
         }
 
         if (targetType == "co2") {
             isTargetMet("co2", val)
             targets.co2 = val
-            setTargetCO2(targets.co2)
+            setTargetCO2(utils.roundToNDecimalPlaces(val, 2))
         }
 
         if (targetType == "income") {
             isTargetMet("income", val)
             targets.income = val
-            setTargetIncome(targets.income)
+            setTargetIncome(targets.income.toFixed(2).toString())
             updateTargetIncome({income: targets.income})
             updateIncTargetsUI()
         }
@@ -138,24 +141,30 @@ const Targets = ({
     }
 
     useEffect(() => {
+        curFunds = Big(curFunds)
         isTargetMet("funds", targets.funds)
     }, [curFunds])
 
     useEffect(() => {
-        isTargetMet("co2", targetCO2)
+        if (targetCO2 != null) {
+            isTargetMet("co2", targetCO2)
+        }
     }, [curCO2])
 
     useEffect(() => {
-        isTargetMet("income", targetIncome)
+        if (targetIncome != null) {
+            curIncome = Big(curIncome)
+            isTargetMet("income", Big(targetIncome))
+        }
     }, [curIncome])
 
     useEffect(() => {
         /** 
          * Initially, check if default targets are met.
          */
-        handleVal("co2", targetCO2) 
-        handleVal("income", targetIncome)
-        isTargetMet("funds", targets.funds)
+        targets = getTargets()
+        handleVal("co2", targets.co2) 
+        handleVal("income", targets.income.toFixed(2).toString())
     }, [])
 
     useEffect(() => {
@@ -163,10 +172,14 @@ const Targets = ({
          * Every time target are reset, change 
          * their values in the simulation.
          */
-        setTargets({co2: targetCO2, income:targetIncome})
+        if (targetCO2 != null && targetIncome != null) {
+            setTargets({co2: targetCO2, income: Big(targetIncome)})
+        }
     }, [targetCO2, targetIncome])
 
     return (
+        targetCO2 != null && 
+        targetIncome != null && 
         <div className="
             grid p-3 grid-rows-4 grid-cols-1
             justify-content-center justify-items-center h-full
@@ -198,8 +211,10 @@ const Targets = ({
                 placeholder={targetIncome}
                 unit="Bc"
                 borderColor={
-                    expMode ? colorBorderDefault : 
-                    isTargetMetIncome ? colorGood : colorBad
+                    expMode ? colorBorderDefault 
+                            : isTargetMetIncome 
+                            ? colorGood 
+                            : colorBad
                 }
                 textColor={isValidIncome ? colorTextDefault : colorBad}
                 sanityCheck={sanityCheckNumeric} 
@@ -216,7 +231,9 @@ const Targets = ({
                 } 
             >
                 <div className="flex gap-2 w-full h-full justify-between items-center px-1">
-                    <div className="font-bold">Funds {`>= ${targets.funds}`}</div>
+                    <div className="font-bold">Funds {`>= ${
+                        targets.funds.toFixed(2).toString()
+                    }`}</div>
                     <div>Bc</div>
                 </div>
             </Tag>

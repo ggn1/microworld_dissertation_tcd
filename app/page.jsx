@@ -40,8 +40,8 @@ const Home = () => {
         setBdCat(sim.env.land.biodiversityCategory)
         setIncomeDependency({...sim.planner.incomeDependency})
         setRotationPeriod(sim.planner.rotationPeriod)
-        setIncomeTotal(sim.income.total)
-        setFunds(sim.funds)
+        setIncomeTotal(sim.income.total.toFixed(2).toString())
+        setFunds(sim.funds.toFixed(2).toString())
         setCurRotation(sim.rotation)
         setRotationIncome({...sim.income})
         setTime(sim.time)
@@ -77,6 +77,7 @@ const Home = () => {
                     curCO2={airCO2}
                     curIncome={incomeTotal}
                     curFunds={funds}
+                    getTargets={sim.planner.getTargets}
                     startValCO2={sim.planner.getTargets().co2}
                     startValIncome={sim.planner.getTargets().income}
                     updateTargetIncome={sim.planner.setTargets}

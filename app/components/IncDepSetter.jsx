@@ -39,7 +39,6 @@ const IncDepSetter = ({
                 }
             }
         }
-        console.log("incDep =", incDep)
 
         // Set slider values.
         let slidersNew = []
@@ -174,6 +173,7 @@ const IncDepSetter = ({
     useEffect(() => {
         incDep = {}
         updateSliders()
+        updateSalesTargets()
     }, [sliderUpdateTrigger])
 
     return (

@@ -171,9 +171,7 @@ const Planner = () => {
                     setIncDep={sim.planner.setIncDep}
                     updateSalesTargets={() => {
                         sim.updateResourceSalesTargets()
-                        setResourceSalesTargets(
-                            sim.getResourceSalesTargets()
-                        )
+                        setResourceSalesTargets(sim.getResourceSalesTargets())
                     }}
                     sliderUpdateTrigger={incDepRefreshTrigger}
                 />

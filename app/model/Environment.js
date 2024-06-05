@@ -8,11 +8,14 @@ export default class Environment {
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
     #updateResourceAvailability
 
-    constructor(updateResourceAvailability) {
+    constructor(updateResourceAvailability, initSowPositions=null, timeStepOrder=null) {
         /**
          * Constructor.
          * @param updateResourceAvailability: Function that can be used to 
          *                                    set availability of resources.
+         * @param initSowPositions: Initial land sow positions.
+         * @param timeStepOrder: The order in which to visit trees at 
+         *                       each position on land.
          */
         const carbonAmounts = JSON.parse(process.env.NEXT_PUBLIC_C_START)
         this.#updateResourceAvailability = updateResourceAvailability
@@ -44,7 +47,7 @@ export default class Environment {
     
             if (airC == null) airC = this.carbon.air
     
-            // 1. Compute moass of CO2 in the air.
+            // 1. Compute mass of CO2 in the air.
             const c_atomic_mass = 12 // u = g/mol
             const o_atomic_mass = 16 // u = g/mol
             const molar_mass_co2 = c_atomic_mass + (2 * o_atomic_mass) // g/mol
@@ -68,7 +71,13 @@ export default class Environment {
             /** Returns current amount of carbon in the world. */
             return this.carbon
         }
-        this.land = new Land(this.updateCarbon, this.getCarbon, this.getAirCO2ppm)
+        this.land = new Land(
+            this.updateCarbon, 
+            this.getCarbon, 
+            this.getAirCO2ppm,
+            initSowPositions,
+            timeStepOrder
+        )
     }
 
     computeCfromCO2(massCO2) {

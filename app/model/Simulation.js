@@ -214,10 +214,19 @@ export default class Simulation {
         
     }
 
-    #createFreshWorld() {
-        /** Initializes the simulation with starting world state. */
+    #createFreshWorld(initSowPositions=null, timeStepOrder=null) {
+        /** 
+         * Initializes the simulation with starting world state. 
+         * @param initSowPositions: Initial land sow positions.
+         * @param timeStepOrder: The order in which to visit trees at 
+         *                       each position on land.
+         */
         this.time = 0
-        this.env = new Environment(this.updateResourceAvailability)
+        this.env = new Environment(
+            this.updateResourceAvailability,
+            initSowPositions,
+            timeStepOrder
+        )
         this.rotation = 0
         this.funds = JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START)
         this.resources = {

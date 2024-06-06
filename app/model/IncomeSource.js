@@ -147,7 +147,9 @@ export class NTFP extends IncomeSource {
              * Updates how much of this resource is available.
              * Considers costs related to foraging/harvesting.
              */
-            const def = JSON.parse(process.env.NEXT_PUBLIC_AVAILABILITY_NTFP)
+            const def = JSON.parse(
+                process.env.NEXT_PUBLIC_INCOME_SOURCES
+            ).ntfp.availability
             let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
             const biodiversityPc = this.#getBiodiversityPc()
             let availabilityBd = Math.max(
@@ -159,6 +161,17 @@ export class NTFP extends IncomeSource {
             )
             this.available = (availabilityBd + availabilityDw) / 2
         }
+    }
+
+    #forage() {
+        /**
+         * Handles the behaviour and all costs related to foraging
+         * required to make this resource available.
+         */
+        const maintenanceCost = JSON.parse(
+            process.env.NEXT_PUBLIC_INCOME_SOURCES
+        ).ntfp.cost.maintenance
+        // TO DO
     }
 }
 
@@ -184,7 +197,9 @@ export class RecreationalActivities extends IncomeSource {
              * Handles payment of one time fixed amount as well
              * as maintainance costs.
              */
-            const def = JSON.parse(process.env.NEXT_PUBLIC_AVAILABILITY_RECACT)
+            const def = JSON.parse(
+                process.env.NEXT_PUBLIC_INCOME_SOURCES
+            ).recreation.availability
             let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
             const biodiversityPc = this.#getBiodiversityPc()
             let availabilityBd = Math.max(
@@ -192,5 +207,23 @@ export class RecreationalActivities extends IncomeSource {
             )
             this.available = availabilityBd
         }
+    }
+
+    #buildMaintain() {
+        /**
+         * Handles the behaviour and all costs related to building
+         * infrastructure as well as maintaining it,
+         */
+        const costs = JSON.parse(
+            process.env.NEXT_PUBLIC_INCOME_SOURCES
+        ).ntfp.cost
+        
+        if (!this.isBuitUp) {
+            const initialCost = costs.initial
+            // TO DO
+        }
+        
+        const maintenanceCost = costs.maintenance
+        // TO DO
     }
 }

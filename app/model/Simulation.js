@@ -230,8 +230,8 @@ export default class Simulation {
                 "ntfp", this.env.land.getBiodiversityPc, 
                 this.env.land.getDeadWoodPc
             ),
-            recreational_activities: new RecreationalActivities(
-                "recreational_activities", 
+            recreation: new RecreationalActivities(
+                "recreation", 
                 this.env.land.getBiodiversityPc
             )
         }
@@ -259,7 +259,7 @@ export default class Simulation {
         this.#executePlans(this.time)
         this.env.land.takeTimeStep()
         this.resources.ntfp.updateAvailability()
-        this.resources.recreational_activities.updateAvailability()
+        this.resources.recreation.updateAvailability()
         this.#generateIncome()
         this.updateSimUI()
     }

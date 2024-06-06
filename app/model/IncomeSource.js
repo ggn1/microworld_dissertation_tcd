@@ -129,8 +129,13 @@ export class NTFP extends IncomeSource {
 
     #getBiodiversityPc
     #getDeadWoodPc
+    #updateFunds
+    #getIncomeDependency
 
-    constructor(type, getBiodiversityPc, getDeadWoodPc) {
+    constructor(
+        type, getBiodiversityPc, getDeadWoodPc, 
+        updateFunds, getIncomeDependency
+    ) {
         /**
          * Constructor.
          * @param type: Type of resource.
@@ -138,15 +143,23 @@ export class NTFP extends IncomeSource {
          *                           biodiversity score.
          * @param getDeadWoodPc: Function that fetchest current 
          *                       percent of the land with dead wood.
+         * @param updateFunds: Function that can be called to update
+         *                     the user's bank balance.
+         * @param getIncomeDependency: Function that can be used to fetch
+         *                             current income dependency setting
+         *                             for the NTFP income stream.
          */
         super(type)
+        this.#getIncomeDependency = getIncomeDependency
         this.#getBiodiversityPc = getBiodiversityPc
         this.#getDeadWoodPc = getDeadWoodPc
+        this.#updateFunds = updateFunds
         this.updateAvailability = () => {
             /** 
              * Updates how much of this resource is available.
              * Considers costs related to foraging/harvesting.
              */
+            this.#forage()
             const def = JSON.parse(
                 process.env.NEXT_PUBLIC_INCOME_SOURCES
             ).ntfp.availability
@@ -168,10 +181,12 @@ export class NTFP extends IncomeSource {
          * Handles the behaviour and all costs related to foraging
          * required to make this resource available.
          */
-        const maintenanceCost = JSON.parse(
+        const cost = JSON.parse(
             process.env.NEXT_PUBLIC_INCOME_SOURCES
         ).ntfp.cost.maintenance
-        // TO DO
+        console.log(`Foraging to gather NTFPs cost Bc ${cost}.`)
+        const dependency = this.#getIncomeDependency("ntfp")
+        this.#updateFunds(-1 * cost * dependency)
     }
 }
 
@@ -180,16 +195,25 @@ export class RecreationalActivities extends IncomeSource {
      *  activities present. */
 
     #getBiodiversityPc
+    #updateFunds
+    #getIncomeDependency
 
-    constructor(type, getBiodiversityPc) {
+    constructor(type, getBiodiversityPc, updateFunds, getIncomeDependency) {
         /**
          * Constructor.
          * @param type: Type of resource.
          * @param getBiodiversityPc: Function that fetches latest 
          *                           biodiversity score.
+         * @param updateFunds: Function that can be called to update
+         *                     the user's bank balance.
+         * @param getIncomeDependency: Function that can be used to fetch
+         *                             current income dependency setting
+         *                             for the NTFP income stream.
          */
         super(type)
-        this.isBuitUp = false // Whether facilities have been established yet.
+        this.isBuilt = false // Whether infrastructure has been established yet.
+        this.#getIncomeDependency = getIncomeDependency
+        this.#updateFunds = updateFunds
         this.#getBiodiversityPc = getBiodiversityPc
         this.updateAvailability = () => {
             /** 
@@ -197,6 +221,7 @@ export class RecreationalActivities extends IncomeSource {
              * Handles payment of one time fixed amount as well
              * as maintainance costs.
              */
+            this.#buildMaintain()
             const def = JSON.parse(
                 process.env.NEXT_PUBLIC_INCOME_SOURCES
             ).recreation.availability
@@ -216,14 +241,18 @@ export class RecreationalActivities extends IncomeSource {
          */
         const costs = JSON.parse(
             process.env.NEXT_PUBLIC_INCOME_SOURCES
-        ).ntfp.cost
+        ).recreation.cost
+        const dependency = this.#getIncomeDependency("recreation")
         
-        if (!this.isBuitUp) {
+        if (!this.isBuilt && dependency > 0) {
             const initialCost = costs.initial
-            // TO DO
+            console.log(`Building infrastructure for recreational activities in the forest cost Bc ${initialCost}.`)
+            this.#updateFunds(-1 * initialCost)
+            this.isBuilt = true
         }
         
         const maintenanceCost = costs.maintenance
-        // TO DO
+        console.log(`Maintaining forest recreational cost Bc ${maintenanceCost}.`)
+        this.#updateFunds(-1 * maintenanceCost * dependency)
     }
 }

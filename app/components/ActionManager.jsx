@@ -33,12 +33,13 @@ const ActionManager = ({
     const colorBad = "#F44A4A"
     const colorDefaultText = "#232323"
     const placeholderTreeCount = 1
+    const placeholderYear = 0
     
     const [yearActionObjects, setYearActionsObjects] = useState([])
     const [selectedAction, setSelectedAction] = useState("none")
     const [selectedTreeType, setSelectedTreeType] = useState("none")
     const [selectedTreeLifeStage, setSelectedTreeLifeStage] = useState("none")
-    const [selectedYear, setSelectedYear] = useState(rotationPeriod) 
+    const [selectedYear, setSelectedYear] = useState(placeholderYear) 
     const [treeCount, setTreeCount] = useState(placeholderTreeCount)
     const [repeat, setRepeat] = useState(false)
     const [isCountInvalid, setIsCountInvalid] = useState(false)
@@ -358,7 +359,7 @@ const ActionManager = ({
                             {/* YEAR SELECTOR */}
                             <TextInput 
                                 label='YEAR:'
-                                placeholder={0}
+                                placeholder={placeholderYear}
                                 textColor={isYearInvalid ? colorBad : colorDefaultText}
                                 sanityCheck={sanityCheckYear} 
                                 handleVal={handleYearChange}

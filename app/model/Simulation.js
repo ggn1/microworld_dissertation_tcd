@@ -48,6 +48,13 @@ export default class Simulation {
             }
             return salesTargets
         }
+        this.updateFunds = (change) => {
+            /**
+             * Facilitates changing of bank balance by 
+             * given amount.
+             */
+            this.funds = this.funds.plus(change)
+        }
         this.#createFreshWorld()
         this.goto = (time) => {
             /** 
@@ -232,11 +239,15 @@ export default class Simulation {
             timber: new Timber("timber", this.env.updateCarbon),
             ntfp: new NTFP(
                 "ntfp", this.env.land.getBiodiversityPc, 
-                this.env.land.getDeadWoodPc
+                this.env.land.getDeadWoodPc,
+                this.updateFunds,
+                this.planner.getIncDep
             ),
             recreation: new RecreationalActivities(
                 "recreation", 
-                this.env.land.getBiodiversityPc
+                this.env.land.getBiodiversityPc,
+                this.updateFunds,
+                this.planner.getIncDep
             )
         }
         this.income = { "total": Big(0) }

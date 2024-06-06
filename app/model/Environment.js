@@ -6,7 +6,6 @@ export default class Environment {
     /** Environment comprises the atmosphere and the land. */
 
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
-    #updateResourceAvailability
 
     constructor(initSowPositions=null, timeStepOrder=null) {
         /**

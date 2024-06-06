@@ -187,6 +187,21 @@ export default class Planner {
                 }
             }
         }
+        this.getIncDep = (resource) => {
+            /**
+             * Returns the income rependency currently associated
+             * with given resource or all resources if nothing is
+             * given.
+             * @param resource: The resource for whih income 
+             *                  dependency setting is to be fetched.
+             * @return: Income dependency score (float) or object with
+             *          income dependency associated with every resource.
+             */
+            if (resource != null && resource in this.incomeDependency) {
+                return this.incomeDependency[resource]
+            }
+            return this.incomeDependency 
+        }
     }
 
     updateActionStatus(year, actionType, actionIdx, successStatus) {

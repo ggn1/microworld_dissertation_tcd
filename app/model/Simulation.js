@@ -258,9 +258,9 @@ export default class Simulation {
 
     #takeTimeStep() {
         /** Step forward in time by one step. */
-        this.time += 1
         this.#updateRotation()
         this.#executePlans(this.time)
+        this.time += 1
         this.env.land.takeTimeStep()
         this.resources.ntfp.updateAvailability()
         this.resources.recreation.updateAvailability()

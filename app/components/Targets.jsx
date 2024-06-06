@@ -181,7 +181,7 @@ const Targets = ({
         targetCO2 != null && 
         targetIncome != null && 
         <div className="
-            grid p-3 grid-rows-4 grid-cols-1
+            grid p-3 grid-rows-3 grid-cols-1
             justify-content-center justify-items-center h-full
             gap-2
         ">
@@ -220,11 +220,9 @@ const Targets = ({
                 sanityCheck={sanityCheckNumeric} 
                 handleVal={(val) => handleVal("income", val)}
             />
-            <Tag 
-                width="100%" 
-                height="100%"
-                bgColor="#FFFFFF" 
-                borderWidth="4px"
+            {/* <Tag 
+                width="100%" height="100%"
+                bgColor="#FFFFFF" borderWidth="4px"
                 borderColor={
                     expMode ? colorBorderDefault : 
                     isTargetMetFunds ? colorGood : colorBad
@@ -236,7 +234,7 @@ const Targets = ({
                     }`}</div>
                     <div>Bc</div>
                 </div>
-            </Tag>
+            </Tag> */}
         </div>
     )
 }

@@ -104,7 +104,7 @@ const ActionManager = ({
         // Get years of interest based on latest rotation period.
         let years = new Set(Object.keys(getPlan()))
         const maxTime = JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
-        let t = rotationPeriod
+        let t = 0
         rotationYears = []
         while (t >= 0 && t <= maxTime) {
             rotationYears.push(t)
@@ -358,7 +358,7 @@ const ActionManager = ({
                             {/* YEAR SELECTOR */}
                             <TextInput 
                                 label='YEAR:'
-                                placeholder={rotationPeriod}
+                                placeholder={0}
                                 textColor={isYearInvalid ? colorBad : colorDefaultText}
                                 sanityCheck={sanityCheckYear} 
                                 handleVal={handleYearChange}

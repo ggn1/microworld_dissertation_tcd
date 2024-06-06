@@ -65,7 +65,7 @@ const TextInput = ({
                         maxWidth: maxWidth
                     }}
                 />
-                <p style={{color: textColor}}>{unit}</p>
+                <p className="flex items-center" style={{color: textColor}}>{unit}</p>
             </div>
         </div>
     )

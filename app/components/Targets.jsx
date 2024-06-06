@@ -79,14 +79,13 @@ const Targets = ({
          * @param val: Input as a string.
          * @return: True if the input was deemed valid and
          *          false otherwise.
-        */
-
-        // Parse the string to a number
-        const num = parseFloat(val);
-    
-        // Check if the parsed number is a positive 
-        // number and not NaN.
-        return !isNaN(num) && num >= 0
+        */ 
+        const regex = /^([0-9]*[.])?[0-9]+$/
+        if (regex.test(val)) {
+            const number = parseFloat(val)
+            return number >= 0
+        }
+        return false
     }
 
     const handleVal = (targetType, val) => {
@@ -95,32 +94,26 @@ const Targets = ({
          * @param targetType: Type of target (co2 / income).
          * @param val: User input from the CO2 text box as a string value.
         */
-        if (val == "") { // Invalid input.
-            if (targetType == "co2") {
-                setIsValidCO2(false)
-                val = 0
-            }
-            if (targetType == "income") {
-                setIsValidIncome(false)
-                val = Big(0)
-            }
-        }
-        else { // Valid input.
-            if (targetType == "co2") {
-                setIsValidCO2(sanityCheckNumeric(val))
-            }
-            if (targetType == "income") {
-                setIsValidIncome(sanityCheckNumeric(val))
-                val = Big(val)
-            }
+
+        // Check if given value is valid.
+        // If the value is an empty string, then it is invalid.
+        // If it contains unexpected characters, then too, it is invalid.
+        // Else, it is valid.
+        let isValid = val != "" && sanityCheckNumeric(val)
+        if (!isValid) val = 0
+        if (targetType == "co2") {
+            setIsValidCO2(isValid)
+        } else if (targetType == "income") {
+            setIsValidIncome(isValid)
+            val = Big(val)
         }
 
+        // Check if targets are met.
         if (targetType == "co2") {
             isTargetMet("co2", val)
             targets.co2 = val
             setTargetCO2(utils.roundToNDecimalPlaces(val, 2))
         }
-
         if (targetType == "income") {
             isTargetMet("income", val)
             targets.income = val
@@ -207,9 +200,9 @@ const Targets = ({
                 handleVal={(val) => handleVal("co2", val)}
             />
             <TextInput 
-                label="Income Per Rotation >="
+                label="Rotation Income >="
                 placeholder={targetIncome}
-                unit="Bc"
+                unit={<img src="barcon.png" className='h-4 w-auto'/>}
                 borderColor={
                     expMode ? colorBorderDefault 
                             : isTargetMetIncome 

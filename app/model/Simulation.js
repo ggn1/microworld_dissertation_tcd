@@ -64,7 +64,7 @@ export default class Simulation {
                 this.updateSimUI()
             }
 
-            // For as manu timesteps as required, 
+            // For as many timesteps as required, 
             // compute forward in time.
             // If the given time was in the past,
             // then, start fresh and start computing
@@ -87,6 +87,9 @@ export default class Simulation {
             this.planner.setTargets(state.targetSettings)
             this.env.land.setInitSowPositions(state.initSowPositions)
             this.env.land.setTimeStepOrder(state.timeStepOrder)
+            // Force land reset.
+            this.goto(10)
+            this.goto(0)
         }
     }
 

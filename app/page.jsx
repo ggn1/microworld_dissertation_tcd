@@ -33,7 +33,7 @@ const Home = () => {
     const [time, setTime] = useState(0)
 
     const updateSimUI = () => {
-        setLandContent([...sim.env.land.content])
+        setLandContent(sim.env.land.getActiveLandContent())
         setAirCO2(sim.env.getAirCO2ppm())
         setEnvC({...sim.env.carbon})
         setBdScore(sim.env.land.biodiversityScore)

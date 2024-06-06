@@ -389,15 +389,10 @@ const ActionManager = ({
                                 place-content-center h-full w-full
                             '>
                                 {/* ADD BUTTON */}
-                                <Button 
+                                <Button
                                     outlineColor='#B9DEB5' bgColor='#99cc93'
                                     onClick={handleAdd}
                                 ><img src="plus.png" className='max-h-8 p-1 w-auto'/></Button>
-                                {/* FILTER BUTTON */}
-                                {/* <Button 
-                                    outlineColor='#e0dd87' bgColor='#faf8c5'
-                                    onClick={() => {console.log("FILTER button clicked.")}}
-                                ><img src="filter.png" className='max-h-8 p-1 w-auto'/></Button> */}
                             </div>
                         </div>
                     </Veil>

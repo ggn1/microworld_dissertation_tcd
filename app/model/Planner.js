@@ -105,23 +105,30 @@ export default class Planner {
              * @param treeLifeStage: The life stage of the tree 
              *                       (only valid w.r.t the "fell" action).
              */
-            let action = {type: treeType, count: count, stage: treeLifeStage, success:-1}
+            let action = {
+                type: treeType, 
+                count: count, 
+                stage: treeLifeStage, 
+                success: -1
+            }
     
             // If a similar action (same action type on same
-            // tree type with different count) exists already,
+            // tree type type at same lifestage 
+            // under same year with different count) exists already,
             // then just change the count in that action.
             let existingAction = null
             if (year in this.plan) {
                 const plannedActions = this.plan[year][actionType]
                 for (let i = 0; i < plannedActions.length; i++) {
                     existingAction = plannedActions[i]
-                    if (
-                        treeType == existingAction.type && (
-                            actionType == "plant" || 
-                            actionType == "fell" && 
-                            treeLifeStage == existingAction.treeLifeStage
-                        )
-                    ) {
+                    console.log("treeType =", treeType, "existingAction.type =", existingAction.type, "treeType == existingAction.type =", treeType == existingAction.type)
+                    console.log("actionType =", actionType)
+                    console.log("treeLifeStage =", treeLifeStage, "existingAction.stage =", existingAction.stage, "treeLifeStage == existingAction.stage =", treeLifeStage == existingAction.stage)
+                    if (treeType == existingAction.type && (
+                        actionType == "plant" || 
+                        actionType == "fell" && 
+                        treeLifeStage == existingAction.stage
+                    )) {
                         // Remove old instance of the action.
                         this.plan[year][actionType].splice(i, 1) 
                         break

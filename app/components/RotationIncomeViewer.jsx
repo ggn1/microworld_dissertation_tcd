@@ -58,12 +58,12 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
 
     return (
         <div className="px-3">
-            <div className='flex justify-center gap-3 items-center'>
+            <div className='flex justify-between gap-3 items-center'>
                 <div className='mb-3 font-bold text-center'>
                     INCOME: ROTATION {rotation}
                 </div>
                 <div className="mb-3">
-                    <b>Total =</b> 
+                    <b>Total = </b> 
                     {income.total.toFixed(2).toString()}
                 </div>
             </div>

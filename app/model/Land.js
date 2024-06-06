@@ -14,10 +14,7 @@ export default class Land {
     #getAirCO2ppm
     #getCarbon
 
-    constructor(
-        updateCarbon, getCarbon, getAirCO2ppm, 
-        sowPositions=null, timeOrder=null
-    ) {
+    constructor(updateCarbon, getCarbon, getAirCO2ppm) {
         /**
          * Constructor for object of this class.
          * @param updateCarbon: Function that can be used to update the amount of carbon
@@ -32,8 +29,6 @@ export default class Land {
         this.#updateCarbon = updateCarbon
         this.#getAirCO2ppm = getAirCO2ppm
         this.#getCarbon = getCarbon
-        if (sowPositions != null) initSowPositions = sowPositions
-        if (timeOrder != null) timeStepOrder = timeOrder
         this.size = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
         if (timeStepOrder.length == 0) {
             for (let i = 0; i < this.size.rows; i++) {

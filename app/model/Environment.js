@@ -7,13 +7,7 @@ export default class Environment {
 
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
 
-    constructor(initSowPositions=null, timeStepOrder=null) {
-        /**
-         * Constructor.
-         * @param initSowPositions: Initial land sow positions.
-         * @param timeStepOrder: The order in which to visit trees at 
-         *                       each position on land.
-         */
+    constructor() {
         const carbonAmounts = JSON.parse(process.env.NEXT_PUBLIC_C_START)
         this.carbon = {} // g
         for (const [reservoir, carbonAmount] of Object.entries(carbonAmounts)) {
@@ -67,13 +61,7 @@ export default class Environment {
             /** Returns current amount of carbon in the world. */
             return this.carbon
         }
-        this.land = new Land(
-            this.updateCarbon, 
-            this.getCarbon, 
-            this.getAirCO2ppm,
-            initSowPositions,
-            timeStepOrder
-        )
+        this.land = new Land(this.updateCarbon, this.getCarbon, this.getAirCO2ppm)
     }
 
     computeCfromCO2(massCO2) {

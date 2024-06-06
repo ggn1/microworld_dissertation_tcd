@@ -220,7 +220,7 @@ export default class Simulation {
         
     }
 
-    #createFreshWorld(initSowPositions=null, timeStepOrder=null) {
+    #createFreshWorld() {
         /** 
          * Initializes the simulation with starting world state. 
          * @param initSowPositions: Initial land sow positions.
@@ -228,11 +228,7 @@ export default class Simulation {
          *                       each position on land.
          */
         this.time = 0
-        this.env = new Environment(
-            this.updateResourceAvailability,
-            initSowPositions,
-            timeStepOrder
-        )
+        this.env = new Environment(this.updateResourceAvailability)
         this.rotation = 0
         this.funds = Big(JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START))
         this.resources = {

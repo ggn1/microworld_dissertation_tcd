@@ -2,6 +2,7 @@ import Big from 'big.js'
 import Planner from "./Planner.js"
 import Environment from "./Environment.js"
 import { Timber, RecreationalActivities, NTFP } from "./IncomeSource.js"
+import { count } from 'd3'
 
 export default class Simulation {
     /** This class shall encapsulate the
@@ -101,10 +102,7 @@ export default class Simulation {
         }
     }
 
-    #executeAction = (
-        year, actionType, actionIdx, 
-        treeType, treeLifeStage="none"
-    ) => {
+    #executeAction = (actionType, treeType, treeLifeStage="none") => {
         /** 
          * Executes given action and records 
          * whether or not it was possible to carry
@@ -112,11 +110,13 @@ export default class Simulation {
          * given action does not exist. Only trees that
          * are at least old enough to have matured, can
          * be chopped.
-         * @param year: Year associated with this action.
-         * @param actionIdx: Index of this action.
          * @param actionType: The type of this action.
          * @param treeType: The type of tree that this action targets.
          * @param treeLifeStage: The lifestage of the targeted tree.
+         * @return: Action status code meanings:
+         *          # -1 => Not yet tried to execute.
+         *          # 0 => Action could not be executed.
+         *          # 1 => Action was executed. 
          */
         let status = -1
         if(actionType == "fell") {
@@ -156,8 +156,7 @@ export default class Simulation {
                 status = 0
             }
         }
-        this.planner.updateActionStatus(year, actionType, actionIdx, status)
-        this.updatePlanUI()
+        return status
     }
 
     #executePlans(year) {
@@ -165,19 +164,40 @@ export default class Simulation {
          * Executes all plans for given year if possible.
          * @param year: The year for which all plans are to be executed.
          */
+        let status = []
         let action = null
+        let statusSum = 0
         if (year in this.planner.plan) {
             const actions = this.planner.plan[year]
             // First execute fell actions, then plant actions.
             for (const actionType of ["fell", "plant"]) {
                 for (let i = 0; i < actions[actionType].length; i++) {
                     action = actions[actionType][i]
+                    console.log(actionType, "=", action)
+                    status = []
+                    statusSum = 0
                     for (let c = 0; c < action.count; c++) {
-                        this.#executeAction(
-                            year, actionType, i, action.type, 
+                        status.push(this.#executeAction(
+                            actionType, action.type, 
                             "stage" in action ? action.stage : "none"
-                        )
+                        ))
                     }
+                    statusSum = status.reduce((partialSum, value) => partialSum + value, 0)
+                    if (statusSum == 0) { 
+                        // Could fell/plant no trees at all.
+                        this.planner.updateActionStatus(year, actionType, i, 0)
+                    } else if (statusSum == action.count) {
+                        // Felled/planted all of given no. of trees.
+                        this.planner.updateActionStatus(year, actionType, i, 1)
+                    } else if (
+                        status.includes(1) && 
+                        status.includes(0) || 
+                        status.includes(-1)
+                    ) {
+                        // Felled/planted a part of original planned no. of trees.
+                        this.planner.updateActionStatus(year, actionType, i, 0.5)
+                    }
+                    this.updatePlanUI()
                 }
             }
         }

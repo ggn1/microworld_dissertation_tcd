@@ -13,8 +13,10 @@ const PlanViewer = ({year, rotationPeriod, plan}) => {
     const colorBad = "#F44A4A"
     const colorGood = "#32CE51"
     const colorDefault = "#CCCCCC"
-    const borderColorDefault = "#DDDDDD"
-    const actionSuccessColors = {"-1": colorDefault, "1":colorGood, "0":colorBad}
+    const colorOk = "#FFDB59"
+    const actionSuccessColors = {
+        "-1": colorDefault, "1":colorGood, "0":colorBad, "0.5":colorOk
+    }
 
     const planYears = Object.keys(plan)
 

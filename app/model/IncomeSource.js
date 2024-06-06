@@ -184,7 +184,7 @@ export class NTFP extends IncomeSource {
         const cost = JSON.parse(
             process.env.NEXT_PUBLIC_INCOME_SOURCES
         ).ntfp.cost.maintenance
-        console.log(`Foraging to gather NTFPs cost Bc ${cost}.`)
+        // console.log(`Foraging to gather NTFPs cost Bc ${cost}.`)
         const dependency = this.#getIncomeDependency("ntfp")
         this.#updateFunds(-1 * cost * dependency)
     }
@@ -246,13 +246,13 @@ export class RecreationalActivities extends IncomeSource {
         
         if (!this.isBuilt && dependency > 0) {
             const initialCost = costs.initial
-            console.log(`Building infrastructure for recreational activities in the forest cost Bc ${initialCost}.`)
+            // console.log(`Building infrastructure for recreational activities in the forest cost Bc ${initialCost}.`)
             this.#updateFunds(-1 * initialCost)
             this.isBuilt = true
         }
         
         const maintenanceCost = costs.maintenance
-        console.log(`Maintaining forest recreational cost Bc ${maintenanceCost}.`)
+        // console.log(`Maintaining forest recreational cost Bc ${maintenanceCost}.`)
         this.#updateFunds(-1 * maintenanceCost * dependency)
     }
 }

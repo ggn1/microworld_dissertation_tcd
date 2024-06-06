@@ -21,9 +21,12 @@ const YearActions = ({
     const colorBad = "#F44A4A"
     const colorGood = "#32CE51"
     const colorDefault = "#CCCCCC"
+    const colorOk = "#FFDB59"
+    const actionSuccessColors = {
+        "-1": colorDefault, "1":colorGood, "0":colorBad, "0.5":colorOk
+    }
     const borderColorDefault = "#DDDDDD"
     const borderColorSelected = "#FCF412"
-    const actionSuccessColors = {"-1": colorDefault, "1":colorGood, "0":colorBad}
     const colorRotationYear = "#6892FF"
     const colorNotRotationYear = "#d94343"
 

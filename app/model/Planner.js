@@ -212,9 +212,13 @@ export default class Planner {
          * @param actionType: The kind of action that was attempted
          *                    to be executed.
          * @param actionIdx: The index of the specific action that was executed.
-         * @param successStatus: The new status of that action (-1 => not yet attempted
-         *                       to execute, 1 => was succcessfully executed, 0 => could
-         *                       not be sucessfully executed).
+         * @param successStatus: The new status of that action. Meaning of 
+         *                       status codes are as follows:
+         *                       # -1 => Not yet attempted to execute
+         *                       # 1 => Planned no. of trees planted/felled.
+         *                       # 0 => Failed to plant/fell any tree.
+         *                       # 0.5 => Few trees were planted/felled, but 
+         *                                not the number originally planned.
          */
         if (year in this.plan && this.plan[year][actionType].length > actionIdx) {
             this.plan[year][actionType][actionIdx].success = successStatus

@@ -1,5 +1,5 @@
 import TextInput from "./TextInput"
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 const RotationPeriod = ({setRotationPeriod, curRotationPeriod, validRange}) => {
     /** 
@@ -14,8 +14,10 @@ const RotationPeriod = ({setRotationPeriod, curRotationPeriod, validRange}) => {
 
     const colorBad = "#F44A4A"
     const colorDefault = "#232323"
-    const placeholder = 40
+    const [placeholder, setPlaceholder] = useState(curRotationPeriod)
     const [textColorRotation, setTextColorRotation] = useState(colorDefault)
+
+    const refTbParent = useRef()
 
     const sanityCheckInt = (val) => {
         /** 
@@ -58,11 +60,19 @@ const RotationPeriod = ({setRotationPeriod, curRotationPeriod, validRange}) => {
         handleChange(curRotationPeriod)
     }, [])
 
+    useEffect(() => {
+        setPlaceholder(curRotationPeriod)
+    }, [curRotationPeriod])
+
+    useEffect(() => {
+        refTbParent.current.childNodes[0].childNodes[1].childNodes[0].value=placeholder
+    }, [placeholder])
+
     return (
-        <div>
+        <div ref={refTbParent}>
             <TextInput 
                 label="ROTATION PERIOD :"
-                placeholder="40"
+                placeholder={placeholder}
                 unit="year(s)"
                 textColor={textColorRotation}
                 sanityCheck={sanityCheckInt} 

@@ -87,6 +87,7 @@ export default class Simulation {
             this.planner.setTargets(state.targetSettings)
             this.env.land.setInitSowPositions(state.initSowPositions)
             this.env.land.setTimeStepOrder(state.timeStepOrder)
+            this.planner.rotationPeriod = state.rotationPeriod
             // Force land reset.
             this.goto(10)
             this.goto(0)

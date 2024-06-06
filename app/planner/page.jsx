@@ -39,7 +39,8 @@ const Planner = () => {
             targetSettings: sim.planner.getTargets(),
             initSowPositions: sim.env.land.getInitSowPositions(),
             timeStepOrder: sim.env.land.getTimeStepOrder(),
-            incomeDependency: sim.planner.incomeDependency
+            incomeDependency: sim.planner.incomeDependency,
+            rotationPeriod: sim.planner.rotationPeriod
         }
 
         // Set status of all plans to -1.
@@ -81,12 +82,13 @@ const Planner = () => {
                 try {
                     data = JSON.parse(content)
                     if (
-                        Object.keys(data).length != 5 ||
+                        Object.keys(data).length != 6 ||
                         !("plan" in data) ||
                         !("targetSettings" in data) ||
                         !("initSowPositions" in data) ||
                         !("timeStepOrder" in data) ||
-                        !("incomeDependency" in data)
+                        !("incomeDependency" in data) ||
+                        !("rotationPeriod" in data)
                     ) isContentValid = false
                 } catch (error) {
                     alert('Invalid File')
@@ -98,6 +100,7 @@ const Planner = () => {
                 sim.loadState(data)
                 setPlanRefreshTrigger(prevVal => 1 - prevVal)
                 setIncDepRefreshTrigger(prevVal => 1 - prevVal)
+                setRotationPeriod(sim.planner.rotationPeriod)
             }
         }
 
@@ -145,7 +148,7 @@ const Planner = () => {
                         setRotationPeriod={(newPeriod) => {
                             setRotationPeriod(sim ? parseInt(newPeriod) : 0)
                         }}
-                        curRotationPeriod={sim != null ? sim.planner.rotationPeriod : " "}
+                        curRotationPeriod={rotationPeriod}
                         validRange={[1, JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)]}
                     />
                 </div>

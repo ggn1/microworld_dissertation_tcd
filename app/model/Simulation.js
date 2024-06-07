@@ -93,6 +93,7 @@ export default class Simulation {
             state.targetSettings.income = Big(state.targetSettings.income)
             state.targetSettings.funds = Big(state.targetSettings.funds)
             this.planner.setTargets(state.targetSettings)
+            this.env.setFossilFuelEmission(Big(state.fossilFuelEmission))
             this.env.land.setInitSowPositions(state.initSowPositions)
             this.env.land.setTimeStepOrder(state.timeStepOrder)
             this.planner.rotationPeriod = state.rotationPeriod
@@ -288,7 +289,7 @@ export default class Simulation {
         this.#updateRotation()
         this.#executePlans(this.time)
         this.time += 1
-        this.env.land.takeTimeStep()
+        this.env.takeTimeStep()
         this.resources.ntfp.updateAvailability()
         this.resources.recreation.updateAvailability()
         this.#generateIncome()

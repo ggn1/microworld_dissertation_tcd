@@ -40,7 +40,8 @@ const Planner = () => {
             initSowPositions: sim.env.land.getInitSowPositions(),
             timeStepOrder: sim.env.land.getTimeStepOrder(),
             incomeDependency: sim.planner.incomeDependency,
-            rotationPeriod: sim.planner.rotationPeriod
+            rotationPeriod: sim.planner.rotationPeriod,
+            fossilFuelEmission: sim.env.getFossilFuelEmission().toString()
         }
 
         // Set status of all plans to -1.
@@ -82,13 +83,14 @@ const Planner = () => {
                 try {
                     data = JSON.parse(content)
                     if (
-                        Object.keys(data).length != 6 ||
+                        Object.keys(data).length != 7 ||
                         !("plan" in data) ||
                         !("targetSettings" in data) ||
                         !("initSowPositions" in data) ||
                         !("timeStepOrder" in data) ||
                         !("incomeDependency" in data) ||
-                        !("rotationPeriod" in data)
+                        !("rotationPeriod" in data) ||
+                        !("fossilFuelEmission" in data)
                     ) isContentValid = false
                 } catch (error) {
                     alert('Invalid File')

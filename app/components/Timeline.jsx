@@ -159,14 +159,14 @@ const Timeline = ({goToTime}) => {
     }, [])
 
     return (
-        <div className="timeline p-2 flex gap-3 justify-center items-center">
+        <div className="timeline p-2 h-full w-full flex gap-3 justify-center items-center">
             <div className="flex items-center h-full font-bold">
                 {unit.toUpperCase()}:
             </div>
             <input type="text" 
                 className="
                     px-3 rounded-full text-[#888888] text-center 
-                    max-w-16 focus:text-[#CCCCCC]
+                    max-w-16 focus:text-[#CCCCCC] h-full
                 "
                 onChange={(e) => handleChange(e.target.value)}
                 style={{"border": `${isValid ? 0 : 3}px solid red`}}
@@ -196,7 +196,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handlePlayPause}
                     >
-                        <div className="h-7 w-6 py-1 px-0.5 flex items-center">
+                        <div className="h-6 w-4 py-0.5 flex items-center">
                             <img 
                                 className="w-full h-auto" 
                                 src={isPaused ? "play.png" : "pause.png"}
@@ -209,7 +209,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleReset}
                     >
-                        <div className="h-7 w-6 py-1 px-0.5 flex items-center">
+                        <div className="h-6 w-4 py-0.5 flex items-center">
                             <img 
                                 className="w-full h-auto" 
                                 src="reset.png"

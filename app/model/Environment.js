@@ -2,12 +2,21 @@ import Big from 'big.js'
 import Land from "./Land.js"
 import * as utils from '../utils.js'
 
+let fossilFuelEmission =  Big(JSON.parse(
+    process.env.NEXT_PUBLIC_CO2_FOSSIL_FUEL_ANNUAL_EMISSION_START
+))
+
 export default class Environment {
     /** Environment comprises the atmosphere and the land. */
 
     #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
 
-    constructor() {
+    constructor(ffEmission=null) {
+        /**
+         * Constructor.
+         * @param ffEmission: Fossil fuel emissions start value.
+         */
+        if (ffEmission != null) fossilFuelEmission = ffEmission
         const carbonAmounts = JSON.parse(process.env.NEXT_PUBLIC_C_START)
         this.carbon = {} // g
         for (const [reservoir, carbonAmount] of Object.entries(carbonAmounts)) {
@@ -61,6 +70,21 @@ export default class Environment {
             /** Returns current amount of carbon in the world. */
             return this.carbon
         }
+        this.getFossilFuelEmission = () => {
+            /**
+             * Returns current annual carbon emissions
+             * from fossil fuel usage.
+             */
+            return fossilFuelEmission
+        }
+        this.setFossilFuelEmission = (val) => {
+            /**
+             * Sets current annual carbon emissions
+             * from fossil fuel usage.
+             * @param val: New value.
+             */
+            fossilFuelEmission = val
+        }
         this.land = new Land(this.updateCarbon, this.getCarbon, this.getAirCO2ppm)
     }
 
@@ -73,5 +97,18 @@ export default class Environment {
         const molecularMassC = 12 // g/mol
         const molecularMassCO2 = 44 // g/mol
         return massCO2 * (molecularMassC/molecularMassCO2)
+    }
+
+    takeTimeStep() {
+        /**
+         * Moves one step forward in time.
+         */
+        // Update carbon in air due to 
+        this.updateCarbon({
+            "fossil_fuels": fossilFuelEmission.mul(-1),
+            "air": fossilFuelEmission
+        })
+        // Update land content.
+        this.land.takeTimeStep()
     }
 }

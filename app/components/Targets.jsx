@@ -38,7 +38,7 @@ const Targets = ({
      *                            income value.
      */
 
-    const colorTextDefault = "#232323"
+    const colorTextDefault = "#888888"
     const colorBorderDefault = "#ffffff"
     const colorGood = "#32BE51"
     const colorBad = "#F44A4A"
@@ -112,12 +112,12 @@ const Targets = ({
         if (targetType == "co2") {
             isTargetMet("co2", val)
             targets.co2 = val
-            setTargetCO2(utils.roundToNDecimalPlaces(val, 2))
+            setTargetCO2(utils.roundToNDecimalPlaces(val, 0))
         }
         if (targetType == "income") {
             isTargetMet("income", val)
             targets.income = val
-            setTargetIncome(targets.income.toFixed(2).toString())
+            setTargetIncome(targets.income.toFixed(0).toString())
             updateTargetIncome({income: targets.income})
             updateIncTargetsUI()
         }

@@ -61,11 +61,10 @@ const TextInput = ({
                     placeholder={placeholder}
                     style={{
                         backgroundColor: bgColor,
-                        color: textColor, 
-                        // maxWidth: maxWidth
+                        color: textColor
                     }}
                 />
-                <div className="flex items-center" style={{color: textColor}}>
+                <div className="flex items-center">
                     {unit}
                 </div>
             </div>

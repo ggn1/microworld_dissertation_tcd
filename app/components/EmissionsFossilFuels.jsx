@@ -62,7 +62,6 @@ const EmissionsFossilFuels = ({getFossilFuelEmission, setFossilFuelEmission}) =>
          * update the value in the simulation.
          */
         const newVal = Big(`${emissionRate}e+15`)
-        console.log(newVal.toString())
         setFossilFuelEmission(newVal)
     }, [emissionRate])
 

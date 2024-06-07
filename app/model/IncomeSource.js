@@ -172,7 +172,8 @@ export class NTFP extends IncomeSource {
             let availabilityDw = Math.max(
                 0, availabilityMax - (availabilityMax * (1 - deadwoodPc))
             )
-            this.available = (availabilityBd + availabilityDw) / 2
+            const dependency = this.#getIncomeDependency("ntfp")
+            this.available = ((availabilityBd + availabilityDw) / 2) * dependency
         }
     }
 
@@ -230,7 +231,8 @@ export class RecreationalActivities extends IncomeSource {
             let availabilityBd = Math.max(
                 0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
             )
-            this.available = availabilityBd
+            const dependency = this.#getIncomeDependency("recreation")
+            this.available = availabilityBd *  dependency
         }
     }
 

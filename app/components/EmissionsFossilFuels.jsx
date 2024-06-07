@@ -66,10 +66,12 @@ const EmissionsFossilFuels = ({getFossilFuelEmission, setFossilFuelEmission}) =>
     }, [emissionRate])
 
     return (
-        <div ref={refInput}>
-            <TextInput 
-                label='Fossil Fuel Emissions: '
-                unit="GtC"
+        <div ref={refInput} className='py-3 rounded-lg bg-[#FFFFFF] rounded-lg'>
+            <div className='text-center font-bold px-3'>FOSSIL FUEL USAGE</div>
+            <div className='text-center px-3'>Annual Carbon Emission</div>
+            <TextInput
+                label=''
+                unit="Gt"
                 sanityCheck={sanityCheckNumeric}
                 placeholder={emissionRate}
                 handleVal={handleVal}

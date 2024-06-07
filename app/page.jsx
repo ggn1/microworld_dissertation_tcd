@@ -69,7 +69,7 @@ const Home = () => {
     
     return (
         isInitialized &&
-        <main className="w-full p-5 grid grid-cols-12 grid-rows-8 gap-2">
+        <main className="w-full p-5 grid grid-cols-12 grid-rows-5 gap-2">
             <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-4 row-span-2
                 place-content-center
             ">
@@ -87,21 +87,24 @@ const Home = () => {
                     )}
                 />
             </div>
-            <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-5 p-3
+            <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3
                 place-content-center
             ">
                 <div class="flex w-full h-full items-center justify-center">
                     <LandPlot content={landContent}/>
                 </div>
             </div>
-            <div id="home-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-8 p-3
+            <div id="home-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-6 p-3
                 place-content-center
             ">
                 <div className='flex flex-col gap-3'>
                     <CO2Scale concentration={airCO2}/>
                     <CarbonDist distribution={envC}/>
+                    <EmissionsFossilFuels 
+                        getFossilFuelEmission={sim.env.getFossilFuelEmission}
+                        setFossilFuelEmission={sim.env.setFossilFuelEmission}
+                    />
                     <BdStatus bdScore={bdScore} bdCategory={bdCat}/>
-                    <Funds funds={funds}/>
                     <PropBar
                         proportions={Object.values(incomeDependency)}
                         colors={Object.values(
@@ -113,7 +116,7 @@ const Home = () => {
                     />
                 </div>
             </div>
-            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-4
+            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-3
                 place-content-center
             ">
                 <PlanViewer 
@@ -122,7 +125,7 @@ const Home = () => {
                     year={time}
                 />
             </div>
-            <div id="home-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-3
+            <div id="home-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2
                 place-content-center
             ">
                 <RotationIncomeViewer 
@@ -131,16 +134,10 @@ const Home = () => {
                     rotation={curRotation}
                 />
             </div>
-            <div id="home-time" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-2 
+            <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 
                 place-content-center p-3
             ">
-                <div className='grid grid-rows-2 gap-1'>
-                    <Timeline goToTime={sim.goto}/>
-                    <EmissionsFossilFuels 
-                        getFossilFuelEmission={sim.env.getFossilFuelEmission}
-                        setFossilFuelEmission={sim.env.setFossilFuelEmission}
-                    />
-                </div>
+                <Timeline goToTime={sim.goto}/>
             </div>
         </main>
     )

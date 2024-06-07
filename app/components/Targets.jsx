@@ -46,6 +46,7 @@ const Targets = ({
     const [expMode, setExpMode] = useState(isExpMode)
     const [targetCO2, setTargetCO2] = useState(null) 
     const [targetIncome, setTargetIncome] = useState(null) 
+    const [funds, setFunds] = useState(utils.nFormatter(curFunds.toString(), 1))
 
     const [isValidCO2, setIsValidCO2] = useState(false)
     const [isValidIncome, setIsValidIncome] = useState(false)
@@ -134,8 +135,10 @@ const Targets = ({
     }
 
     useEffect(() => {
+        console.log(curFunds)
         curFunds = Big(curFunds)
         isTargetMet("funds", targets.funds)
+        setFunds(utils.nFormatter(curFunds.toString(), 1))
     }, [curFunds])
 
     useEffect(() => {
@@ -174,9 +177,8 @@ const Targets = ({
         targetCO2 != null && 
         targetIncome != null && 
         <div className="
-            grid p-3 grid-rows-3 grid-cols-1
-            justify-content-center justify-items-center h-full
-            gap-2
+            grid p-3 grid-rows-3 justify-content-center 
+            justify-items-center gap-3
         ">
             <div className="flex gap-5 h-full w-full justify-center items-center">
                 <div className="font-bold">TARGETS</div>
@@ -187,33 +189,37 @@ const Targets = ({
                     offColor="#6E6E6E"
                 />
             </div>
-            <TextInput 
-                label="CO2 <="
-                placeholder={targetCO2}
-                borderColor={
-                    expMode ? colorBorderDefault : 
-                    isTargetMetCO2 ? colorGood : colorBad
-                }
-                textColor={isValidCO2 ? colorTextDefault : colorBad}
-                unit="ppm"
-                sanityCheck={sanityCheckNumeric} 
-                handleVal={(val) => handleVal("co2", val)}
-            />
-            <TextInput 
-                label="Rotation Income >="
-                placeholder={targetIncome}
-                unit={<img src="barcon.png" className='h-4 w-auto'/>}
-                borderColor={
-                    expMode ? colorBorderDefault 
-                            : isTargetMetIncome 
-                            ? colorGood 
-                            : colorBad
-                }
-                textColor={isValidIncome ? colorTextDefault : colorBad}
-                sanityCheck={sanityCheckNumeric} 
-                handleVal={(val) => handleVal("income", val)}
-            />
-            {/* <Tag 
+            <div>
+                <TextInput 
+                    label="CO2 <="
+                    placeholder={targetCO2}
+                    borderColor={
+                        expMode ? colorBorderDefault : 
+                        isTargetMetCO2 ? colorGood : colorBad
+                    }
+                    textColor={isValidCO2 ? colorTextDefault : colorBad}
+                    unit="ppm"
+                    sanityCheck={sanityCheckNumeric} 
+                    handleVal={(val) => handleVal("co2", val)}
+                />
+            </div>
+            <div>
+                <TextInput 
+                    label="Rotation Income >="
+                    placeholder={targetIncome}
+                    unit={<img src="barcon.png" className='h-4 w-auto'/>}
+                    borderColor={
+                        expMode ? colorBorderDefault 
+                                : isTargetMetIncome 
+                                ? colorGood 
+                                : colorBad
+                    }
+                    textColor={isValidIncome ? colorTextDefault : colorBad}
+                    sanityCheck={sanityCheckNumeric} 
+                    handleVal={(val) => handleVal("income", val)}
+                />
+            </div>
+            <Tag 
                 width="100%" height="100%"
                 bgColor="#FFFFFF" borderWidth="4px"
                 borderColor={
@@ -222,12 +228,13 @@ const Targets = ({
                 } 
             >
                 <div className="flex gap-2 w-full h-full justify-between items-center px-1">
-                    <div className="font-bold">Funds {`>= ${
-                        targets.funds.toFixed(2).toString()
-                    }`}</div>
-                    <div>Bc</div>
+                    <div>
+                        <b>Funds: </b>
+                        {`${utils.nFormatter(curFunds.toString(), 1)} > ${targets.funds.minus(1).toFixed(0).toString()}`}
+                    </div>
+                    <img src="barcon.png" className='h-4 w-auto' />
                 </div>
-            </Tag> */}
+            </Tag>
         </div>
     )
 }

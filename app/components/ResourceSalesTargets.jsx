@@ -23,7 +23,9 @@ const ResourceSalesTargets = ({targets}) => {
                     </div>
                     <div className='flex gap-2 items-center'>
                         <img className="h-6" src="barcon.png" />
-                        <div>{utils.roundToNDecimalPlaces(targets[resource], 2)}</div>
+                        <div>{utils.nFormatter(
+                            utils.roundToNDecimalPlaces(targets[resource], 2).toString()
+                        , 1)}</div>
                     </div>
                 </div>
             )}

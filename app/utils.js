@@ -118,7 +118,7 @@ export function computeCarbonInWoodWeight (weight) {
     return carbonPc * weightDry
 }
 
-// CHAT GPT 4.0
+// Chat GPT 4.0
 export function randomNormalSample(mean, stdDev) {
     /**
      * Generates a random sample from a normal distribution with 
@@ -139,4 +139,64 @@ export function randomNormalSample(mean, stdDev) {
     // Scale and shift the result to match the specified 
     // mean and standard deviation.
     return z0 * stdDev + mean
+}
+
+// Reference: https://stackoverflow.com/questions/9461621/format-a-number-as-2-5k-if-a-thousand-or-more-otherwise-900
+export function nFormatter(num, digits) {
+    /**
+     * Returns formatted string representation of 
+     * numbers (with K or M to indicate 1000 or million)
+     * so that numbers are easier to read.
+     * @param num: Number as string.
+     * @param digits: No. of decimal places.
+     * @return: Easier to read string format.
+     */
+    const lookup = [
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: "k" },
+        { value: 1e6, symbol: "M" },
+        // { value: 1e9, symbol: "G" },
+        // { value: 1e12, symbol: "T" },
+        // { value: 1e15, symbol: "P" },
+        // { value: 1e18, symbol: "E" }
+    ]
+    const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/
+    const item = lookup.findLast(item => num >= item.value)
+    return item ? (num / item.value).toFixed(digits).replace(regexp, "").concat(
+        item.symbol
+    ) : "0"
+}
+
+// Chat GPT 4.0
+export function reverseNFormatter(formattedStr) {
+    /**
+     * Converts formatted string representation of 
+     * numbers (with K or M) back to the original number as a string.
+     * @param formattedStr: Formatted string representation of the number.
+     * @return: Original number as a string.
+     */
+    const lookup = {
+        "K": 1e3,
+        "M": 1e6,
+        // "G": 1e9,
+        // "T": 1e12,
+        // "P": 1e15,
+        // "E": 1e18
+    };
+
+    const regex = /^(\d+(\.\d+)?)([KM]?)$/;
+    const match = formattedStr.match(regex);
+
+    if (!match) {
+        throw new Error("Invalid formatted number string");
+    }
+
+    const number = parseFloat(match[1]);
+    const symbol = match[3];
+
+    if (symbol) {
+        return (number * lookup[symbol]).toString();
+    }
+
+    return number.toString();
 }

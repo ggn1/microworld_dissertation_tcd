@@ -11,9 +11,9 @@ let targets = {"co2": null, "income": null, "funds": Big(JSON.parse(
 let isExpMode = true
 
 const Targets = ({
-    setTargets, curCO2, curIncome, curFunds,
-    startValCO2, startValIncome, updateTargetIncome,
-    updateIncTargetsUI, getTargets
+    setTargets, getTargets, 
+    curCO2, curIncome, curFunds,
+    updateTargetIncome, updateIncTargetsUI
 }) => {
     /**
      * This component both displays targets and allows 
@@ -25,11 +25,11 @@ const Targets = ({
      *                    be updated in the simulation. It must
      *                    accept a dictionary of target: value 
      *                    key pairs as input.
+     * @param getTargets: Function that can be used to fetch latest
+     *                    income/co2 targets from the simulation.
      * @param curCO2: Current atmospheric CO2 concentration.
      * @param curIncome: Latest user income.
      * @param curFunds: Latest funds that the user has.
-     * @param startValCO2: The starting CO2 target value.
-     * @param startValIncome: The starting income target value.
      * @param updateTargetIncome: Function that can be used to 
      *                            update target total income
      *                            in the simulation.

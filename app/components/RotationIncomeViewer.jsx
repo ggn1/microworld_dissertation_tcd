@@ -34,12 +34,16 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
                     <div>
                         <div className="flex gap-1 justify-center items-center">
                             <img src="barcon.png" className="h-4 r-auto"/>
-                            <div>{income[resource].toFixed(2).toString()}</div>
+                            <div>{utils.nFormatter(
+                                income[resource].toFixed(2).toString()
+                            , 1)}</div>
                         </div>
                         <div className="bg-[#232323] h-[1px] rounded-full w-full"></div>
                         <div className="flex gap-1 justify-center items-center">
                             <img src="barcon.png" className="h-4 r-auto"/>
-                            <div>{targets[resource].toFixed(2).toString()}</div>
+                            <div>{utils.nFormatter(
+                                targets[resource].toFixed(2).toString()
+                            , 1)}</div>
                         </div>
                     </div>
                 </div>
@@ -64,7 +68,9 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
                 </div>
                 <div className="mb-3">
                     <b>Total = </b> 
-                    {income.total.toFixed(2).toString()}
+                    {utils.nFormatter(
+                        income.total.toFixed(2).toString()
+                    , 1)}
                 </div>
             </div>
             <div className='flex justify-evenly gap-3'>

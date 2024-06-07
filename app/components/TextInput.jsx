@@ -3,7 +3,7 @@
 import { useState } from "react"
 
 const TextInput = ({
-        sanityCheck, handleVal, maxWidth="50px", unit="", label="",
+        sanityCheck, handleVal, unit="", label="",
         placeholder="", textColor="#6e6e6e", borderColor="white", 
         bgColor="white"
     }) => {
@@ -24,6 +24,7 @@ const TextInput = ({
      * @param unit: The unit of measurement of value in this field (optional).
      * @param textColor: Color of the text inside the text box.
      * @param borderColor: Colour of the border of the text box.
+     * @param bgColor: Background color.
      */
 
     const [val, setVal] = useState(placeholder)
@@ -53,7 +54,7 @@ const TextInput = ({
             <b>{label}</b>
             <div className="flex flex-1 w-full justify-between gap-2">
                 <input
-                    className="text-[#6e6e6e]"
+                    className="text-[#6e6e6e] w-full"
                     type="text"
                     onChange={(e) => handleChange(e.target.value)}
                     value={val}
@@ -61,11 +62,12 @@ const TextInput = ({
                     style={{
                         backgroundColor: bgColor,
                         color: textColor, 
-                        width: `${val.toString().length+4}ch`,
-                        maxWidth: maxWidth
+                        // maxWidth: maxWidth
                     }}
                 />
-                <p className="flex items-center" style={{color: textColor}}>{unit}</p>
+                <div className="flex items-center" style={{color: textColor}}>
+                    {unit}
+                </div>
             </div>
         </div>
     )

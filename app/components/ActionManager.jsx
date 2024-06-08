@@ -188,7 +188,7 @@ const ActionManager = ({
             year = parseInt(year)
             actionsToKeep = []
             for (let i=0; i<yearActions[year].length; i++) {
-                if (!actions[i].selected) {
+                if (!actions[i].selected) { // Keep unselected actions only.
                     actionsToKeep.push(JSON.parse(JSON.stringify(actions[i])))
                 } else {
                     if ("setTagSelectionState" in actions[i]) {
@@ -199,6 +199,35 @@ const ActionManager = ({
                         "treeLifeStage" in actions[i] ? actions[i].treeLifeStage : ""
                     )
                 }
+            }
+            yearActions[year] = actionsToKeep
+            if (
+                yearActions[year].length == 0
+                && !(rotationYears.includes(year))
+            ) delete(yearActions[year])
+        }
+
+        // Update UI.
+        setYearActionsObjects(getYearActionsObjects())
+    }
+
+    const handleDeleteAll = (e) => {
+        /**
+         * Deletes all currently planned actions.
+         */
+
+        const actionsToKeep = [] // Will be empty. No actions are kept.
+        for (let [year, actions] of Object.entries(yearActions)) {
+            year = parseInt(year)
+            for (let i=0; i<yearActions[year].length; i++) {
+                // Keep no actions.
+                if ("setTagSelectionState" in actions[i]) {
+                    actions[i].setTagSelectionState(false)
+                }
+                deleteAction(
+                    year, actions[i].actionType, actions[i].treeType, 
+                    "treeLifeStage" in actions[i] ? actions[i].treeLifeStage : ""
+                )
             }
             yearActions[year] = actionsToKeep
             if (
@@ -277,6 +306,7 @@ const ActionManager = ({
                         <Button // DELETE BUTTON
                             outlineColor='#D28282' bgColor='#FFC5C5'
                             onClick={handleDelete}
+                            onDoubleClick={handleDeleteAll}
                         ><img src="bin.png" className='max-h-8 p-1 w-auto'/></Button>
                         <Button // SAVE BUTTON
                             outlineColor='#9FCBFF' bgColor='#C5E0FF'

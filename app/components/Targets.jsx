@@ -92,8 +92,7 @@ const Targets = ({
                 if ( 
                     curYear > 0 &&
                     target.gte(incomeTracker[0]) &&
-                    (curYear == (curRotationPeriod * curRotation)) ||
-                    (curYear == JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX))
+                    (curYear == (curRotationPeriod * curRotation))
                 ) {
                     setIsTargetMetIncome(-1)
                 }

@@ -110,7 +110,7 @@ export default class Simulation {
          * through with that action. No effect if
          * given action does not exist. Only trees that
          * are at least old enough to have matured, can
-         * be chopped.
+         * be chopped. Felling preceeds planting.
          * @param actionType: The type of this action.
          * @param treeType: The type of tree that this action targets.
          * @param treeLifeStage: The lifestage of the targeted tree.

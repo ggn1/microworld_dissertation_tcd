@@ -85,6 +85,9 @@ const Home = () => {
                     updateIncTargetsUI={() => setRotationIncomeTargets(
                         sim.getResourceSalesTargets()
                     )}
+                    year={time}
+                    rotationPeriod={rotationPeriod}
+                    rotation={curRotation}
                 />
             </div>
             <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3

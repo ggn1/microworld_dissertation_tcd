@@ -180,7 +180,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleNewTimeSubmit}
                     >
-                        <img className="max-h-6 w-auto p-1" src="tick.png" />
+                        <img className="h-6 w-4 py-1" src="tick.png" />
                     </Button>
 
                     {/* Cancel Change Button */}
@@ -188,7 +188,7 @@ const Timeline = ({goToTime}) => {
                         bgColor="#FFF8E6" outlineColor="#E4DAC1" 
                         onClick={handleNewTimeCancel}
                     >
-                        <img className="max-h-6 w-auto p-1" src="cross.png" />
+                        <img className="h-6 w-4 py-1" src="cross.png" />
                     </Button>
                 </> : <>
                     {/* Play/Pause Button */}

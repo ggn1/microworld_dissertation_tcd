@@ -61,7 +61,7 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
     }, [targets, income])
 
     return (
-        <div className="px-3">
+        Object.keys(targets).length > 0 && <div className="px-3">
             <div className='flex justify-between gap-3 items-center'>
                 <div className='mb-3 font-bold text-center'>
                     INCOME: ROTATION {rotation}
@@ -70,6 +70,8 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
                     <b>Total = </b> 
                     {utils.nFormatter(
                         income.total.toFixed(2).toString()
+                    , 1)} / {utils.nFormatter(
+                        targets.total.toFixed(2).toString()
                     , 1)}
                 </div>
             </div>

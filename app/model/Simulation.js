@@ -2,7 +2,6 @@ import Big from 'big.js'
 import Planner from "./Planner.js"
 import Environment from "./Environment.js"
 import { Timber, RecreationalActivities, NTFP } from "./IncomeSource.js"
-import { count } from 'd3'
 
 export default class Simulation {
     /** This class shall encapsulate the
@@ -47,6 +46,7 @@ export default class Simulation {
             for(const resource of Object.keys(this.resources)) {
                 salesTargets[resource] = this.resources[resource].salesTarget
             }
+            salesTargets["total"] = this.planner.getTargets().income
             return salesTargets
         }
         this.updateFunds = (change) => {
@@ -174,7 +174,6 @@ export default class Simulation {
             for (const actionType of ["fell", "plant"]) {
                 for (let i = 0; i < actions[actionType].length; i++) {
                     action = actions[actionType][i]
-                    console.log(actionType, "=", action)
                     status = []
                     statusSum = 0
                     for (let c = 0; c < action.count; c++) {
@@ -229,7 +228,9 @@ export default class Simulation {
          * current time. When new rotation starts,
          * resets income targets.
          */
-        let newRotation = Math.floor(this.time/(this.planner.rotationPeriod - 1))
+        let newRotation = this.rotation + Number(
+            this.time + 1 == (this.rotation + 1) * this.planner.rotationPeriod
+        )
         if (newRotation != this.rotation) {
             // Update rotation count.
             this.rotation = newRotation

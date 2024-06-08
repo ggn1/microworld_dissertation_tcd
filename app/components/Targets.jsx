@@ -10,10 +10,18 @@ let targets = {"co2": null, "income": null, "funds": Big(JSON.parse(
 ))}
 let isExpMode = true
 
+// First number is the index of income 
+// corresponding to this time step.
+// Second number is the last saved income.
+// Third number is the latest push.
+// This is to keep track of past incomes.
+let incomeTracker = [Big(0), Big(0)]
+
 const Targets = ({
-    setTargets, getTargets, 
+    setTargets, getTargets,
     curCO2, curIncome, curFunds,
-    updateTargetIncome, updateIncTargetsUI
+    updateTargetIncome, updateIncTargetsUI,
+    year, rotationPeriod, rotation
 }) => {
     /**
      * This component both displays targets and allows 
@@ -36,6 +44,9 @@ const Targets = ({
      * @param updateIncTargetsUI: Function that can be used to update
      *                            the UI to reflect effects of altered 
      *                            income value.
+     * @param year: Current year.
+     * @param rotationPeriod: Current rotation period.
+     * @param rotation: This rotation.
      */
 
     const colorTextDefault = "#888888"
@@ -43,16 +54,18 @@ const Targets = ({
     const colorGood = "#32BE51"
     const colorBad = "#F44A4A"
 
+    const [curYear, setCurYear] = useState(year)
+    const [curRotation, setCurRotation] = useState(rotation)
+    const [curRotationPeriod, setCurRotationPeriod] = useState(rotationPeriod)
     const [expMode, setExpMode] = useState(isExpMode)
     const [targetCO2, setTargetCO2] = useState(null) 
     const [targetIncome, setTargetIncome] = useState(null) 
-    const [funds, setFunds] = useState(utils.nFormatter(curFunds.toString(), 1))
 
     const [isValidCO2, setIsValidCO2] = useState(false)
     const [isValidIncome, setIsValidIncome] = useState(false)
-    const [isTargetMetCO2, setIsTargetMetCO2] = useState(false)
-    const [isTargetMetIncome, setIsTargetMetIncome] = useState(false)
-    const [isTargetMetFunds, setIsTargetMetFunds] = useState(false)
+    const [isTargetMetCO2, setIsTargetMetCO2] = useState(0)
+    const [isTargetMetIncome, setIsTargetMetIncome] = useState(0)
+    const [isTargetMetFunds, setIsTargetMetFunds] = useState(0)
 
     const isTargetMet = (targetType, target) => {
         /** 
@@ -63,13 +76,33 @@ const Targets = ({
          * @param target: The target value checked against.
          */
         if (targetType == "co2") {
-            setIsTargetMetCO2(target >= curCO2)
+            if(target >= curCO2) setIsTargetMetCO2(1)
+            else setIsTargetMetCO2(-1)
         }
         if (targetType == "income") {
-            setIsTargetMetIncome(target.lte(curIncome))
+            // If total income this rotation is >= target,
+            // then income target is met.
+            if(target.lte(curIncome)) {
+                setIsTargetMetIncome(1)
+            } else {
+                // If is not rotation 0 and
+                // income from the previous rotation is
+                // still <= target, then last rotation's
+                // income target was not met before reset.
+                if ( 
+                    curYear > 0 &&
+                    target.gte(incomeTracker[0]) &&
+                    (curYear == (curRotationPeriod * curRotation)) ||
+                    (curYear == JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX))
+                ) {
+                    setIsTargetMetIncome(-1)
+                }
+                else setIsTargetMetIncome(0)
+            }
         }
         if (targetType == "funds") {
-            setIsTargetMetFunds(target.lte(curFunds))
+            if(target.lte(curFunds)) setIsTargetMetFunds(1)
+            else setIsTargetMetFunds(-1)
         }
     }
 
@@ -135,16 +168,12 @@ const Targets = ({
     }
 
     useEffect(() => {
-        console.log(curFunds)
         curFunds = Big(curFunds)
         isTargetMet("funds", targets.funds)
-        setFunds(utils.nFormatter(curFunds.toString(), 1))
     }, [curFunds])
 
     useEffect(() => {
-        if (targetCO2 != null) {
-            isTargetMet("co2", targetCO2)
-        }
+        if (targetCO2 != null) isTargetMet("co2", targetCO2)
     }, [curCO2])
 
     useEffect(() => {
@@ -173,6 +202,28 @@ const Targets = ({
         }
     }, [targetCO2, targetIncome])
 
+    useEffect(() => {
+        if (
+            targetIncome != null
+            // && (curYear == (curRotationPeriod * curRotation))
+            // || (curYear == JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX))
+        ) isTargetMet("income", Big(targetIncome))
+    }, [curYear])
+
+    useEffect(() => {
+        setCurYear(year)
+        incomeTracker.splice(0, 1)
+        incomeTracker.push(curIncome)
+    }, [year])
+
+    useEffect(() => {
+        setCurRotation(rotation)
+    }, [rotation])
+
+    useEffect(() => {
+        setCurRotationPeriod(rotationPeriod)
+    }, [rotationPeriod])
+
     return (
         targetCO2 != null && 
         targetIncome != null && 
@@ -195,7 +246,9 @@ const Targets = ({
                     placeholder={targetCO2}
                     borderColor={
                         expMode ? colorBorderDefault : 
-                        isTargetMetCO2 ? colorGood : colorBad
+                        isTargetMetCO2 == 1 ? colorGood : 
+                        isTargetMetCO2 == -1 ? colorBad :
+                        colorBorderDefault
                     }
                     textColor={isValidCO2 ? colorTextDefault : colorBad}
                     unit="ppm"
@@ -209,10 +262,10 @@ const Targets = ({
                     placeholder={targetIncome}
                     unit={<img src="barcon.png" className='h-4 w-auto'/>}
                     borderColor={
-                        expMode ? colorBorderDefault 
-                                : isTargetMetIncome 
-                                ? colorGood 
-                                : colorBad
+                        expMode ? colorBorderDefault : 
+                        isTargetMetIncome == 1 ? colorGood : 
+                        isTargetMetIncome == -1 ? colorBad :
+                        colorBorderDefault
                     }
                     textColor={isValidIncome ? colorTextDefault : colorBad}
                     sanityCheck={sanityCheckNumeric} 
@@ -224,13 +277,17 @@ const Targets = ({
                 bgColor="#FFFFFF" borderWidth="4px"
                 borderColor={
                     expMode ? colorBorderDefault : 
-                    isTargetMetFunds ? colorGood : colorBad
+                    isTargetMetFunds == 1 ? colorGood : 
+                    isTargetMetFunds == -1 ? colorBad :
+                    colorBorderDefault
                 } 
             >
                 <div className="flex gap-2 w-full h-full justify-between items-center px-1">
                     <div>
                         <b>Funds: </b>
-                        {`${utils.nFormatter(curFunds.toString(), 1)} > ${targets.funds.minus(1).toFixed(0).toString()}`}
+                        {`${utils.nFormatter(curFunds.toString(), 1)} > ${
+                            targets.funds.minus(1).toFixed(0).toString()
+                        }`}
                     </div>
                     <img src="barcon.png" className='h-4 w-auto' />
                 </div>

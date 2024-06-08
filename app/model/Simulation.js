@@ -129,7 +129,11 @@ export default class Simulation {
                 treeLifeStage != "sapling"
             ) { 
                 // Pay the price for felling.
-                this.funds = this.funds.minus(this.#mgmtActionCosts.fell)
+                const tree = this.env.land.content[pos[0]][pos[1]][0]
+                const fellingCost = this.#mgmtActionCosts.fell * (
+                    tree.height/tree.heightMax
+                )
+                this.funds = this.funds.minus(fellingCost)
                 // Fell the tree.
                 const [success, woodHarvested] = this.env.land.fellTree(
                     pos, treeType, treeLifeStage

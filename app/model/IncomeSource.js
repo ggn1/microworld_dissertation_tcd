@@ -51,8 +51,8 @@ export default class IncomeSource {
         let fundsReceived = Big(0)
         if (this.type == "timber") {
             // Because wood weight is in grams and
-            // price is per kg, wood weight must be 
-            // divided by 1000.
+            // price is per kg. Thus, wood weight
+            // must be divided by 1000.
             fundsReceived = Big((this.available/1000) * this.#pricePerUnit)
             this.useWood(this.available)
         } else {
@@ -185,7 +185,6 @@ export class NTFP extends IncomeSource {
         const cost = JSON.parse(
             process.env.NEXT_PUBLIC_INCOME_SOURCES
         ).ntfp.cost.maintenance
-        // console.log(`Foraging to gather NTFPs cost Bc ${cost}.`)
         const dependency = this.#getIncomeDependency("ntfp")
         this.#updateFunds(-1 * cost * dependency)
     }
@@ -248,13 +247,11 @@ export class RecreationalActivities extends IncomeSource {
         
         if (!this.isBuilt && dependency > 0) {
             const initialCost = costs.initial
-            // console.log(`Building infrastructure for recreational activities in the forest cost Bc ${initialCost}.`)
             this.#updateFunds(-1 * initialCost)
             this.isBuilt = true
         }
         
         const maintenanceCost = costs.maintenance
-        // console.log(`Maintaining forest recreational cost Bc ${maintenanceCost}.`)
         this.#updateFunds(-1 * maintenanceCost * dependency)
     }
 }

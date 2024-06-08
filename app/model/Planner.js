@@ -121,9 +121,6 @@ export default class Planner {
                 const plannedActions = this.plan[year][actionType]
                 for (let i = 0; i < plannedActions.length; i++) {
                     existingAction = plannedActions[i]
-                    console.log("treeType =", treeType, "existingAction.type =", existingAction.type, "treeType == existingAction.type =", treeType == existingAction.type)
-                    console.log("actionType =", actionType)
-                    console.log("treeLifeStage =", treeLifeStage, "existingAction.stage =", existingAction.stage, "treeLifeStage == existingAction.stage =", treeLifeStage == existingAction.stage)
                     if (treeType == existingAction.type && (
                         actionType == "plant" || 
                         actionType == "fell" && 

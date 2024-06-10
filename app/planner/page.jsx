@@ -188,7 +188,7 @@ const Planner = () => {
                 className="bg-[#FFECFB] col-span-2 row-span-1 p-3 rounded-xl"
             >
                 <div className="font-bold text-center mb-3">
-                    REQUIRED SALES PER ROTATION
+                    EXPECTED SALES PER ROTATION
                 </div>
                 <ResourceSalesTargets targets={resourceSalesTargets}/>
             </div>

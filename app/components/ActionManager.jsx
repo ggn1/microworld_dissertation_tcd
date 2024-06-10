@@ -334,7 +334,7 @@ const ActionManager = ({
                 >
                     <div className='
                         flex w-full h-full gap-5 overflow-hidden
-                        hover:overflow-scroll
+                        hover:overflow-x-scroll
                     '>{[yearActionObjects]}</div>
                 </div>
             </div>
@@ -374,18 +374,7 @@ const ActionManager = ({
                             grid grid-rows-4 grid-cols-1 gap-2
                             max-h-full p-3
                         '>
-                            {/* COUNT SELECTOR */}
-                            <TextInput 
-                                label='COUNT:'
-                                placeholder={placeholderTreeCount}
-                                textColor={isCountInvalid ? colorBad : colorDefaultText}
-                                sanityCheck={sanityCheckTreeCount} 
-                                handleVal={handleTreeCountChange}
-                                maxWidth="30px"
-                                bgColor='#EEEEEE'
-                                borderColor='#EEEEEE'
-                            />
-
+                        
                             {/* YEAR SELECTOR */}
                             <TextInput 
                                 label='YEAR:'
@@ -393,6 +382,18 @@ const ActionManager = ({
                                 textColor={isYearInvalid ? colorBad : colorDefaultText}
                                 sanityCheck={sanityCheckYear} 
                                 handleVal={handleYearChange}
+                                maxWidth="30px"
+                                bgColor='#EEEEEE'
+                                borderColor='#EEEEEE'
+                            />
+
+                            {/* COUNT SELECTOR */}
+                            <TextInput 
+                                label='COUNT:'
+                                placeholder={placeholderTreeCount}
+                                textColor={isCountInvalid ? colorBad : colorDefaultText}
+                                sanityCheck={sanityCheckTreeCount} 
+                                handleVal={handleTreeCountChange}
                                 maxWidth="30px"
                                 bgColor='#EEEEEE'
                                 borderColor='#EEEEEE'

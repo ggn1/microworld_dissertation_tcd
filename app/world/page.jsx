@@ -61,8 +61,8 @@ const Home = () => {
         /** 
          * Function that receives a keypress event.
          */
-        if (e.key === "w" || e.key === "W") router.push('/walkthrough')
-        else if (e.key === "h" || e.key === "H") router.push('/home')
+        if (e.key === "h" || e.key === "H") router.push('/help')
+        else if (e.key === "Escape") router.push('/')
     }
 
     useEffect(() => {

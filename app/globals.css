@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-* { color: #232323 }
+* { 
+    color: #232323 
+}
 
 div {
     transition: height 1s;
@@ -17,7 +19,7 @@ div {
     }
     50% { 
         transform: scale(1.0); 
-        letter-spacing: 1.2em;
+        letter-spacing: 0.9em;
         text-shadow: 0 0 8px rgba(255, 255, 255, 1.0);
     }
     100% { 

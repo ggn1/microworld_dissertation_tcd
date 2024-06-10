@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { sim } from "../home/page.jsx"
+import { sim } from "../world/page.jsx"
 import { saveAs } from 'file-saver'
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -115,7 +115,7 @@ const Planner = () => {
         if (!sim) {
             const navigationEntries = performance.getEntriesByType('navigation')
             if (navigationEntries.length > 0 && navigationEntries[0].type === 'reload') {
-                router.replace('/home')
+                router.replace('/world')
             }
         } else {
             setSimNotNull(true)

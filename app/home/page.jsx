@@ -1,9 +1,7 @@
 'use client'
 
-import Link from "next/link"
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Button from "../components/Button.jsx"
 import Simulation from "../model/Simulation.js"
 import Timeline from '../components/Timeline.jsx'
 import LandPlot from "../components/LandPlot.jsx"
@@ -63,9 +61,8 @@ const Home = () => {
         /** 
          * Function that receives a keypress event.
          */
-        if (e.key === "Escape") {
-            router.push('/walkthrough')
-        }
+        if (e.key === "w" || e.key === "W") router.push('/walkthrough')
+        else if (e.key === "h" || e.key === "H") router.push('/home')
     }
 
     useEffect(() => {

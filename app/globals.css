@@ -7,3 +7,40 @@
 div {
     transition: height 1s;
 }
+
+/* Breating Animation */
+@keyframes animBreathing {
+    0% { 
+        transform: scale(0.95); 
+        letter-spacing: 0.5em;
+        text-shadow: 0 0 0px rgba(255, 255, 255, 0.0);
+    }
+    50% { 
+        transform: scale(1.0); 
+        letter-spacing: 1.2em;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 1.0);
+    }
+    100% { 
+        transform: scale(0.95); 
+        letter-spacing: 0.5em;
+        text-shadow: 0 0 0px rgba(255, 255, 255, 0.0)
+    }
+}
+
+.breathing {
+    animation: animBreathing 8s infinite ease-in-out;
+}
+
+.light {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    background: radial-gradient(
+        circle at var(--x) var(--y), 
+        transparent 10%, 
+        rgba(0,0,0,0.9) 20%
+    );
+}

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { sim } from "../page.jsx"
+import { sim } from "../home/page.jsx"
 import { saveAs } from 'file-saver'
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -115,7 +115,7 @@ const Planner = () => {
         if (!sim) {
             const navigationEntries = performance.getEntriesByType('navigation')
             if (navigationEntries.length > 0 && navigationEntries[0].type === 'reload') {
-                router.replace('/')
+                router.replace('/home')
             }
         } else {
             setSimNotNull(true)
@@ -130,7 +130,7 @@ const Planner = () => {
 
     return (
         simNotNull && 
-        <main className="p-5 w-full grid grid-cols-5 grid-rows-2 gap-3 max-h-min">
+        <div className="p-5 w-full grid grid-cols-5 grid-rows-2 gap-3 max-h-min">
             {/* ACTION MANAGER */}
             <div 
                 id="planner-main" 
@@ -141,7 +141,7 @@ const Planner = () => {
             >
                 {/* HOME BUTTON & ROTATION SETTER */}
                 <div className="flex justify-between items-center gap-5 flex-wrap">
-                    <Link href={"/"}>
+                    <Link href={"/home"}>
                         <Button bgColor="#005FFF" fgColor="#FFFFFF" outlineColor="#5D8AFF">
                             HOME
                         </Button>
@@ -192,7 +192,7 @@ const Planner = () => {
                 </div>
                 <ResourceSalesTargets targets={resourceSalesTargets}/>
             </div>
-        </main>
+        </div>
     )
 }
 

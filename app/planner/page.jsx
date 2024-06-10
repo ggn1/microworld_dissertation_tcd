@@ -139,11 +139,11 @@ const Planner = () => {
                     flex flex-col gap-5 p-3
                 "
             >
-                {/* HOME BUTTON & ROTATION SETTER */}
+                {/* BACK BUTTON & ROTATION SETTER */}
                 <div className="flex justify-between items-center gap-5 flex-wrap">
-                    <Link href={"/home"}>
+                    <Link href={"/world"}>
                         <Button bgColor="#005FFF" fgColor="#FFFFFF" outlineColor="#5D8AFF">
-                            HOME
+                            BACK
                         </Button>
                     </Link>
                     <RotationPeriod 

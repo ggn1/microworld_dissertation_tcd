@@ -1,4 +1,4 @@
-"use state"
+"use client"
 
 import * as utils from '../utils.js'
 import { Tooltip } from 'react-tooltip'

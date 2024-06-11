@@ -14,6 +14,7 @@ import PlanViewer from '../components/PlanViewer.jsx'
 import EmissionsFossilFuels from '../components/EmissionsFossilFuels.jsx'
 import RotationIncomeViewer from '../components/RotationIncomeViewer.jsx'
 import Funds from '../components/Funds.jsx'
+import Veil from '../components/Veil.jsx'
 
 export let sim = null
 
@@ -39,7 +40,11 @@ const Home = () => {
     const [showCO2Target, setShowCO2Target] = useState(true)
     const [showIncomeTarget, setShowIncomeTarget] = useState(true)
     const [showScaleCO2, setShowScaleCO2] = useState(true)
-    const [showPanelC, setShowPanelC] = useState(false)
+    const [showPanelC, setShowPanelC] = useState(true)
+    const [showPanelFF, setShowPanelFF] = useState(true)
+    const [showIncDepPanel, setShowIncDepPanel] = useState(true)
+    const [showRotIncPanel, setShowRotIncPanel] = useState(true)
+    const [showBiodiversity, setShowBiodiversity] = useState(true)
 
     const router = useRouter()
 
@@ -111,7 +116,10 @@ const Home = () => {
             </div>
             <div id="world-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3">
                 <div class="flex w-full h-full items-center justify-center">
-                    <LandPlot content={landContent} bdScore={bdScore} bdCategory={bdCat}/>
+                    <LandPlot 
+                        content={landContent} bdScore={bdScore} 
+                        bdCategory={bdCat} hide={!showBiodiversity}
+                    />
                 </div>
             </div>
             <div id="world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-6 p-3">
@@ -119,12 +127,11 @@ const Home = () => {
                     <Funds funds={funds}/>
                     {showScaleCO2 &&<CO2Scale concentration={airCO2}/>}
                     {showPanelC && <CarbonDist distribution={envC}/>}
-                    <EmissionsFossilFuels 
+                    {showPanelFF && <EmissionsFossilFuels 
                         getFossilFuelEmission={sim.env.getFossilFuelEmission}
                         setFossilFuelEmission={sim.env.setFossilFuelEmission}
-                    />
-                    {/* <BdStatus bdScore={bdScore} bdCategory={bdCat}/> */}
-                    <PropBar
+                    />}
+                    {showIncDepPanel && <PropBar
                         proportions={Object.values(incomeDependency)}
                         colors={Object.values(
                             sim.resources
@@ -132,7 +139,7 @@ const Home = () => {
                         labels={Object.values(
                             sim.resources
                         ).map(resource => resource.label)}
-                    />
+                    />}
                 </div>
             </div>
             <div id="world-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-4 p-3">
@@ -144,12 +151,13 @@ const Home = () => {
                 />
             </div>
             <div id="world-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2 p-3">
-                <RotationIncomeViewer 
+                {showRotIncPanel ? <RotationIncomeViewer 
                     targets={rotationIncomeTargets} 
                     income={rotationIncome}
                     rotation={curRotation}
                     dependency={incomeDependency}
-                />
+                    hide={!showRotIncPanel}
+                /> : <div className='min-h-32'></div>}
             </div>
             <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 p-3">
                 <Timeline goToTime={sim.goto} triggerPause={pauseTrigger}/>

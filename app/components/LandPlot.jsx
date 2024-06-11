@@ -1,7 +1,7 @@
 "use client"
 
 import * as d3 from "d3"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 
 let svg
 let widthSvg
@@ -49,7 +49,7 @@ const getRenderProperties = (x, y, entity) => {
     }
 }
 
-const LandPlot = ({content, bdScore, bdCategory}) => {
+const LandPlot = ({content, bdScore, bdCategory, hide}) => {
     /**
      * This component represents the plot of land that shall be rendered
      * on the screen. This land displays growth of plants and changes in
@@ -58,9 +58,11 @@ const LandPlot = ({content, bdScore, bdCategory}) => {
      * @param content: The entity in each spot in the land. This may also be null.
      * @param bdScore: Biodiversity score.
      * @param dbCategory: Biodiversity category.
+     * @param hide: Whether to show biodiveristy related data or not.
      * @return: Dynamic land UI component.
      */
     const refSvg = useRef()
+    const [show, setShow] = useState(!hide)
 
     useEffect(() => {
         // Initializes SVG elements.
@@ -141,9 +143,14 @@ const LandPlot = ({content, bdScore, bdCategory}) => {
                 .attr('d', d => d.d)
     }, [content])
 
+    useEffect(() => {
+        setShow(!hide)
+    }, [hide])
+
+
     return (
         <div>
-            <div className='flex justify-between gap-2'>
+            {show && <div className='flex justify-between gap-2'>
                 <div className='flex'>
                     <p className='text-[#6E6E6E] mr-2'>Class:</p> 
                     <p>{bdCategory}</p>
@@ -152,7 +159,7 @@ const LandPlot = ({content, bdScore, bdCategory}) => {
                     <p className='text-[#6E6E6E] mr-2'>Biodiversity:</p> 
                     <p>{bdScore}</p>
                 </div>
-            </div>
+            </div>}
             <div className="pt-2">
                 <svg style={{height:"350px", width:"400px"}} ref={refSvg}></svg>
             </div>

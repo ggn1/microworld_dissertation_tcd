@@ -38,6 +38,8 @@ const Home = () => {
     // Component Visilibility
     const [showCO2Target, setShowCO2Target] = useState(true)
     const [showIncomeTarget, setShowIncomeTarget] = useState(true)
+    const [showScaleCO2, setShowScaleCO2] = useState(true)
+    const [showPanelC, setShowPanelC] = useState(false)
 
     const router = useRouter()
 
@@ -86,10 +88,8 @@ const Home = () => {
     
     return (
         isInitialized &&
-        <div className="w-full p-5 grid grid-cols-12 grid-rows-5 gap-2">
-            <div id="world-targets" className="rounded-xl bg-[#DEEDFF] col-span-4 row-span-2 
-                place-content-center
-            ">
+        <div className="w-full p-5 grid grid-cols-12 gap-2">
+            <div id="world-targets" className="rounded-xl bg-[#DEEDFF] col-span-4 row-span-1 p-3">
                 <Targets 
                     setTargets={sim.planner.setTargets} 
                     curCO2={airCO2}
@@ -109,20 +109,16 @@ const Home = () => {
                     showIncome={showIncomeTarget}
                 />
             </div>
-            <div id="world-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3
-                place-content-center
-            ">
+            <div id="world-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3">
                 <div class="flex w-full h-full items-center justify-center">
                     <LandPlot content={landContent} bdScore={bdScore} bdCategory={bdCat}/>
                 </div>
             </div>
-            <div id="world-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-6 p-3
-                place-content-center
-            ">
-                <div className='flex flex-col gap-3'>
+            <div id="world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-6 p-3">
+                <div className='*:mb-3'>
                     <Funds funds={funds}/>
-                    <CO2Scale concentration={airCO2}/>
-                    <CarbonDist distribution={envC}/>
+                    {showScaleCO2 &&<CO2Scale concentration={airCO2}/>}
+                    {showPanelC && <CarbonDist distribution={envC}/>}
                     <EmissionsFossilFuels 
                         getFossilFuelEmission={sim.env.getFossilFuelEmission}
                         setFossilFuelEmission={sim.env.setFossilFuelEmission}
@@ -139,9 +135,7 @@ const Home = () => {
                     />
                 </div>
             </div>
-            <div id="world-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-3
-                place-content-center
-            ">
+            <div id="world-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-4 p-3">
                 <PlanViewer 
                     rotationPeriod={rotationPeriod} 
                     plan={plan} 
@@ -149,9 +143,7 @@ const Home = () => {
                     pauseWorld={() => setPauseTrigger(prevVal => 1 - prevVal)}
                 />
             </div>
-            <div id="world-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2
-                place-content-center
-            ">
+            <div id="world-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2 p-3">
                 <RotationIncomeViewer 
                     targets={rotationIncomeTargets} 
                     income={rotationIncome}
@@ -159,9 +151,9 @@ const Home = () => {
                     dependency={incomeDependency}
                 />
             </div>
-            <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 
-                place-content-center p-3
-            "><Timeline goToTime={sim.goto} triggerPause={pauseTrigger}/></div>
+            <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 p-3">
+                <Timeline goToTime={sim.goto} triggerPause={pauseTrigger}/>
+            </div>
         </div>
     )
 }

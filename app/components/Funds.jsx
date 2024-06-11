@@ -8,7 +8,7 @@ const Funds = ({funds}) => {
             <div className="-mt-2 flex gap-3 justify-center items-center w-full h-full">
                 <div className="font-bold">BANK BALANCE</div>
                 <div className="flex gap-1">
-                    <img src="barcon.png" className="h-4 w-auto"/> 
+                    <img src="barcon.png" className="h-5 w-auto"/> 
                     {utils.nFormatter(funds, 1)}
                 </div>
             </div>

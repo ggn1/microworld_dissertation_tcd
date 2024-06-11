@@ -250,40 +250,37 @@ const Targets = ({
                 />
             </div>
             {/* CO2 TARGET */}
-            <div style={{height: showCO2Target ? "auto" : "0px"}}>
-                {showCO2Target && <TextInput 
-                    label="CO2 <="
-                    placeholder={targetCO2}
-                    borderColor={
-                        expMode ? colorBorderDefault : 
-                        isTargetMetCO2 == 1 ? colorGood : 
-                        isTargetMetCO2 == -1 ? colorBad :
-                        colorBorderDefault
-                    }
-                    textColor={isValidCO2 ? colorTextDefault : colorBad}
-                    unit="ppm"
-                    sanityCheck={sanityCheckNumeric} 
-                    handleVal={(val) => handleVal("co2", val)}
-                    hide={!showCO2Target}
-                />}
-            </div>
+            {showCO2Target && <TextInput 
+                label="CO2 <="
+                placeholder={targetCO2}
+                borderColor={
+                    expMode ? colorBorderDefault : 
+                    isTargetMetCO2 == 1 ? colorGood : 
+                    isTargetMetCO2 == -1 ? colorBad :
+                    colorBorderDefault
+                }
+                textColor={isValidCO2 ? colorTextDefault : colorBad}
+                unit="ppm"
+                sanityCheck={sanityCheckNumeric} 
+                handleVal={(val) => handleVal("co2", val)}
+                hide={!showCO2Target}
+            />}
             {/* INCOME */}
-            <div>
-                <TextInput 
-                    label="Rotation Income >="
-                    placeholder={targetIncome}
-                    unit={<img src="barcon.png" className='h-4 w-auto'/>}
-                    borderColor={
-                        expMode ? colorBorderDefault : 
-                        isTargetMetIncome == 1 ? colorGood : 
-                        isTargetMetIncome == -1 ? colorBad :
-                        colorBorderDefault
-                    }
-                    textColor={isValidIncome ? colorTextDefault : colorBad}
-                    sanityCheck={sanityCheckNumeric} 
-                    handleVal={(val) => handleVal("income", val)}
-                />
-            </div>
+            {showIncomeTarget && <TextInput 
+                label="Rotation Income >="
+                placeholder={targetIncome}
+                unit={<img src="barcon.png" className='h-4 w-auto'/>}
+                borderColor={
+                    expMode ? colorBorderDefault : 
+                    isTargetMetIncome == 1 ? colorGood : 
+                    isTargetMetIncome == -1 ? colorBad :
+                    colorBorderDefault
+                }
+                textColor={isValidIncome ? colorTextDefault : colorBad}
+                sanityCheck={sanityCheckNumeric} 
+                handleVal={(val) => handleVal("income", val)}
+                hide={!showIncomeTarget}
+            />}
             {/* <Tag 
                 width="100%" height="100%"
                 bgColor="#FFFFFF" borderWidth="4px"

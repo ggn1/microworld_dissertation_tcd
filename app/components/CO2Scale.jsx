@@ -1,4 +1,3 @@
-import React from 'react'
 import Card from './Card'
 import { Tooltip } from 'react-tooltip'
 
@@ -6,6 +5,7 @@ const CO2Scale = ({concentration}) => {
     /** 
      * Component that given displays CO2 concentration
      * on a color coded scale. 
+     * @param concentration: Current atmospheric CO2 concentration.
      */
 
     // Round CO2 concentration in the atmosphere to 2 decimal places.

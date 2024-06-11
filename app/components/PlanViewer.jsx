@@ -120,7 +120,7 @@ const PlanViewer = ({year, rotationPeriod, plan, pauseWorld}) => {
     }, [idxPast, idxUpcoming])
 
     return (
-        <div className="p-3 flex flex-col h-full gap-3">
+        <div className="flex flex-col h-full w-full gap-3">
             <div className="flex justify-between items-center">
                 <div className="flex flex-col justisy-between gap-1">
                     <b>{rotationPeriod} Year Rotation Period</b>

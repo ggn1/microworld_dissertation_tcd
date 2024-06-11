@@ -166,66 +166,67 @@ const Timeline = ({goToTime, triggerPause}) => {
     }, [triggerPause])
 
     return (
-        <div className="timeline p-2 h-full w-full flex gap-3 justify-center items-center">
-            <div className="flex items-center h-full font-bold">
-                {unit.toUpperCase()}:
+        <div>
+            <div className="timeline p-2 h-full w-full flex gap-3 justify-center items-center">
+                <div className="flex items-center h-full font-bold">
+                    {unit.toUpperCase()}:
+                </div>
+                <input type="text" 
+                    className="
+                        px-3 rounded-full text-[#888888] text-center 
+                        max-w-16 focus:text-[#CCCCCC] h-full
+                    "
+                    onChange={(e) => handleChange(e.target.value)}
+                    style={{"border": `${isValid ? 0 : 3}px solid red`}}
+                    ref={inputRef}
+                />
+                {
+                    isEditing ? <>
+                        
+                        {/* Submit Change Button */}
+                        <Button 
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                            onClick={handleNewTimeSubmit}
+                        >
+                            <img className="h-6 w-4 py-1" src="tick.png" />
+                        </Button>
+
+                        {/* Cancel Change Button */}
+                        <Button 
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                            onClick={handleNewTimeCancel}
+                        >
+                            <img className="h-6 w-4 py-1" src="cross.png" />
+                        </Button>
+                    </> : <>
+                        {/* Play/Pause Button */}
+                        <Button 
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                            onClick={handlePlayPause}
+                        >
+                            <div className="h-6 w-4 py-0.5 flex items-center">
+                                <img 
+                                    className="w-full h-auto" 
+                                    src={isPaused ? "play.png" : "pause.png"}
+                                />
+                            </div>
+                        </Button>
+
+                        {/* Reset Button */}
+                        <Button 
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                            onClick={handleReset}
+                        >
+                            <div className="h-6 w-4 py-0.5 flex items-center">
+                                <img 
+                                    className="w-full h-auto" 
+                                    src="reset.png"
+                                />
+                            </div>
+                        </Button>
+                    </>
+                }
             </div>
-            <input type="text" 
-                className="
-                    px-3 rounded-full text-[#888888] text-center 
-                    max-w-16 focus:text-[#CCCCCC] h-full
-                "
-                onChange={(e) => handleChange(e.target.value)}
-                style={{"border": `${isValid ? 0 : 3}px solid red`}}
-                ref={inputRef}
-            />
-            {
-                isEditing ? <>
-                    
-                    {/* Submit Change Button */}
-                    <Button 
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
-                        onClick={handleNewTimeSubmit}
-                    >
-                        <img className="h-6 w-4 py-1" src="tick.png" />
-                    </Button>
-
-                    {/* Cancel Change Button */}
-                    <Button 
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
-                        onClick={handleNewTimeCancel}
-                    >
-                        <img className="h-6 w-4 py-1" src="cross.png" />
-                    </Button>
-                </> : <>
-                    {/* Play/Pause Button */}
-                    <Button 
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
-                        onClick={handlePlayPause}
-                    >
-                        <div className="h-6 w-4 py-0.5 flex items-center">
-                            <img 
-                                className="w-full h-auto" 
-                                src={isPaused ? "play.png" : "pause.png"}
-                            />
-                        </div>
-                    </Button>
-
-                    {/* Reset Button */}
-                    <Button 
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
-                        onClick={handleReset}
-                    >
-                        <div className="h-6 w-4 py-0.5 flex items-center">
-                            <img 
-                                className="w-full h-auto" 
-                                src="reset.png"
-                            />
-                        </div>
-                    </Button>
-                </>
-            }
-            
         </div>
     )
 }

@@ -49,13 +49,15 @@ const getRenderProperties = (x, y, entity) => {
     }
 }
 
-const LandPlot = ({content}) => {
+const LandPlot = ({content, bdScore, bdCategory}) => {
     /**
      * This component represents the plot of land that shall be rendered
      * on the screen. This land displays growth of plants and changes in
      * composition of the land over time. Behind the hood, this visualization
      * is a scatter plot.
      * @param content: The entity in each spot in the land. This may also be null.
+     * @param bdScore: Biodiversity score.
+     * @param dbCategory: Biodiversity category.
      * @return: Dynamic land UI component.
      */
     const refSvg = useRef()
@@ -140,7 +142,21 @@ const LandPlot = ({content}) => {
     }, [content])
 
     return (
-        <svg style={{height:"350px", width:"400px"}} ref={refSvg}></svg>
+        <div>
+            <div className="pb-2 pt-1">
+                <svg style={{height:"350px", width:"400px"}} ref={refSvg}></svg>
+            </div>
+            <div className='flex justify-between gap-2'>
+                <div className='flex'>
+                    <p className='text-[#6E6E6E] mr-2'>Biodiversity Score:</p> 
+                    <p>{bdScore}</p>
+                </div>
+                <div className='flex'>
+                    <p className='text-[#6E6E6E] mr-2'>Land Class:</p> 
+                    <p>{bdCategory}</p>
+                </div>
+            </div>
+        </div>
     )
 }
 

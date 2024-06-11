@@ -131,10 +131,11 @@ export class NTFP extends IncomeSource {
     #getDeadWoodPc
     #updateFunds
     #getIncomeDependency
+    #getFunds
 
     constructor(
         type, getBiodiversityPc, getDeadWoodPc, 
-        updateFunds, getIncomeDependency
+        updateFunds, getIncomeDependency, getFunds
     ) {
         /**
          * Constructor.
@@ -148,32 +149,38 @@ export class NTFP extends IncomeSource {
          * @param getIncomeDependency: Function that can be used to fetch
          *                             current income dependency setting
          *                             for the NTFP income stream.
+         * @param getFunds: Function that returns current bank balance.
          */
         super(type)
         this.#getIncomeDependency = getIncomeDependency
         this.#getBiodiversityPc = getBiodiversityPc
         this.#getDeadWoodPc = getDeadWoodPc
         this.#updateFunds = updateFunds
+        this.#getFunds = getFunds
         this.updateAvailability = () => {
             /** 
              * Updates how much of this resource is available.
              * Considers costs related to foraging/harvesting.
              */
-            this.#forage()
-            const def = JSON.parse(
-                process.env.NEXT_PUBLIC_INCOME_SOURCES
-            ).ntfp.availability
-            let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
-            const biodiversityPc = this.#getBiodiversityPc()
-            let availabilityBd = Math.max(
-                0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
-            )
-            const deadwoodPc = this.#getDeadWoodPc()
-            let availabilityDw = Math.max(
-                0, availabilityMax - (availabilityMax * (1 - deadwoodPc))
-            )
-            const dependency = this.#getIncomeDependency("ntfp")
-            this.available = ((availabilityBd + availabilityDw) / 2) * dependency
+            const foragingSuccessful = this.#forage()
+            if (foragingSuccessful) {
+                const def = JSON.parse(
+                    process.env.NEXT_PUBLIC_INCOME_SOURCES
+                ).ntfp.availability
+                let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
+                const biodiversityPc = this.#getBiodiversityPc()
+                let availabilityBd = Math.max(
+                    0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
+                )
+                const deadwoodPc = this.#getDeadWoodPc()
+                let availabilityDw = Math.max(
+                    0, availabilityMax - (availabilityMax * (1 - deadwoodPc))
+                )
+                const dependency = this.#getIncomeDependency("ntfp")
+                this.available = ((availabilityBd + availabilityDw) / 2) * dependency
+            } else {
+                this.available = 0
+            }
         }
     }
 
@@ -181,12 +188,18 @@ export class NTFP extends IncomeSource {
         /**
          * Handles the behaviour and all costs related to foraging
          * required to make this resource available.
+         * @return: True if there was enough money to pay for this
+         *          and false otherwise.
          */
         const cost = JSON.parse(
             process.env.NEXT_PUBLIC_INCOME_SOURCES
         ).ntfp.cost.maintenance
+        const curFunds = this.#getFunds()
         const dependency = this.#getIncomeDependency("ntfp")
+        if (curFunds.lt(cost)) return false
+        console.log(-1 * cost * dependency, curFunds)
         this.#updateFunds(-1 * cost * dependency)
+        return true
     }
 }
 
@@ -197,8 +210,12 @@ export class RecreationalActivities extends IncomeSource {
     #getBiodiversityPc
     #updateFunds
     #getIncomeDependency
+    #getFunds
 
-    constructor(type, getBiodiversityPc, updateFunds, getIncomeDependency) {
+    constructor(
+        type, getBiodiversityPc, updateFunds, 
+        getIncomeDependency, getFunds
+    ) {
         /**
          * Constructor.
          * @param type: Type of resource.
@@ -209,29 +226,35 @@ export class RecreationalActivities extends IncomeSource {
          * @param getIncomeDependency: Function that can be used to fetch
          *                             current income dependency setting
          *                             for the NTFP income stream.
+         * @param getFunds: Function that returns current bank balance.
          */
         super(type)
         this.isBuilt = false // Whether infrastructure has been established yet.
         this.#getIncomeDependency = getIncomeDependency
         this.#updateFunds = updateFunds
         this.#getBiodiversityPc = getBiodiversityPc
+        this.#getFunds = getFunds
         this.updateAvailability = () => {
             /** 
              * Updates how much of this resource is available.
              * Handles payment of one time fixed amount as well
              * as maintainance costs.
              */
-            this.#buildMaintain()
-            const def = JSON.parse(
-                process.env.NEXT_PUBLIC_INCOME_SOURCES
-            ).recreation.availability
-            let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
-            const biodiversityPc = this.#getBiodiversityPc()
-            let availabilityBd = Math.max(
-                0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
-            )
-            const dependency = this.#getIncomeDependency("recreation")
-            this.available = availabilityBd *  dependency
+            const buildMaintainSuccessful = this.#buildMaintain()
+            if (buildMaintainSuccessful) {
+                const def = JSON.parse(
+                    process.env.NEXT_PUBLIC_INCOME_SOURCES
+                ).recreation.availability
+                let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
+                const biodiversityPc = this.#getBiodiversityPc()
+                let availabilityBd = Math.max(
+                    0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
+                )
+                const dependency = this.#getIncomeDependency("recreation")
+                this.available = availabilityBd * dependency
+            } else {
+                this.available = 0
+            }
         }
     }
 
@@ -239,19 +262,25 @@ export class RecreationalActivities extends IncomeSource {
         /**
          * Handles the behaviour and all costs related to building
          * infrastructure as well as maintaining it,
+         * @return: True if there was enough money to build and/or 
+         *          maintain infrastructure and false otherwise.
          */
+        const curFunds = this.#getFunds()
+        const dependency = this.#getIncomeDependency("recreation")
         const costs = JSON.parse(
             process.env.NEXT_PUBLIC_INCOME_SOURCES
         ).recreation.cost
-        const dependency = this.#getIncomeDependency("recreation")
-        
+        const initialCost = costs.initial
+        const maintenanceCost = costs.maintenance * dependency
+        // Build infrastructure if needed.
         if (!this.isBuilt && dependency > 0) {
-            const initialCost = costs.initial
+            if (curFunds < (initialCost + maintenanceCost)) return false
             this.#updateFunds(-1 * initialCost)
             this.isBuilt = true
         }
-        
-        const maintenanceCost = costs.maintenance
-        this.#updateFunds(-1 * maintenanceCost * dependency)
+        // Pay maintenance costs.
+        if (curFunds.lt(maintenanceCost)) return false
+        this.#updateFunds(-1 * maintenanceCost)
+        return true
     }
 }

@@ -227,7 +227,7 @@ const Targets = ({
         targetCO2 != null && 
         targetIncome != null && 
         <div className="
-            grid p-3 grid-rows-3 justify-content-center 
+            grid p-3 grid-rows-2 justify-content-center 
             justify-items-center gap-3
         ">
             <div className="flex gap-5 h-full w-full justify-center items-center">
@@ -271,7 +271,7 @@ const Targets = ({
                     handleVal={(val) => handleVal("income", val)}
                 />
             </div>
-            <Tag 
+            {/* <Tag 
                 width="100%" height="100%"
                 bgColor="#FFFFFF" borderWidth="4px"
                 borderColor={
@@ -285,12 +285,12 @@ const Targets = ({
                     <div>
                         <b>Funds: </b>
                         {`${utils.nFormatter(curFunds.toString(), 1)} > ${
-                            targets.funds.minus(1).toFixed(0).toString()
+                            utils.nFormatter(targets.funds.toString(), 1)
                         }`}
                     </div>
                     <img src="barcon.png" className='h-4 w-auto' />
                 </div>
-            </Tag>
+            </Tag> */}
         </div>
     )
 }

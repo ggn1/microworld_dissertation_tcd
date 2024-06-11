@@ -13,6 +13,7 @@ import Targets from '../components/Targets.jsx'
 import PlanViewer from '../components/PlanViewer.jsx'
 import EmissionsFossilFuels from '../components/EmissionsFossilFuels.jsx'
 import RotationIncomeViewer from '../components/RotationIncomeViewer.jsx'
+import Funds from '../components/Funds.jsx'
 
 export let sim = null
 
@@ -81,7 +82,7 @@ const Home = () => {
     return (
         isInitialized &&
         <div className="w-full p-5 grid grid-cols-12 grid-rows-5 gap-2">
-            <div id="home-targets" className="rounded-xl bg-[#DEEDFF] col-span-4 row-span-2
+            <div id="world-targets" className="rounded-xl bg-[#DEEDFF] col-span-4 row-span-2 
                 place-content-center
             ">
                 <Targets 
@@ -101,24 +102,25 @@ const Home = () => {
                     rotation={curRotation}
                 />
             </div>
-            <div id="home-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3
+            <div id="world-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3
                 place-content-center
             ">
                 <div class="flex w-full h-full items-center justify-center">
-                    <LandPlot content={landContent}/>
+                    <LandPlot content={landContent} bdScore={bdScore} bdCategory={bdCat}/>
                 </div>
             </div>
-            <div id="home-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-6 p-3
+            <div id="world-world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-6 p-3
                 place-content-center
             ">
                 <div className='flex flex-col gap-3'>
+                    <Funds funds={funds}/>
                     <CO2Scale concentration={airCO2}/>
                     <CarbonDist distribution={envC}/>
                     <EmissionsFossilFuels 
                         getFossilFuelEmission={sim.env.getFossilFuelEmission}
                         setFossilFuelEmission={sim.env.setFossilFuelEmission}
                     />
-                    <BdStatus bdScore={bdScore} bdCategory={bdCat}/>
+                    {/* <BdStatus bdScore={bdScore} bdCategory={bdCat}/> */}
                     <PropBar
                         proportions={Object.values(incomeDependency)}
                         colors={Object.values(
@@ -130,7 +132,7 @@ const Home = () => {
                     />
                 </div>
             </div>
-            <div id="home-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-3
+            <div id="world-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-3
                 place-content-center
             ">
                 <PlanViewer 
@@ -139,7 +141,7 @@ const Home = () => {
                     year={time}
                 />
             </div>
-            <div id="home-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2
+            <div id="world-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2
                 place-content-center
             ">
                 <RotationIncomeViewer 
@@ -148,7 +150,7 @@ const Home = () => {
                     rotation={curRotation}
                 />
             </div>
-            <div id="home-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 
+            <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 
                 place-content-center p-3
             ">
                 <Timeline goToTime={sim.goto}/>

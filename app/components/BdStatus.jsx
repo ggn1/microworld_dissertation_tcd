@@ -11,13 +11,13 @@ const BdStatus = ({bdScore, bdCategory}) => {
     return (
         <div>
             <Card bgColor="#FFFFFF" heading="BIODIVERSITY">
-                <div className='flex flex-col justify-between gap-2'>
+                <div className='flex justify-between gap-2'>
                     <div className='flex'>
                         <p className='text-[#6E6E6E] mr-2'>Score:</p> 
                         <p>{bdScore}</p>
                     </div>
                     <div className='flex'>
-                        <p className='text-[#6E6E6E] mr-2'>Land Class:</p> 
+                        <p className='text-[#6E6E6E] mr-2'>Class:</p> 
                         <p>{bdCategory}</p>
                     </div>
                 </div>

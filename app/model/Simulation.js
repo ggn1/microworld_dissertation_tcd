@@ -56,6 +56,13 @@ export default class Simulation {
              */
             this.funds = this.funds.plus(change)
         }
+        this.getFunds = () => {
+            /** 
+             * Returns current bank balance.
+             * @return: Current funds.
+             */
+            return this.funds
+        }
         this.#createFreshWorld()
         this.goto = (time) => {
             /** 
@@ -128,11 +135,14 @@ export default class Simulation {
                 treeLifeStage != "seedling" &&
                 treeLifeStage != "sapling"
             ) { 
-                // Pay the price for felling.
                 const tree = this.env.land.content[pos[0]][pos[1]][0]
                 const fellingCost = this.#mgmtActionCosts.fell * (
                     tree.height/tree.heightMax
                 )
+                // If not enough money to pay for planiting,
+                // then the action cannot be executed.
+                if (this.funds < fellingCost) return 0
+                // Pay the price for felling.
                 this.funds = this.funds.minus(fellingCost)
                 // Fell the tree.
                 const [success, woodHarvested] = this.env.land.fellTree(
@@ -150,6 +160,9 @@ export default class Simulation {
             let pos = this.env.land.getFreeSpaces()
             if (pos.length > 0) { // Suitable spot found.
                 pos = pos[0]
+                // If not enough money to pay for planiting,
+                // then the action cannot be executed.
+                if (this.funds < this.#mgmtActionCosts.plant) return 0
                 // Pay the price for planting.
                 this.funds = this.funds.minus(this.#mgmtActionCosts.plant)
                 // Plant the tree seedling.
@@ -263,13 +276,15 @@ export default class Simulation {
                 "ntfp", this.env.land.getBiodiversityPc, 
                 this.env.land.getDeadWoodPc,
                 this.updateFunds,
-                this.planner.getIncDep
+                this.planner.getIncDep,
+                this.getFunds
             ),
             recreation: new RecreationalActivities(
                 "recreation", 
                 this.env.land.getBiodiversityPc,
                 this.updateFunds,
-                this.planner.getIncDep
+                this.planner.getIncDep,
+                this.getFunds
             )
         }
         this.income = { "total": Big(0) }

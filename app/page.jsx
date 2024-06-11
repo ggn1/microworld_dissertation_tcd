@@ -19,11 +19,11 @@ const LandingPage = () => {
         <div>They say it's been here for at least 500 years.</div>,
         <div>The forest is healthy and fairly large.</div>,
         <div>I'd say it's a good size for first time forest owners like yourself.</div>,
-        <div>Your forest offers a wealth of resources like timber, honey, mushrooms, and berries. You could also build infrastructure that enables recreational activities and entertain visitors.</div>,
+        <div>Your forest offers a wealth of resources like timber, honey, mushrooms, and berries. You could also build infrastructure that enables recreational activities and attracts visitors.</div>,
         <div>I'm sorry to hear about global warming and rapid climate change on Earth.</div>,
         <div>But it's not a bother here; your forest regulates the carbon cycle.</div>,
-        <div>As your mysterious adviser, I've arranged for an interactive map that you can access by pressing the key "H" for "Help" on the keyboard. It'll walk you through the lay of the land and all what you can do.</div>,
-        <div>Once you're ready, just press the key "W" for "World" to delve right in.</div>,
+        <div>As your mysterious adviser, I've arranged for help. An iteractive map will manifest when you press "H" on your keyboard. It'll walk you through the lay of the land and all what you can do here.</div>,
+        <div>When you're ready, just press "W" to delve into the world.</div>,
         <div>Explore away!</div>
     ]
 
@@ -106,7 +106,7 @@ const LandingPage = () => {
                         </Fade>
                     }
                     {contentIdx == contentList.length - 1 && 
-                        <div className='absolute h-full w-full flex justify-center items-center brightness-50 pt-20'>
+                        <div className='absolute h-full w-full flex justify-center items-center brightness-50 pt-20 z-0'>
                             <Fade trigger={contentIdx == contentList.length - 1}>
                                 <img src="reset.png" className='h-5 invert w-auto hover:scale-125' onClick={() => setContentIdx(0)}/>
                             </Fade>
@@ -115,14 +115,14 @@ const LandingPage = () => {
                 </div>
                 {/* Navigation*/}
                 <div 
-                    className="my-5 select-none flex justify-center w-full" 
+                    className="my-5 select-none flex justify-center w-full z-10" 
                     style={{opacity: started ? "100%" : "0%"}}
                 >
                     { started && <div className="select-none flex gap-10 justify-center w-full">
                         <a
                             className="select-none"
                             data-tooltip-id="tooltip-keypress-h"
-                            data-tooltip-content="Press Key H"
+                            data-tooltip-content="Press H"
                             data-tooltip-place="top"
                         >
                             <b className="hover:brightness-200 text-green-800 select-none">
@@ -133,7 +133,7 @@ const LandingPage = () => {
                         <a
                             className="select-none"
                             data-tooltip-id="tooltip-keypress-w"
-                            data-tooltip-content="Press Key W"
+                            data-tooltip-content="Press W"
                             data-tooltip-place="top"
                         >
                             <b className="hover:brightness-150 text-blue-900 select-none">

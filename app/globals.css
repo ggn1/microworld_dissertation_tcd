@@ -17,7 +17,7 @@ div {
         text-shadow: 0 0 0px rgba(255, 255, 255, 0.0);
     }
     50% { 
-        letter-spacing: 0.4em;
+        letter-spacing: 0.5em;
         text-shadow: 0 0 8px rgba(255, 255, 255, 1.0);
     }
     100% { 

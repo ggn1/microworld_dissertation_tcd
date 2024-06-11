@@ -97,20 +97,22 @@ const LandingPage = () => {
                 > mycroforest </div>
                 {/* Dialogue */}
                 <div 
-                    className="flex justify-center items-center text-[20px] select-none w-2/4"
+                    className='flex justify-center items-center text-[20px] select-none w-2/4'
                     style={{height: started ? "100%" : "0%"}}
-                >{started && 
-                    <Fade trigger={dialogueTrigger}>
-                        <div className='text-[25px] *:text-[#888888] *:hover:brightness-150 *:text-center' onClick={updateContentIdx}>{dialogue}</div>
-                    </Fade>
-                }</div>
-                {contentIdx == contentList.length - 1 && 
-                    <div className='absolute h-full w-full flex justify-center items-center brightness-50 pt-20'>
-                        <Fade trigger={contentIdx == contentList.length - 1}>
-                            <img src="reset.png" className='h-5 invert w-auto hover:scale-125' onClick={() => setContentIdx(0)}/>
+                >
+                    {started && 
+                        <Fade trigger={dialogueTrigger}>
+                            <div className='text-[25px] *:text-[#888888] *:hover:brightness-150 *:text-center' onClick={updateContentIdx}>{dialogue}</div>
                         </Fade>
-                    </div>
-                }
+                    }
+                    {contentIdx == contentList.length - 1 && 
+                        <div className='absolute h-full w-full flex justify-center items-center brightness-50 pt-20'>
+                            <Fade trigger={contentIdx == contentList.length - 1}>
+                                <img src="reset.png" className='h-5 invert w-auto hover:scale-125' onClick={() => setContentIdx(0)}/>
+                            </Fade>
+                        </div>
+                    }
+                </div>
                 {/* Navigation*/}
                 <div 
                     className="my-5 select-none flex justify-center w-full" 

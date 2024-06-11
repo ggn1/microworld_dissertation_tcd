@@ -33,6 +33,7 @@ const Home = () => {
     const [rotationIncome, setRotationIncome] = useState({})
     const [plan, setPlan] = useState({})
     const [time, setTime] = useState(0)
+    const [pauseTrigger, setPauseTrigger] = useState(0)
 
     const router = useRouter()
 
@@ -139,6 +140,7 @@ const Home = () => {
                     rotationPeriod={rotationPeriod} 
                     plan={plan} 
                     year={time}
+                    pauseWorld={() => setPauseTrigger(prevVal => 1 - prevVal)}
                 />
             </div>
             <div id="world-sales" className="rounded-xl bg-[#FFECFB] col-span-5 row-span-2
@@ -152,9 +154,7 @@ const Home = () => {
             </div>
             <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 
                 place-content-center p-3
-            ">
-                <Timeline goToTime={sim.goto}/>
-            </div>
+            "><Timeline goToTime={sim.goto} triggerPause={pauseTrigger}/></div>
         </div>
     )
 }

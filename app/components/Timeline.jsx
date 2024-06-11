@@ -10,13 +10,15 @@ let newTime = validRange[0]
 const delay = JSON.parse(process.env.NEXT_PUBLIC_SIMULATION_DELAY)
 let interval = null
 
-const Timeline = ({goToTime}) => {
+const Timeline = ({goToTime, triggerPause}) => {
     /**
      * Displays a timeline of given time range such that 
      * time is displayed a window at a time. One may 
      * move from one time window to another.
      * @param goToTime: Function that facilitates going to a certain point
      *                  in time w.r.t the simulation.
+     * @param triggerPause: A flag that can be changed to 
+     *                      trigger pausing of the world.
      * @return: UI component.
      */
 
@@ -157,6 +159,11 @@ const Timeline = ({goToTime}) => {
             goToTime(curTime)
         }
     }, [])
+
+    useEffect(() => {
+        /** Pause the simulation. */
+        pause()
+    }, [triggerPause])
 
     return (
         <div className="timeline p-2 h-full w-full flex gap-3 justify-center items-center">

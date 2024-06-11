@@ -1,13 +1,19 @@
 "use client"
 
-import Link from "next/link"
+// import Link from "next/link"
 import Button from "./Button"
 import { useEffect, useState } from "react"
+import { useRouter } from 'next/navigation'
 
-const PlanViewer = ({year, rotationPeriod, plan}) => {
+const PlanViewer = ({year, rotationPeriod, plan, pauseWorld}) => {
     /**
      * Component displays most recently executed and
      * upcoming forest management plans with corresponding years.
+     * @param year: The current year.
+     * @param rotationPeriod: Current rotation period.
+     * @param plan: Latest plan.
+     * @param pauseWorld: Function that can be called to pause  
+     *                    a running simulation.
      */
 
     const colorBad = "#F44A4A"
@@ -24,6 +30,8 @@ const PlanViewer = ({year, rotationPeriod, plan}) => {
     const [idxUpcoming, setIdxUpcoming] = useState(-1)
     const [pastActionTags, setPastActionTags] = useState([])
     const [upcomingActionTags, setUpcomingActionTags] = useState([])
+
+    const router = useRouter()
 
     const updateIndices = () => {
         /**
@@ -117,11 +125,13 @@ const PlanViewer = ({year, rotationPeriod, plan}) => {
                 <div className="flex flex-col justisy-between gap-1">
                     <b>{rotationPeriod} Year Rotation Period</b>
                 </div>
-                <Link href={"/planner"}>
-                    <Button bgColor="#08851C" outlineColor="#2D9C23" fgColor="#FFFFFF">
-                        PLAN
-                    </Button>
-                </Link>
+                <Button 
+                    bgColor="#08851C" outlineColor="#2D9C23" 
+                    fgColor="#FFFFFF" onClick={() => {
+                        pauseWorld()
+                        router.push("/planner")
+                    }}
+                > PLAN </Button>
             </div>
             {/* PREVIOUS & UPCOMING PLANS */}
             <div className="

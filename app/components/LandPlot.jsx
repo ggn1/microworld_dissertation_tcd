@@ -143,18 +143,18 @@ const LandPlot = ({content, bdScore, bdCategory}) => {
 
     return (
         <div>
-            <div className="pb-2 pt-1">
-                <svg style={{height:"350px", width:"400px"}} ref={refSvg}></svg>
-            </div>
             <div className='flex justify-between gap-2'>
                 <div className='flex'>
-                    <p className='text-[#6E6E6E] mr-2'>Biodiversity Score:</p> 
-                    <p>{bdScore}</p>
-                </div>
-                <div className='flex'>
-                    <p className='text-[#6E6E6E] mr-2'>Land Class:</p> 
+                    <p className='text-[#6E6E6E] mr-2'>Class:</p> 
                     <p>{bdCategory}</p>
                 </div>
+                <div className='flex'>
+                    <p className='text-[#6E6E6E] mr-2'>Biodiversity:</p> 
+                    <p>{bdScore}</p>
+                </div>
+            </div>
+            <div className="pt-2">
+                <svg style={{height:"350px", width:"400px"}} ref={refSvg}></svg>
             </div>
         </div>
     )

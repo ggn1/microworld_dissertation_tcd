@@ -7,16 +7,15 @@ import Timeline from '../components/Timeline.jsx'
 import LandPlot from "../components/LandPlot.jsx"
 import CO2Scale from "../components/CO2Scale.jsx"
 import CarbonDist from "../components/CarbonDist.jsx"
-import BdStatus from '../components/BdStatus.jsx'
 import PropBar from '../components/PropBar.jsx'
 import Targets from '../components/Targets.jsx'
 import PlanViewer from '../components/PlanViewer.jsx'
 import EmissionsFossilFuels from '../components/EmissionsFossilFuels.jsx'
 import RotationIncomeViewer from '../components/RotationIncomeViewer.jsx'
 import Funds from '../components/Funds.jsx'
-import Veil from '../components/Veil.jsx'
 
 export let sim = null
+export let challenge = 0
 
 const Home = () => {
     const [isInitialized, setIsInitialized] = useState(false)
@@ -36,10 +35,11 @@ const Home = () => {
     const [time, setTime] = useState(0)
     const [pauseTrigger, setPauseTrigger] = useState(0)
 
-    // Component Visilibility
+    // Component Visilibility For Challenges
+    const [curChallenge, setCurChallenge] = useState(challenge)
     const [showCO2Target, setShowCO2Target] = useState(true)
     const [showIncomeTarget, setShowIncomeTarget] = useState(true)
-    const [showScaleCO2, setShowScaleCO2] = useState(true)
+    const [showCO2Scale, setShowCO2Scale] = useState(true)
     const [showPanelC, setShowPanelC] = useState(true)
     const [showPanelFF, setShowPanelFF] = useState(true)
     const [showIncDepPanel, setShowIncDepPanel] = useState(true)
@@ -72,10 +72,41 @@ const Home = () => {
 
     const detectKeyDown = (e) => {
         /** 
-         * Function that receives a keypress event.
+         * Function that receives a keypress event,
+         * and has different behavior depending on 
+         * keys pressed.
          */
-        if (e.key === "h" || e.key === "H") router.push('/help')
-        else if (e.key === "Escape") router.push('/')
+        if (e.ctrlKey && e.altKey) {
+            switch (e.key) {
+                case "0": // Ctrl + 0 => No Challenge
+                    setCurChallenge(0)
+                    break
+                case "1": // Ctrl + 1 => Challenge 1
+                    setCurChallenge(1)
+                    break
+                case "2": // Ctrl + 2 => Challenge 2
+                    setCurChallenge(2)
+                    break
+                case "3": // Ctrl + 3 => Challenge 3
+                    setCurChallenge(3)
+                    break
+                case "4": // Ctrl + 4 => Challenge 4
+                    setCurChallenge(4)
+                    break
+                case "5": // Ctrl + 5 => Challenge 5
+                    setCurChallenge(5)
+                    break
+                default:
+                    break
+            }
+        } else {
+            if (e.key === "h" || e.key === "H") { // H => Help page.
+                router.push('/help')
+            }
+            else if (e.key === "Escape") { // Esc => Landing page.s
+                router.push('/')
+            }
+        }
     }
 
     useEffect(() => {
@@ -90,6 +121,66 @@ const Home = () => {
         setIsInitialized(true)
         document.addEventListener('keydown', detectKeyDown, true)
     }, [])
+
+    useEffect(() => {
+        console.log(`World configured for challenge ${curChallenge}.`)
+        challenge = curChallenge
+        if (challenge == 0) { // Full Features
+            setShowCO2Target(true)
+            setShowCO2Scale(true)
+            setShowPanelC(true)
+            setShowPanelFF(true)
+            setShowIncDepPanel(true)
+            setShowBiodiversity(true)
+            setShowIncomeTarget(true)
+            setShowRotIncPanel(true)
+        } else if (challenge == 1) { // Challenge 1
+            setShowCO2Target(false)
+            setShowCO2Scale(false)
+            setShowPanelC(false)
+            setShowPanelFF(false)
+            setShowIncDepPanel(false)
+            setShowBiodiversity(false)
+            setShowIncomeTarget(true)
+            setShowRotIncPanel(true)
+        } else if (challenge == 2) { // Challenge 2
+            setShowCO2Target(true)
+            setShowCO2Scale(true)
+            setShowPanelC(false)
+            setShowPanelFF(false)
+            setShowIncDepPanel(false)
+            setShowBiodiversity(false)
+            setShowIncomeTarget(false)
+            setShowRotIncPanel(false)
+        } else if (challenge == 3) { // Challenge 3
+            setShowCO2Target(true)
+            setShowCO2Scale(true)
+            setShowPanelC(false)
+            setShowPanelFF(false)
+            setShowIncDepPanel(false)
+            setShowBiodiversity(false)
+            setShowIncomeTarget(true)
+            setShowRotIncPanel(true)
+        } else if (challenge == 4) { // Challenge 4
+            setShowCO2Target(true)
+            setShowCO2Scale(true)
+            setShowPanelC(false)
+            setShowPanelFF(true)
+            setShowIncDepPanel(false)
+            setShowBiodiversity(true)
+            setShowIncomeTarget(true)
+            setShowRotIncPanel(true)
+        } else if (challenge == 5) { // Challenge 5
+            setShowCO2Target(true)
+            setShowCO2Scale(true)
+            setShowPanelC(false)
+            setShowPanelFF(true)
+            setShowIncDepPanel(true)
+            setShowBiodiversity(true)
+            setShowIncomeTarget(true)
+            setShowRotIncPanel(true)
+        }
+    }, [curChallenge])
     
     return (
         isInitialized &&
@@ -125,7 +216,7 @@ const Home = () => {
             <div id="world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-6 p-3">
                 <div className='*:mb-3'>
                     <Funds funds={funds}/>
-                    {showScaleCO2 &&<CO2Scale concentration={airCO2}/>}
+                    {showCO2Scale &&<CO2Scale concentration={airCO2}/>}
                     {showPanelC && <CarbonDist distribution={envC}/>}
                     {showPanelFF && <EmissionsFossilFuels 
                         getFossilFuelEmission={sim.env.getFossilFuelEmission}

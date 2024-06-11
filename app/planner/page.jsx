@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { sim } from "../world/page.jsx"
+import { sim, challenge } from "../world/page.jsx"
 import { saveAs } from 'file-saver'
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -27,8 +27,8 @@ const Planner = () => {
     const [planRefreshTrigger, setPlanRefreshTrigger] = useState(0)
     const [incDepRefreshTrigger, setIncDepRefreshTrigger] = useState(0)
 
-    // Component Visilibility
-    const [showIncDep, setShowIncDep] = useState(true)
+    // Component Challenge Wise Visilibility
+    const [showIncDep, setShowIncDep] = useState(challenge == 0 || challenge == 5)
 
     const handleSave = () => {
         /** 

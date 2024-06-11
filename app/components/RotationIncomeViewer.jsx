@@ -1,16 +1,26 @@
 "use state"
 
-import { useState, useEffect } from "react"
 import * as utils from '../utils.js'
+import { Tooltip } from 'react-tooltip'
+import { useState, useEffect } from "react"
 
-const RotationIncomeViewer = ({targets, income, rotation}) => {
+const RotationIncomeViewer = ({targets, income, dependency, rotation}) => {
     /** 
      * This component displays income targets as
      * well as current values per rotation.
+     * @param targets: An object mapping current rotation target income 
+     *                 from each income stream.
+     * @param income: Latest income from each stream in an object.
+     * @param dependency: An object with latest dependency associated with
+     *                    each income stream.
+     * @param rotation: Current rotation number.
      */
 
     const colorGood = "#32BE51"
     const colorDefault = "#FFFFFF"
+    const incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
+
+    const [resourceData, setResourceData] = useState([])
 
     const getResourceValues = () => {
         /**
@@ -20,40 +30,47 @@ const RotationIncomeViewer = ({targets, income, rotation}) => {
          */
         let resourceData = []
         for (const resource of Object.keys(incomeSources)) {
-            resourceData.push(
-                <div 
-                    className="
-                        flex flex-col rounded-lg p-1 
-                        bg-[#FFFFFF] items-center border-4 px-3
-                    " style={{
-                        borderColor: income[resource].lt(targets[resource])
-                                     ? colorDefault : colorGood
-                    }}
-                >
-                    <img src={incomeSources[resource].image} className="h-12 w-auto"/>
-                    <div>
-                        <div className="flex gap-1 justify-center items-center">
-                            <img src="barcon.png" className="h-4 r-auto"/>
-                            <div>{utils.nFormatter(
-                                income[resource].toFixed(2).toString()
-                            , 1)}</div>
-                        </div>
-                        <div className="bg-[#232323] h-[1px] rounded-full w-full"></div>
-                        <div className="flex gap-1 justify-center items-center">
-                            <img src="barcon.png" className="h-4 r-auto"/>
-                            <div>{utils.nFormatter(
-                                targets[resource].toFixed(2).toString()
-                            , 1)}</div>
+            if (dependency[resource] > 0) {
+                resourceData.push(
+                    <div 
+                        className="
+                            flex flex-col rounded-lg p-1 
+                            bg-[#FFFFFF] items-center border-4 px-3
+                        "
+                        style={{
+                            borderColor: income[resource].lt(targets[resource])
+                                         ? colorDefault : colorGood
+                        }}
+                    >
+                        <img 
+                            src={incomeSources[resource].image} 
+                            className="h-12 w-auto hover:scale-110"
+                            data-tooltip-id={`tooltip-${resource}`}
+                            data-tooltip-content={incomeSources[resource].label}
+                            data-tooltip-place="left"
+                        />
+                        <Tooltip id={`tooltip-${resource}`}/>
+                        <div>
+                            <div className="flex gap-1 justify-center items-center">
+                                <img src="barcon.png" className="h-4 r-auto"/>
+                                <div>{utils.nFormatter(
+                                    income[resource].toFixed(2).toString()
+                                , 1)}</div>
+                            </div>
+                            <div className="bg-[#232323] h-[1px] rounded-full w-full"></div>
+                            <div className="flex gap-1 justify-center items-center">
+                                <img src="barcon.png" className="h-4 r-auto"/>
+                                <div>{utils.nFormatter(
+                                    targets[resource].toFixed(2).toString()
+                                , 1)}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )
+                )
+            }
         }
         return resourceData
     }
-
-    const incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
-    const [resourceData, setResourceData] = useState([])
 
     useEffect(() => {
         Object.keys(targets).length > 0 && 

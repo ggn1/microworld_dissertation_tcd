@@ -21,7 +21,8 @@ const Targets = ({
     setTargets, getTargets,
     curCO2, curIncome, curFunds,
     updateTargetIncome, updateIncTargetsUI,
-    year, rotationPeriod, rotation
+    year, rotationPeriod, rotation,
+    showCO2=true, showIncome=true
 }) => {
     /**
      * This component both displays targets and allows 
@@ -47,6 +48,8 @@ const Targets = ({
      * @param year: Current year.
      * @param rotationPeriod: Current rotation period.
      * @param rotation: This rotation.
+     * @param showCO2: Whether to show the CO2 target.
+     * @param showIncome: Whether to show the CO2 target
      */
 
     const colorTextDefault = "#888888"
@@ -66,6 +69,8 @@ const Targets = ({
     const [isTargetMetCO2, setIsTargetMetCO2] = useState(0)
     const [isTargetMetIncome, setIsTargetMetIncome] = useState(0)
     const [isTargetMetFunds, setIsTargetMetFunds] = useState(0)
+    const [showCO2Target, setShowCO2Target] = useState(showCO2)
+    const [showIncomeTarget, setShowIncomeTarget] = useState(showIncome)
 
     const isTargetMet = (targetType, target) => {
         /** 
@@ -223,15 +228,20 @@ const Targets = ({
         setCurRotationPeriod(rotationPeriod)
     }, [rotationPeriod])
 
+    useEffect(() => {
+        setShowCO2Target(showCO2)
+    }, [showCO2])
+
+    useEffect(() => {
+        setShowIncomeTarget(showIncome)
+    }, [showIncome])
+
     return (
-        targetCO2 != null && 
-        targetIncome != null && 
-        <div className="
-            grid p-3 grid-rows-2 justify-content-center 
-            justify-items-center gap-3
-        ">
+        targetCO2 != null && targetIncome != null && 
+        <div className="flex flex-col p-3 justify-content-center items-center gap-3">
+            {/* HEADING & SWITCH */}
             <div className="flex gap-5 h-full w-full justify-center items-center">
-                <div className="font-bold">TARGETS</div>
+                <div className="font-bold">TARGET</div>
                 <Switch 
                     isOnStart={!expMode} 
                     onToggle={handleExpModeToggle}
@@ -239,8 +249,9 @@ const Targets = ({
                     offColor="#6E6E6E"
                 />
             </div>
-            <div>
-                <TextInput 
+            {/* CO2 TARGET */}
+            <div style={{height: showCO2Target ? "auto" : "0px"}}>
+                {showCO2Target && <TextInput 
                     label="CO2 <="
                     placeholder={targetCO2}
                     borderColor={
@@ -253,8 +264,10 @@ const Targets = ({
                     unit="ppm"
                     sanityCheck={sanityCheckNumeric} 
                     handleVal={(val) => handleVal("co2", val)}
-                />
+                    hide={!showCO2Target}
+                />}
             </div>
+            {/* INCOME */}
             <div>
                 <TextInput 
                     label="Rotation Income >="

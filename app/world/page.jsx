@@ -35,6 +35,10 @@ const Home = () => {
     const [time, setTime] = useState(0)
     const [pauseTrigger, setPauseTrigger] = useState(0)
 
+    // Component Visilibility
+    const [showCO2Target, setShowCO2Target] = useState(true)
+    const [showIncomeTarget, setShowIncomeTarget] = useState(true)
+
     const router = useRouter()
 
     const updateSimUI = () => {
@@ -101,6 +105,8 @@ const Home = () => {
                     year={time}
                     rotationPeriod={rotationPeriod}
                     rotation={curRotation}
+                    showCO2={showCO2Target}
+                    showIncome={showIncomeTarget}
                 />
             </div>
             <div id="world-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-4 p-3
@@ -150,6 +156,7 @@ const Home = () => {
                     targets={rotationIncomeTargets} 
                     income={rotationIncome}
                     rotation={curRotation}
+                    dependency={incomeDependency}
                 />
             </div>
             <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 

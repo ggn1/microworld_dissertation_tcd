@@ -1,13 +1,31 @@
 "use client"
 
+import Fade from './components/Fade'
 import { Tooltip } from 'react-tooltip'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from "react"
 
 const LandingPage = () => {
-
+    
     const [started, setStarted] = useState(false)
-    const [dialogue, setDialogue] = ""
+    const [contentIdx, setContentIdx] = useState(0)
+    const [dialogue, setDialogue] = useState("")
+    const [dialogueTrigger, setDialogueTrigger] = useState(true)
+
+    const contentList = [
+        <div>Hi</div>,
+        <div>I've been expecting you.</div>,
+        <div>You've chosen well.</div>,
+        <div>They say it's been here for at least 500 years.</div>,
+        <div>The forest is healthy and fairly large.</div>,
+        <div>I'd say it's a good size for first time forest owners like yourself.</div>,
+        <div>Your forest offers a wealth of resources like timber, honey, mushrooms, and berries. You could also build infrastructure that enables recreational activities and entertain visitors.</div>,
+        <div>I'm sorry to hear about global warming and rapid climate change on Earth.</div>,
+        <div>But it's not a bother here; your forest regulates the carbon cycle.</div>,
+        <div>As your mysterious adviser, I've arranged for an interactive map that you can access by pressing the key "H" for "Help" on the keyboard. It'll walk you through the lay of the land and all what you can do.</div>,
+        <div>Once you're ready, just press the key "W" for "World" to delve right in.</div>,
+        <div>Explore away!</div>
+    ]
 
     const router = useRouter()
 
@@ -19,6 +37,17 @@ const LandingPage = () => {
         else if (e.key === "h" || e.key === "H") router.push('/help')
     }
 
+    const updateContentIdx = () => {
+        /**
+         * Moves to next content chunk.
+         */
+        let newContentIdx = contentIdx + 1
+        if (newContentIdx >= contentList.length) {
+            newContentIdx = contentList.length - 1
+        }
+        setContentIdx(newContentIdx)
+    }
+
     useEffect(() => {
         var pos = document.documentElement;
         pos.addEventListener('mousemove', e => {
@@ -28,31 +57,60 @@ const LandingPage = () => {
         document.addEventListener('keydown', detectKeyDown, true)
     }, [])
 
+    useEffect(() => {
+        !started && setContentIdx(0)
+    }, [started])
+
+    useEffect(() => {
+        setDialogueTrigger(prevVal => 1 - prevVal)
+    }, [contentIdx])
+
+    useEffect(() => {
+        console.log()
+        setTimeout(() => {
+            setDialogue(contentList[contentIdx])
+        }, 1000)
+    }, [dialogueTrigger])
+
     return (
         <main 
             className="h-screen w-screen pt-5 pb-12 bg-[#121212]" 
-            onDoubleClick={() => setStarted(prevVal => !prevVal)}
+            onDoubleClick={() => {
+                setStarted(prevVal => !prevVal)
+            }}
         >
             {/* Light */}
             {!started && <div className="light z-10"></div>}
+            {/* Instruction */}
             {!started && <div className="
                 text-xs text-[#222222] select-none 
                 itallic font-bold tracking-[0.5em] flex justify-center
             ">
                 DOUBLE CLICK
             </div>}
+            {/* Main Content */}
             <div className="flex flex-col justify-center items-center w-full h-full">
                 {/* Title */}
                 <div 
                     className="select-none text-[32px] breathing my-3"
                     style={{color: started ? "#FFFFFF" : "#121212"}}
-                > mycro forest </div>
+                > mycroforest </div>
                 {/* Dialogue */}
                 <div 
-                    className="text-white text-[20px] select-none"
+                    className="flex justify-center items-center text-[20px] select-none w-2/4"
                     style={{height: started ? "100%" : "0%"}}
-                >{dialogue}
-                </div>
+                >{started && 
+                    <Fade trigger={dialogueTrigger}>
+                        <div className='text-[25px] *:text-[#888888] *:hover:brightness-150 *:text-center' onClick={updateContentIdx}>{dialogue}</div>
+                    </Fade>
+                }</div>
+                {contentIdx == contentList.length - 1 && 
+                    <div className='absolute h-full w-full flex justify-center items-center brightness-50 pt-20'>
+                        <Fade trigger={contentIdx == contentList.length - 1}>
+                            <img src="reset.png" className='h-5 invert w-auto hover:scale-125' onClick={() => setContentIdx(0)}/>
+                        </Fade>
+                    </div>
+                }
                 {/* Navigation*/}
                 <div 
                     className="my-5 select-none flex justify-center w-full" 

@@ -12,25 +12,22 @@ div {
 
 /* Breating Animation */
 @keyframes animBreathing {
-    0% { 
-        transform: scale(0.95); 
-        letter-spacing: 0.5em;
+    0% {
+        letter-spacing: 0.3em;
         text-shadow: 0 0 0px rgba(255, 255, 255, 0.0);
     }
     50% { 
-        transform: scale(1.0); 
-        letter-spacing: 0.9em;
+        letter-spacing: 0.4em;
         text-shadow: 0 0 8px rgba(255, 255, 255, 1.0);
     }
     100% { 
-        transform: scale(0.95); 
-        letter-spacing: 0.5em;
+        letter-spacing: 0.3em;
         text-shadow: 0 0 0px rgba(255, 255, 255, 0.0)
     }
 }
 
 .breathing {
-    animation: animBreathing 8s infinite ease-in-out;
+    animation: animBreathing 10s infinite ease-in-out;
 }
 
 .light {
@@ -45,4 +42,14 @@ div {
         transparent 10%, 
         rgba(0,0,0,0.9) 20%
     );
+}
+
+.fade-in {
+    transition: opacity 1s ease, filter 1s ease;
+}
+
+.fade-out {
+    opacity: 0;
+    filter: blur(2px);
+    transition: opacity 1s ease, filter 1s ease;
 }

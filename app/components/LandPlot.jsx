@@ -75,8 +75,8 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
             left: 15, right: 0,
             top: 5, bottom: 0
         }
-        widthPlot = widthSvg - margins.left - margins.right;
-        heightPlot = heightSvg - margins.top - margins.bottom;
+        widthPlot = widthSvg - margins.left - margins.right
+        heightPlot = heightSvg - margins.top - margins.bottom
 
         // Group that contains the whole plot.
         gPlot = svg.selectAll('.group-plot')
@@ -85,7 +85,7 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
                     .attr('class', 'group-plot')
                     .attr('width', widthPlot)
                     .attr('height', heightPlot)
-                    .attr('transform', `translate(${margins.left}, ${margins.top})`);
+                    .attr('transform', `translate(${margins.left}, ${margins.top})`)
 
         // Define groups that shall contain the x and y axes of this scatter plot.
         gXAxis = gPlot.selectAll('.group-x-axis')
@@ -114,7 +114,7 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
         gContent = gPlot.selectAll('.group-land-content')
                         .data(['g'])
                         .join('g')
-                        .attr('class', 'group-land-content');
+                        .attr('class', 'group-land-content')
     }, [])
 
     useEffect(() => {

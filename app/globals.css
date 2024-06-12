@@ -53,3 +53,14 @@ div {
     filter: blur(2px);
     transition: opacity 1s ease, filter 1s ease;
 }
+
+.node {
+    fill: #ccc;
+    stroke: #fff;
+    stroke-width: 2px;
+}
+
+.link {
+    stroke: #777;
+    stroke-width: 2px;
+}

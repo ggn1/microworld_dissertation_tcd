@@ -22,7 +22,7 @@ const LandingPage = () => {
         <div>Your forest offers a wealth of resources like timber, honey, mushrooms, and berries. You could also build infrastructure that enables recreational activities and attracts visitors.</div>,
         <div>I'm sorry to hear about global warming and rapid climate change on Earth.</div>,
         <div>But it's not a bother here; your forest regulates the carbon cycle.</div>,
-        <div>As your mysterious adviser, I've arranged for help. An iteractive map will manifest when you press "H" on your keyboard. It'll walk you through the lay of the land and all what you can do here.</div>,
+        <div>As your mysterious adviser, I've arranged for help. An interactive map will manifest when you press "H" on your keyboard. It'll walk you through the lay of the land and all what you can do here.</div>,
         <div>When you're ready, just press "W" to delve into the world.</div>,
         <div>Explore away!</div>
     ]

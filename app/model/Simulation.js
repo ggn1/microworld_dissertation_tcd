@@ -411,5 +411,14 @@ export default class Simulation {
         this.#generateIncome()
         this.updateSimUI()
         this.#recordData()
+        // // DEBUG
+        // const co2_ppm = this.#runData.map(d => Number(d.co2_ppm))
+        // const co2_ppm_min = Math.min(...co2_ppm)
+        // const co2_ppm_max = Math.max(...co2_ppm)
+        // console.log(
+        //     "Min CO2 PPM =", co2_ppm_min,
+        //     "Max CO2 PPM =", co2_ppm_max,
+        //     "Range =", co2_ppm_max - co2_ppm_min
+        // )
     }
 }

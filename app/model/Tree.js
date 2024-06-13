@@ -1,5 +1,4 @@
 import Big from 'big.js'
-import { max } from 'd3'
 import * as utils from '../utils.js'
 import Tolerance from "./Tolerance.js"
 
@@ -40,24 +39,29 @@ export default class Tree {
         this.height = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_START_SEEDLING)
         this.diameter = this.#getDiameterFromHeight(this.height)
         this.stress = 0
+        this.seed = false
+        this.stressEnv = 0 // DEBUG
+        this.stressAge = 0 // DEBUG
         this.age = 0 // years
-        this.reproduction = true // Reproduction enabled. Disabled for initialization.
+        this.reproduction = true // DEBUG
         this.#getBiodiversityCategory = getBiodiversityCategory
         this.#updateCarbon = updateCarbon
         this.#isLandFree = isLandFree
         this.#plantTree = plantTree
         this.#getAirCO2ppm = getAirCO2ppm
+        this.airCO2ppm = getAirCO2ppm() // DEBUG
         this.lifeStage = "seedling"
-        this.#volumeDecay = -1 // Initially unknown
         this.#lifeStages = JSON.parse(process.env.NEXT_PUBLIC_LIFE_STAGE_TREE)[this.treeType]
         this.heightMax = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_MAX)[this.treeType]
         this.diameterMax = this.#getDiameterFromHeight(this.heightMax)
+        this.#volumeDecay = -1
         this.ageMax = this.#lifeStages.senescent
         this.reproductionInterval = JSON.parse(
             process.env.NEXT_PUBLIC_REPRODUCTION_INTERVAL
         )[this.treeType]
         this.woodDensity = JSON.parse(process.env.NEXT_PUBLIC_WOOD_DENSITY)[this.treeType]
-        this.ghMax = JSON.parse(process.env.NEXT_PUBLIC_GROWTH_HEIGHT_MAX)[this.treeType]
+        this.ghMax = this.heightMax/(this.#lifeStages.old_growth+1)
+        this.gdMax = this.diameterMax/(this.#lifeStages.old_growth+1)
         const toleranceCO2 = JSON.parse(process.env.NEXT_PUBLIC_TOLERANCE_CO2)
         this.tolerance = {"co2": {
             "mature": new Tolerance(toleranceCO2.mature),
@@ -73,7 +77,7 @@ export default class Tree {
              *                changed (in either positive or negative
              *                directions).
              */
-            this.stress += change
+            this.stress = min(1, this.stress + change)
             this.lifeStage = this.#computeLifeStage()
         }
         this.updateHeight = (change) => {
@@ -124,7 +128,55 @@ export default class Tree {
          *  @param height: Height of the tree in meters.
          *  @return: Diameter of the tree in meters.
         */
-        return height ** (3/2)
+        return (height ** (3/2)) / 100
+    }
+
+    #getStressEnv() {
+        /**
+         * Computes and returns stress due to environmental 
+         * conditions.
+         * @return: Stress due to current environment.
+         */
+        let stressEnv = 0
+        const availabilityCO2 = this.#getAirCO2ppm()
+        this.airCO2ppm = availabilityCO2 // DEBUG
+        const stressLifestage = (
+            this.lifeStage == "seedling" || 
+            this.lifeStage == "sapling"
+        ) ? "premature" : "mature"
+        stressEnv += this.tolerance.co2[stressLifestage].getStress(availabilityCO2)
+        return stressEnv
+    }
+
+    #getStressAge() {
+        /**
+         * Computes and returns age related stress.
+         */
+        let stressAge = 0
+        // If this tree has crossed max age, then stess is 100%.
+        if (this.age > this.ageMax) stressAge = 1.0
+        // Upon reaching the senescence stage, stress increases by 
+        // x amount every year. This models how health declines slowly 
+        // when a tree is old and close to death.
+        if (this.lifeStage == 'senescent') stressAge += JSON.parse(
+            process.env.NEXT_PUBLIC_STRESS_AGING
+        )
+        return stressAge
+    }
+
+    #recover() {
+        /**
+         * Models how when conditions are ideal, healthy plants
+         * recover from past stress. By how much they recover, 
+         * depends on their remaining health.
+         */
+        const stressEnv = this.#getStressEnv()
+        if (stressEnv <= JSON.parse(process.env.NEXT_PUBLIC_STRESS_ENV_THRESHOLD)){ 
+            const health = (1 - this.stress)
+            this.stress = Math.max(0, this.stress - (JSON.parse(
+                process.env.NEXT_PUBLIC_STRESS_RECOVERY_FACTOR
+            ) * health))
+        } 
     }
 
     #updateStress() {
@@ -134,41 +186,16 @@ export default class Tree {
          * or due to aging.
         */
 
-        let stressAge = 0
-
-        // If this tree has reached max age, then stess is 100%.
-        if (this.age > this.ageMax) stressAge = 1.0
-
-        // Upon reaching the senescence stage, stress increases by 
-        // x amount every year. This models how health declines slowly 
-        // when a tree is old and close to death.
-        if (this.lifeStage == 'senescent') stressAge += JSON.parse(
-            process.env.NEXT_PUBLIC_STRESS_AGING
-        )
+        // AGE RELATED STRESS
+        const stressAge = this.#getStressAge()
+        this.stressAge = stressAge // DEBUG
         
-        // Stress also arises when environmental conditions are less than ideal.
-        let stressEnv = 0
-
-        // Get stress due to availability of CO2 in the air.
-        const availabilityCO2 = this.#getAirCO2ppm()
-        const stressLifestage = (
-            this.lifeStage == "seedling" || 
-            this.lifeStage == "sapling"
-        ) ? "premature" : "mature"
-        stressEnv += this.tolerance.co2[stressLifestage].getStress(availabilityCO2)
-
-        // If conditions are ideal, recover from past stress.
-        if (stressEnv == 0 && this.stress > 0){ 
-            const health = (1 - this.stress)
-            this.stress = Math.max(0, this.stress - (health * JSON.parse(
-                process.env.NEXT_PUBLIC_STRESS_RECOVERY_FACTOR
-            )))
-        } 
+        // ENVIRONMENT INDUCED STRESS
+        const stressEnv = this.#getStressEnv()
+        this.stressEnv = stressEnv // DEBUG
         
-        // Else, add to stress.
-        else {
-            this.stress += stressEnv + stressAge
-        }
+        // Add to stress.
+        this.stress = Math.min(1, stressEnv + stressAge)
     }
 
     #computeCarbonInTreeVolume(volume) {
@@ -214,22 +241,12 @@ export default class Tree {
 
         // Compute volume by which this tree grows in height.
         const bdRed = this.#computeBiodiversityReductionFactor()
-        const growthHeight = (1 - max([0, this.stress - bdRed])) * this.ghMax
-        const growthDiameter = this.#getDiameterFromHeight(growthHeight)
-        const heightNew = this.height + growthHeight
-        const diameterNew = this.diameter + growthDiameter
+        const growthHeight = (1 - Math.max(0, this.stress - bdRed)) * this.ghMax
+        const growthDiameter = (1 - Math.max(0, this.stress - bdRed)) * this.gdMax
+        const heightNew = Math.min(this.heightMax, this.height + growthHeight) // Grow until max height.
+        const diameterNew = Math.min(this.diameterMax, this.diameter + growthDiameter) // Grow until max diameter.
         const volumeNew = utils.volumeCylinder(heightNew, diameterNew/2)
-        let volumeGrowth = volumeNew - volumeOld
-
-        // Handle NaN.
-        if (isNaN(volumeGrowth)) {
-            console.log("volumeGrowth is NaN")
-            volumeGrowth = 0
-        }
-        if (isNaN(volumeMaintenance)) {
-            console.log("volumeMaintenance is NaN")
-            volumeMaintenance = 0
-        }
+        let volumeGrowth = Math.max(0, volumeNew - volumeOld)
 
         // Process carbon needed for maintenance.
         if (volumeMaintenance > 0) {
@@ -263,6 +280,9 @@ export default class Tree {
          *                   initialized to achive a desired tree age 
          *                   and tree type composition.
          */
+        // Recover from past stress if possible.
+        this.#recover()
+
         // Grow physically.
         this.#grow()
 
@@ -287,10 +307,6 @@ export default class Tree {
             const carbonPc = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE)
             const weightDecay = weightCarbonDecay/carbonPc
             this.#volumeDecay = weightDecay/this.woodDensity
-            if (isNaN(this.#volumeDecay)) {
-                console.log("this.#volumeDecay == NaN")
-                this.#volumeDecay = 0.0
-            }
         }
 
         // If the volume of tree to be decayed is more
@@ -343,13 +359,16 @@ export default class Tree {
         )) return -1
 
         // If all above checks are false, then the tree
-        // is eligible to reproduce. However, it remains
-        // to be checked as to whether this is possible.
+        // is eligible to reproduce.
 
-        // A tree may only reproduce if a position adjacent
-        // to it (vertical, horizontal, diagonal), is free.
+        // If no seed is present in this position, add one.
+        if (!this.seed) this.seed = true
+
+        // A tree may only reproduce if it's own position or
+        // a position adjacent to it (vertical, horizontal, 
+        // diagonal), is free.
         const adjacentPositions = utils.getAdjacentPositions(
-            this.position[0], this.position[1]
+            this.position[0], this.position[1], this.treeType == "deciduous"
         )
         const positionsFree = []
         for (const pos of adjacentPositions) {
@@ -385,7 +404,10 @@ export default class Tree {
         
         // Perform activities related to living or decaying.
         if (this.#isAlive()) this.#live()
-        else this.#decay()
+        else {
+            this.stress = -0.01 // To indicate death.
+            this.#decay()
+        }
 
         // Check if this tree still exists 
         // in the world.

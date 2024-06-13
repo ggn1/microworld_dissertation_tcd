@@ -8,6 +8,7 @@ export default class Simulation {
      *  entire simulated world. */
 
     #mgmtActionCosts = JSON.parse(process.env.NEXT_PUBLIC_COST_MGMT_ACTION)
+    #runData = []
     
     constructor(updateSimUI, updatePlanUI) {
         /**
@@ -107,6 +108,12 @@ export default class Simulation {
             // Force land reset.
             this.goto(10)
             this.goto(0)
+        }
+        this.getRunData = () => {
+            /**
+             * Fetches recorded run parameter values.
+             */
+            return this.#runData
         }
     }
 
@@ -302,6 +309,95 @@ export default class Simulation {
                 this.planner.plan[y][actionType] = actions
             }
         }
+
+        this.#initRunData() // DEV
+    }
+
+    #initRunData() { // DEV
+        /**
+         * Initializes variable within which simlation run data 
+         * is saved so that it may be downloaded as a CSV file later.
+         */
+        const landSize = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
+        this.#runData = []
+        for (let i = 0; i <= JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX); i++) {
+            let d = {time:i, c_air:-1, c_soil:-1, c_veg:-1, co2_ppm:-1} 
+            for (let r = 0; r < landSize.rows; r++) {
+                for (let c = 0; c < landSize.columns; c++) {
+                    d[`p${r}${c}_type`] = "O"
+                    d[`p${r}${c}_stage`] = 0
+                    d[`p${r}${c}_stress`] = 0
+                    d[`p${r}${c}_stress_age`] = 0
+                    d[`p${r}${c}_stress_env`] = 0
+                    d[`p${r}${c}_co2_ppm`] = 0
+                }
+            }
+            this.#runData.push(d)
+        }
+        this.#recordData()
+    }
+
+    #recordData() { // DEV
+        /**
+         * Tracks run data so that 
+         * it can be saved as a csv file. 
+         */
+        const landSize = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
+        const treeLifeStages = [
+            "seedling", "sapling", "mature", 
+            "old_growth", "senescent", "dead"
+        ]
+        // Record carbon reservoir data.
+        this.#runData[this.time].c_air = this.env.carbon.air.toFixed(2)
+        this.#runData[this.time].c_soil = this.env.carbon.soil.toFixed(2)
+        this.#runData[this.time].c_veg = this.env.carbon.vegetation.toFixed(2)
+        this.#runData[this.time].co2_ppm = this.env.getAirCO2ppm().toFixed(2)
+        // Record content at each position on land.
+        for (let r = 0; r < landSize.rows; r++) {
+            for (let c = 0; c < landSize.columns; c++) {
+                const content = this.env.land.content[r][c]
+                // Get content type, lifestage and stress.
+                let contentType = null
+                let contentLifestage = null
+                let contentStress = null
+                let contentStressAge = null
+                let contentStressEnv = null
+                let contentCO2Ppm = null
+                if (content.length == 0) {
+                    contentType = "O"
+                    contentLifestage = 0
+                    contentStress = 0
+                    contentStressAge = 0
+                    contentStressEnv = 0
+                    contentCO2Ppm = this.#runData[this.time].co2_ppm
+                } else {
+                    const tree = content[content.length-1]
+                    if (tree.treeType == "deciduous") {
+                        contentType = "D"
+                        contentLifestage = treeLifeStages.indexOf(tree.lifeStage)+1
+                        contentStress = tree.stress
+                        contentStressAge = tree.stressAge
+                        contentStressEnv = tree.stressEnv
+                        contentCO2Ppm = tree.airCO2ppm
+                    }
+                    else if (tree.treeType == "coniferous") {
+                        contentType = "C"
+                        contentLifestage = treeLifeStages.indexOf(tree.lifeStage)+1
+                        contentStress = tree.stress
+                        contentStressAge = tree.stressAge
+                        contentStressEnv = tree.stressEnv
+                        contentCO2Ppm = tree.airCO2ppm
+                    }
+                }
+                // Get content
+                this.#runData[this.time][`p${r}${c}_type`] = contentType
+                this.#runData[this.time][`p${r}${c}_stage`] = contentLifestage
+                this.#runData[this.time][`p${r}${c}_stress`] = contentStress
+                this.#runData[this.time][`p${r}${c}_stress_age`] = contentStressAge
+                this.#runData[this.time][`p${r}${c}_stress_env`] = contentStressEnv
+                this.#runData[this.time][`p${r}${c}_co2_ppm`] = contentCO2Ppm
+            }
+        }
     }
 
     #takeTimeStep() {
@@ -314,5 +410,6 @@ export default class Simulation {
         this.resources.recreation.updateAvailability()
         this.#generateIncome()
         this.updateSimUI()
+        this.#recordData()
     }
 }

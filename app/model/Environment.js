@@ -1,6 +1,5 @@
 import Big from 'big.js'
 import Land from "./Land.js"
-import * as utils from '../utils.js'
 
 let fossilFuelEmission =  Big(JSON.parse(
     process.env.NEXT_PUBLIC_CO2_FOSSIL_FUEL_ANNUAL_EMISSION_START

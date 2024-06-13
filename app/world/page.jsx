@@ -1,5 +1,7 @@
 'use client'
 
+import * as d3 from "d3"
+import { saveAs } from 'file-saver'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Simulation from "../model/Simulation.js"
@@ -45,6 +47,7 @@ const Home = () => {
     const [showIncDepPanel, setShowIncDepPanel] = useState(true)
     const [showRotIncPanel, setShowRotIncPanel] = useState(true)
     const [showBiodiversity, setShowBiodiversity] = useState(true)
+    const [devMode, setDevMode] = useState(true)
 
     const router = useRouter()
 
@@ -109,6 +112,17 @@ const Home = () => {
         }
     }
 
+    const handleSaveRunData = () => {
+        /**
+         * Handles the situation when the developer 
+         * wants to save simulation run data.
+         */
+        let dataToSave = sim.getRunData()
+        dataToSave = d3.csvFormat(dataToSave)
+        const blob = new Blob([dataToSave], { type: 'application/csv' })
+        saveAs(blob, "microworld_run_data.csv")
+    }
+
     useEffect(() => {
         if (sim == null) {
             sim = new Simulation(updateSimUI, updatePlanUI)
@@ -123,7 +137,7 @@ const Home = () => {
     }, [])
 
     useEffect(() => {
-        console.log(`World configured for challenge ${curChallenge}.`)
+        // console.log(`World configured for challenge ${curChallenge}.`)
         challenge = curChallenge
         if (challenge == 0) { // Full Features
             setShowCO2Target(true)
@@ -251,7 +265,11 @@ const Home = () => {
                 /> : <div className='min-h-32'></div>}
             </div>
             <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 p-3">
-                <Timeline goToTime={sim.goto} triggerPause={pauseTrigger}/>
+                <Timeline 
+                    goToTime={sim.goto} 
+                    triggerPause={pauseTrigger}
+                    handleSaveRunData={devMode ? handleSaveRunData : null}
+                />
             </div>
         </div>
     )

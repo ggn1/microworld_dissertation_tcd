@@ -33,18 +33,28 @@ export function convertScale(scaleFrom, scaleTo, x) {
     return y
 }
 
-export function getAdjacentPositions(x, y) {
+export function getAdjacentPositions(x, y, level2) {
     /**
      * Given any position x and y on a grid, 
      * returns positions immediately adjacent 
      * to it (vertically, horizontally, diagonally.)
      * @param x: Row index of position on 2D grid.
      * @param y: Column index of position on 2D grid.
+     * @param level2: Whether to include positions immediately
+     *                surrounding adjacent positions.
      * @return: Row and column indices of positions 
      *          immediately adjacent to the given position.
      */
 
-    const adjacentPositions = [
+    // const posRange = level2 ? [-2, 2] : [-1, 1]
+    // let adjacentPositions = []
+    // for (let i = posRange[0]; i <= posRange[1]; i++) {
+    //     for (let j = posRange[0]; j <= posRange[1]; j++) {
+    //         adjacentPositions.push([x+i, y+j])
+    //     }
+    // }
+
+    let adjacentPositions = [
         [x - 1, y - 1], // Top-left
         [x - 1, y],     // Top
         [x - 1, y + 1], // Top-right
@@ -54,6 +64,19 @@ export function getAdjacentPositions(x, y) {
         [x + 1, y],     // Bottom
         [x + 1, y + 1], // Bottom-right
     ]
+
+    if (level2) {
+        const extendedPositions = [
+            [x - 2, y + 2],
+            [x, y + 2],
+            [x + 2, y + 2],
+            [x - 2, y], 
+            [x + 2, y - 2], 
+            [x, y - 2], 
+            [x - 2, y - 2],  
+        ]
+        adjacentPositions = extendedPositions.concat(extendedPositions)
+    }
 
     return adjacentPositions
 }

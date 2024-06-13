@@ -76,14 +76,17 @@ export default class Land {
             if (spotContent.length == 0) return true
             
             // It is also considered to be free if there is
-            // only one half decayed tree on it.
+            // only one decayed tree on it with a fraction of
+            // original max height remaining.
             if (spotContent.length == 1) {
-                const spotContentLatest = spotContent[spotContent.length-1]
+                const spotContentLatest = spotContent[0]
                 if (
                     spotContentLatest.lifeStage == "dead" &&
                     spotContentLatest.height <= JSON.parse(
                         process.env.NEXT_PUBLIC_HEIGHT_MAX
-                    )[spotContentLatest.treeType]
+                    )[spotContentLatest.treeType] * JSON.parse(
+                        process.env.NEXT_PUBLIC_DECAY_HEIGHT_THRESHOLD
+                    )
                 ) return true
             }
             return false
@@ -94,7 +97,7 @@ export default class Land {
              * This action is successful only if there is a free
              * space available on the land.
              * @param treeType: The type of tree that is born.
-             * @param position: The position at which the new plant is 
+             * @param position: The [x, y] position at which the new plant is 
              *                  to grow. This is null by default, in which
              *                  case, the position is a random free spot.
              *                  If a position is defined, then this is where
@@ -434,9 +437,12 @@ export default class Land {
                 stillExists = entity.getOlder() // Entity ages by 1 time unit.
                 if (!stillExists) {
                     // After aging, if this entity no longer
-                    // exists on land, then set corresponding
-                    // position on land to null to reflect this.
+                    // exists on land, then remove tree object
+                    // from the land to reflect this.
                     this.content[pos[0]][pos[1]].splice(i, 1)
+                }
+                if (this.isLandFree(pos[0], pos[1]) && entity.seed) {
+                    this.plantTree(entity.treeType, pos)
                 }
             }
         }
@@ -447,7 +453,7 @@ export default class Land {
         // Update biodiversity.
         this.#updateBiodiversity()
 
-        // // Print ratios.
+        // // Print ratios. // DEBUG
         // const carbon = this.#getCarbon()
         // if (carbon.vegetation > 0 && carbon.air > 0) {
         //     console.log(
@@ -459,6 +465,7 @@ export default class Land {
         //         "[ideally 1.87]"
         //     )
         // }
+        // console.log(this.content)
     }
 
     getTree (treeType, treeLifeStage) {

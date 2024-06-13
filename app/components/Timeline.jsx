@@ -10,7 +10,7 @@ let newTime = validRange[0]
 const delay = JSON.parse(process.env.NEXT_PUBLIC_SIMULATION_DELAY)
 let interval = null
 
-const Timeline = ({goToTime, triggerPause}) => {
+const Timeline = ({goToTime, triggerPause, handleSaveRunData=null}) => {
     /**
      * Displays a timeline of given time range such that 
      * time is displayed a window at a time. One may 
@@ -19,6 +19,8 @@ const Timeline = ({goToTime, triggerPause}) => {
      *                  in time w.r.t the simulation.
      * @param triggerPause: A flag that can be changed to 
      *                      trigger pausing of the world.
+     * @param handleSaveRunData: A function that can be called to 
+     *                           save run data as a CSV file.
      * @return: UI component.
      */
 
@@ -168,6 +170,10 @@ const Timeline = ({goToTime, triggerPause}) => {
     return (
         <div>
             <div className="timeline p-2 h-full w-full flex gap-3 justify-center items-center">
+                {handleSaveRunData != null && <Button
+                    bgColor="#FFF8E6" outlineColor="#E4DAC1"
+                    onClick={handleSaveRunData}
+                >↓DATA</Button>}
                 <div className="flex items-center h-full font-bold">
                     {unit.toUpperCase()}:
                 </div>

@@ -197,7 +197,6 @@ export class NTFP extends IncomeSource {
         const curFunds = this.#getFunds()
         const dependency = this.#getIncomeDependency("ntfp")
         if (curFunds.lt(cost)) return false
-        console.log(-1 * cost * dependency, curFunds)
         this.#updateFunds(-1 * cost * dependency)
         return true
     }

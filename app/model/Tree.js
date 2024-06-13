@@ -143,6 +143,7 @@ export default class Tree {
          */
         let stressEnv = 0
         const availabilityCO2 = this.#getAirCO2ppm()
+        if (availabilityCO2 < 200) console.log("availabilityCO2 < 200")
         this.airCO2ppm = availabilityCO2 // DEBUG
         const stressLifestage = (
             this.lifeStage == "seedling" || 
@@ -223,7 +224,7 @@ export default class Tree {
         let volumeMaintenance = volumeOld * JSON.parse(
             process.env.NEXT_PUBLIC_TREE_VOLUME_MAINTENANCE_PC
         )[this.treeType]
-
+        
         // Compute volume by which this tree grows in height.
         const bdRed = this.#computeBiodiversityReductionFactor()
         const growthHeight = (1 - Math.max(0, this.stress - bdRed)) * this.ghMax

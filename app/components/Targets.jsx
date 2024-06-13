@@ -1,6 +1,5 @@
 import Big from 'big.js'
 import Switch from "./Switch"
-import Tag from "./Tag"
 import TextInput from "./TextInput"
 import * as utils from '../utils.js'
 import {useState, useEffect } from "react"
@@ -71,6 +70,7 @@ const Targets = ({
     const [isTargetMetFunds, setIsTargetMetFunds] = useState(0)
     const [showCO2Target, setShowCO2Target] = useState(showCO2)
     const [showIncomeTarget, setShowIncomeTarget] = useState(showIncome)
+    const [incomeFailed, setIncomeFailed] = useState(-1)
 
     const isTargetMet = (targetType, target) => {
         /** 
@@ -100,6 +100,7 @@ const Targets = ({
                     (curYear == (curRotationPeriod * curRotation))
                 ) {
                     setIsTargetMetIncome(-1)
+                    if(incomeFailed == -1) setIncomeFailed(curRotation)
                 }
                 else setIsTargetMetIncome(0)
             }
@@ -222,6 +223,7 @@ const Targets = ({
 
     useEffect(() => {
         setCurRotation(rotation)
+        if (rotation < incomeFailed) setIncomeFailed(-1)
     }, [rotation])
 
     useEffect(() => {
@@ -235,6 +237,10 @@ const Targets = ({
     useEffect(() => {
         setShowIncomeTarget(showIncome)
     }, [showIncome])
+
+    useEffect(() => {
+        console.log("incomeFailed =", incomeFailed)
+    }, [incomeFailed])
 
     return (
         targetCO2 != null && targetIncome != null && 
@@ -251,7 +257,7 @@ const Targets = ({
             </div>
             {/* CO2 TARGET */}
             {showCO2Target && <TextInput 
-                label="CO2 <="
+                label="CO2 ≤"
                 placeholder={targetCO2}
                 borderColor={
                     expMode ? colorBorderDefault : 
@@ -266,21 +272,28 @@ const Targets = ({
                 hide={!showCO2Target}
             />}
             {/* INCOME */}
-            {showIncomeTarget && <TextInput 
-                label="Rotation Income >="
-                placeholder={targetIncome}
-                unit={<img src="barcon.png" className='h-4 w-auto'/>}
-                borderColor={
-                    expMode ? colorBorderDefault : 
-                    isTargetMetIncome == 1 ? colorGood : 
-                    isTargetMetIncome == -1 ? colorBad :
-                    colorBorderDefault
-                }
-                textColor={isValidIncome ? colorTextDefault : colorBad}
-                sanityCheck={sanityCheckNumeric} 
-                handleVal={(val) => handleVal("income", val)}
-                hide={!showIncomeTarget}
-            />}
+            {showIncomeTarget && <div className='flex gap-2 items-center'>
+                {!expMode && incomeFailed != -1 && <div 
+                    className='font-bold text-center'
+                    style={{color: colorBad}} 
+                >R{incomeFailed}</div>}
+                <TextInput 
+                    label="Rotation Income ≥"
+                    placeholder={targetIncome}
+                    unit={<img src="barcon.png" className='h-4 w-auto'/>}
+                    borderColor={
+                        expMode ? colorBorderDefault :
+                        incomeFailed != -1 ? colorBad : 
+                        isTargetMetIncome == 1 ? colorGood : 
+                        isTargetMetIncome == -1 ? colorBad :
+                        colorBorderDefault
+                    }
+                    textColor={isValidIncome ? colorTextDefault : colorBad}
+                    sanityCheck={sanityCheckNumeric} 
+                    handleVal={(val) => handleVal("income", val)}
+                    hide={!showIncomeTarget}
+                />
+            </div>}
             {/* <Tag 
                 width="100%" height="100%"
                 bgColor="#FFFFFF" borderWidth="4px"

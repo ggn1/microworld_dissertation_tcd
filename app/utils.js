@@ -78,12 +78,13 @@ export function getAdjacentPositions(x, y, level2) {
 
     if (level2) {
         const extendedPositions = [
-            [x - 2, y + 2],
-            [x, y + 2],
+            // [x + 2, y],
+            // [x - 2, y + 2],
+            // [x, y + 2],
             [x + 2, y + 2],
-            [x - 2, y], 
-            [x + 2, y - 2], 
-            [x, y - 2], 
+            // [x - 2, y], 
+            // [x + 2, y - 2], 
+            // [x, y - 2], 
             [x - 2, y - 2],  
         ]
         adjacentPositions = adjacentPositions.concat(extendedPositions)

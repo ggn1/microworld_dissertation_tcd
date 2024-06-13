@@ -91,6 +91,7 @@ export default class Tree {
             this.height += change
             this.diameter = this.#getDiameterFromHeight(this.height)
         }
+        // console.log(`NEW tree at ${this.position}`)
         this.getOlder()
     }
 
@@ -240,7 +241,6 @@ export default class Tree {
         // Process carbon needed for growth.
         // Grow physically.
         if (volumeGrowth > 0) {
-            console.log("growing")
             this.#processCarbon(volumeGrowth, "air", "vegetation")
             this.height = heightNew
             this.diameter = diameterNew
@@ -280,38 +280,40 @@ export default class Tree {
          * Plants that are dead and remain in the soil, decay.
         */
         
-        // 15 % of the carbon in the remains of this plant 
-        // right before death shall be the fixed amount of carbon
-        // that this tree decays by each time step henceforth.
-        // This carbon is released back into the atmosphere and soil.
-        const volume = utils.volumeCylinder(this.height, this.diameter/2)
-        if (this.#volumeDecay == -1) {
-            const weightCarbon = this.#computeCarbonInTreeVolume(volume)
-            const decayPc = JSON.parse(process.env.NEXT_PUBLIC_C_PC_DECAY)
-            const weightCarbonDecay = decayPc * weightCarbon
-            const carbonPc = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE)
-            const weightDecay = weightCarbonDecay/carbonPc
-            this.#volumeDecay = weightDecay/this.woodDensity
+        if (this.height > 0 && this.diameter > 0) {
+            // 15 % of the carbon in the remains of this plant 
+            // right before death shall be the fixed amount of carbon
+            // that this tree decays by each time step henceforth.
+            // This carbon is released back into the atmosphere and soil.
+            const volume = utils.volumeCylinder(this.height, this.diameter/2)
+            if (this.#volumeDecay == -1) {
+                const weightCarbon = this.#computeCarbonInTreeVolume(volume)
+                const decayPc = JSON.parse(process.env.NEXT_PUBLIC_C_PC_DECAY)
+                const weightCarbonDecay = decayPc * weightCarbon
+                const carbonPc = JSON.parse(process.env.NEXT_PUBLIC_C_PC_TREE)
+                const weightDecay = weightCarbonDecay/carbonPc
+                this.#volumeDecay = weightDecay/this.woodDensity
+            }
+    
+            // If the volume of tree to be decayed is more
+            // or equal to current volume, then all of the
+            // tree decays and it ceases to exist.
+            // Of the amount of carbon decayed, x% ends up in the soil
+            // and (1-x)% ends up back in the atmosphere.
+            const decayPcSoil = JSON.parse(process.env.NEXT_PUBLIC_DECAY_PC_SOIL)
+            const volumeDecayed = Math.min(this.#volumeDecay, volume)
+            const volumeDecayedSoil = volumeDecayed * decayPcSoil
+            const volumeDecayedAir = volumeDecayed - volumeDecayedSoil
+            this.#processCarbon(volumeDecayedSoil, "vegetation", "soil")
+            this.#processCarbon(volumeDecayedAir, "vegetation", "air")
+    
+            // Reduce the volume of the tree.
+            // For simplicity, let radius of the cylinder
+            // that represents the tree be fixed.
+            const volumeRemaining = volume - volumeDecayed
+            const heightRemaining = volumeRemaining/(Math.PI * ((this.diameter/2)**2))
+            this.height = heightRemaining
         }
-
-        // If the volume of tree to be decayed is more
-        // or equal to current volume, then all of the
-        // tree decays and it ceases to exist.
-        // Of the amount of carbon decayed, x% ends up in the soil
-        // and (1-x)% ends up back in the atmosphere.
-        const decayPcSoil = JSON.parse(process.env.NEXT_PUBLIC_DECAY_PC_SOIL)
-        const volumeDecayed = Math.min(this.#volumeDecay, volume)
-        const volumeDecayedSoil = volumeDecayed * decayPcSoil
-        const volumeDecayedAir = volumeDecayed - volumeDecayedSoil
-        this.#processCarbon(volumeDecayedSoil, "vegetation", "soil")
-        this.#processCarbon(volumeDecayedAir, "vegetation", "air")
-
-        // Reduce the volume of the tree.
-        // For simplicity, let radius of the cylinder
-        // that represents the tree be fixed.
-        const volumeRemaining = volume - volumeDecayed
-        const heightRemaining = volumeRemaining/(Math.PI * ((this.diameter/2)**2))
-        this.height = heightRemaining
     }
         
     #reproduce() {
@@ -381,7 +383,7 @@ export default class Tree {
         // Update stress due to environmental conditions.
         this.stressEnv = this.#getStressEnv()
         this.stress = Math.min(1, this.stress + this.stressEnv)
-
+        
         // Perform activities related to living.
         if (this.#isAlive()) {
             // Increment age.
@@ -391,17 +393,27 @@ export default class Tree {
             this.stress += Math.min(1, this.stress + this.stressAge)
             // Update life stage.
             this.lifeStage = this.#computeLifeStage()
+            // console.log(`tree at ${this.position} LIVES`)
             this.#live()
         // Perform activities related to decaying.
         } else {
+            if (this.age == 0 && this.stress == 1) {
+                // console.log(`tree at ${this.position} died immediately`)
+            }
+            // console.log(`tree at ${this.position} DECAYS`)
             this.#decay()
         }
+        // console.log(
+        //     `tree at ${this.position} height =`, 
+        //     this.height, ", diameter =", this.diameter
+        // ) 
 
         // Check if this tree still exists 
         // in the world.
-        if (this.height <= 0) {
+        if (this.height <= 0 || this.diameter <= 0) {
             return false
         }
+
         return true
     }
 }

@@ -1,18 +1,5 @@
 import Big from 'big.js'
 
-const dummyPlan = {
-    // "40": {
-    //     "fell": [{count:1, type:"coniferous", success:-1, stage:"mature"}],
-    //     "plant": []
-    // },
-    // "80": {
-    //     "fell": [
-    //         {count: 1, type:"coniferous", stage:"mature", success:-1}, 
-    //         {count: 1, type:"deciduous", stage:"old_growth", success:-1}],
-    //     "plant": []
-    // }
-}
-
 export default class Planner {
     /** This class facilitates storing,
      *  updating and saving of management plans. 
@@ -34,7 +21,7 @@ export default class Planner {
          * @param updateUIPlan: Function used to update the UI with latest plan.
          */
         this.#updateUISalesTargets = updateUISalesTargets
-        this.plan = dummyPlan
+        this.plan = {}
         this.rotationPeriod = JSON.parse(process.env.NEXT_PUBLIC_ROTATION_START)
         this.incomeDependency = {}
         for (const [resource, value] of Object.entries(JSON.parse(

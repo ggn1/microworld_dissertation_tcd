@@ -79,7 +79,7 @@ export default class Tree {
              *                changed (in either positive or negative
              *                directions).
              */
-            this.stress = min(1, this.stress + change)
+            this.stress = Math.min(1, this.stress + change)
             this.lifeStage = this.#computeLifeStage()
         }
         this.updateHeight = (change) => {

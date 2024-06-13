@@ -441,9 +441,9 @@ export default class Land {
                     // from the land to reflect this.
                     this.content[pos[0]][pos[1]].splice(i, 1)
                 }
-                if (this.isLandFree(pos[0], pos[1]) && entity.seed) {
-                    this.plantTree(entity.treeType, pos)
-                }
+                // if (this.isLandFree(pos[0], pos[1]) && entity.seed) {
+                //     this.plantTree(entity.treeType, pos)
+                // }
             }
         }
 

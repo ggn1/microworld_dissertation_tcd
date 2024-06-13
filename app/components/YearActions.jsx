@@ -63,6 +63,7 @@ const YearActions = ({
             >{[
                 actions.map((action, i) => {
                     return(<Tag
+                        key={`action_tag_${i}`}
                         bgColor="#EEEEEE"
                         borderColor={borderColorDefault}
                         borderColorSelected={borderColorSelected}

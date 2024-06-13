@@ -13,18 +13,18 @@ const LandingPage = () => {
     const [dialogueTrigger, setDialogueTrigger] = useState(true)
 
     const contentList = [
-        <div>Hi</div>,
-        <div>I've been expecting you.</div>,
-        <div>You've chosen well.</div>,
-        <div>They say it's been here for at least 500 years.</div>,
-        <div>The forest is healthy and fairly large.</div>,
-        <div>I'd say it's a good size for first time forest owners like yourself.</div>,
-        <div>Your forest offers a wealth of resources like timber, honey, mushrooms, and berries. You could also build infrastructure that enables recreational activities and attracts visitors.</div>,
-        <div>I'm sorry to hear about global warming and rapid climate change on Earth.</div>,
-        <div>But it's not a bother here; your forest regulates the carbon cycle.</div>,
-        <div>As your mysterious adviser, I've arranged for help. An interactive map will manifest when you press "H" on your keyboard. It'll walk you through the lay of the land and all what you can do here.</div>,
-        <div>When you're ready, just press "W" to delve into the world.</div>,
-        <div>Explore away!</div>
+        <div key="dialogue_1">Hi</div>,
+        <div key="dialogue_2">I&apos;ve been expecting you.</div>,
+        <div key="dialogue_3">You&apos;ve chosen well.</div>,
+        <div key="dialogue_4">They say it&apos;s been here for at least 500 years.</div>,
+        <div key="dialogue_5">The forest is healthy and fairly large.</div>,
+        <div key="dialogue_6">I&apos;d say it&apos;s a good size for first time forest owners like yourself.</div>,
+        <div key="dialogue_7">Your forest offers a wealth of resources like timber, honey, mushrooms, and berries. You could also build infrastructure that enables recreational activities and attracts visitors.</div>,
+        <div key="dialogue_8">I&apos;m sorry to hear about global warming and rapid climate change on Earth.</div>,
+        <div key="dialogue_9">But it&apos;s not a bother here; your forest regulates the carbon cycle.</div>,
+        <div key="dialogue_10">As your mysterious adviser, I&apos;ve arranged for help. An interactive map will manifest when you press &quot;H&quot; on your keyboard. It&apos;ll walk you through the lay of the land and all what you can do here.</div>,
+        <div key="dialogue_11">When you&apos;re ready, just press &quot;W&quot; to delve into the world.</div>,
+        <div key="dialogue_12">Explore away!</div>
     ]
 
     const router = useRouter()

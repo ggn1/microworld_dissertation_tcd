@@ -13,10 +13,13 @@ const ResourceSalesTargets = ({targets}) => {
     return (
         <div className='flex flex-col justify-between gap-3'>
             {Object.keys(incomeSources).map(resource => 
-                <div className='
-                    flex justify-between gap-3 items-center 
-                    bg-[#FFFFFF] rounded-xl py-2 px-5
-                '>
+                <div 
+                    className='
+                        flex justify-between gap-3 items-center 
+                        bg-[#FFFFFF] rounded-xl py-2 px-5
+                    '
+                    key={`sales_${resource}`}
+                >
                     <img className='h-12'src={incomeSources[resource].image}/>
                     <div className='font-bold text-[#AAAAAA] text-s text-center'>
                         {incomeSources[resource].label}

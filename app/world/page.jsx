@@ -19,7 +19,7 @@ import Funds from '../components/Funds.jsx'
 export let sim = null
 export let challenge = 0
 
-const Home = () => {
+const Home = () => {    
     const [isInitialized, setIsInitialized] = useState(false)
     const [landContent, setLandContent] = useState([])
     const [airCO2, setAirCO2] = useState(0)
@@ -47,7 +47,7 @@ const Home = () => {
     const [showIncDepPanel, setShowIncDepPanel] = useState(true)
     const [showRotIncPanel, setShowRotIncPanel] = useState(true)
     const [showBiodiversity, setShowBiodiversity] = useState(true)
-    const [devMode, setDevMode] = useState(true)
+    const [devMode, setDevMode] = useState(false)
 
     const router = useRouter()
 
@@ -81,23 +81,17 @@ const Home = () => {
          */
         if (e.ctrlKey && e.altKey) {
             switch (e.key) {
-                case "0": // Ctrl + 0 => No Challenge
+                case "0": // Ctrl + Alt + 0 => No Challenge
                     setCurChallenge(0)
                     break
-                case "1": // Ctrl + 1 => Challenge 1
+                case "1": // Ctrl + Alt + 1 => Challenge 1
                     setCurChallenge(1)
                     break
-                case "2": // Ctrl + 2 => Challenge 2
+                case "2": // Ctrl + Alt + 2 => Challenge 2
                     setCurChallenge(2)
                     break
-                case "3": // Ctrl + 3 => Challenge 3
+                case "3": // Ctrl + Alt + 3 => Challenge 3
                     setCurChallenge(3)
-                    break
-                case "4": // Ctrl + 4 => Challenge 4
-                    setCurChallenge(4)
-                    break
-                case "5": // Ctrl + 5 => Challenge 5
-                    setCurChallenge(5)
                     break
                 default:
                     break
@@ -164,33 +158,15 @@ const Home = () => {
             setShowPanelFF(false)
             setShowIncDepPanel(false)
             setShowBiodiversity(false)
-            setShowIncomeTarget(false)
-            setShowRotIncPanel(false)
+            setShowIncomeTarget(true)
+            setShowRotIncPanel(true)
         } else if (challenge == 3) { // Challenge 3
             setShowCO2Target(true)
             setShowCO2Scale(true)
             setShowPanelC(false)
-            setShowPanelFF(false)
+            setShowPanelFF(true)
             setShowIncDepPanel(false)
             setShowBiodiversity(false)
-            setShowIncomeTarget(true)
-            setShowRotIncPanel(true)
-        } else if (challenge == 4) { // Challenge 4
-            setShowCO2Target(true)
-            setShowCO2Scale(true)
-            setShowPanelC(false)
-            setShowPanelFF(true)
-            setShowIncDepPanel(false)
-            setShowBiodiversity(true)
-            setShowIncomeTarget(true)
-            setShowRotIncPanel(true)
-        } else if (challenge == 5) { // Challenge 5
-            setShowCO2Target(true)
-            setShowCO2Scale(true)
-            setShowPanelC(false)
-            setShowPanelFF(true)
-            setShowIncDepPanel(true)
-            setShowBiodiversity(true)
             setShowIncomeTarget(true)
             setShowRotIncPanel(true)
         }

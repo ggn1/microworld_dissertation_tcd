@@ -71,6 +71,7 @@ const Targets = ({
     const [showCO2Target, setShowCO2Target] = useState(showCO2)
     const [showIncomeTarget, setShowIncomeTarget] = useState(showIncome)
     const [incomeFailed, setIncomeFailed] = useState(-1)
+    const [co2Failed, setCo2Failed] = useState(-1)
 
     const isTargetMet = (targetType, target) => {
         /** 
@@ -82,7 +83,10 @@ const Targets = ({
          */
         if (targetType == "co2") {
             if(target >= curCO2) setIsTargetMetCO2(1)
-            else setIsTargetMetCO2(-1)
+            else {
+                setIsTargetMetCO2(-1)
+                if (co2Failed == -1) setCo2Failed(curYear)
+            }
         }
         if (targetType == "income") {
             // If total income this rotation is >= target,
@@ -97,7 +101,8 @@ const Targets = ({
                 if ( 
                     curYear > 0 &&
                     target.gte(incomeTracker[0]) &&
-                    (curYear == (curRotationPeriod * curRotation))
+                    (curYear == (curRotationPeriod * curRotation)) &&
+                    curYear != JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
                 ) {
                     setIsTargetMetIncome(-1)
                     if(incomeFailed == -1) setIncomeFailed(curRotation)
@@ -133,6 +138,9 @@ const Targets = ({
          * @param targetType: Type of target (co2 / income).
          * @param val: User input from the CO2 text box as a string value.
         */
+
+        setCo2Failed(-1)
+        setIncomeFailed(-1)
 
         // Check if given value is valid.
         // If the value is an empty string, then it is invalid.
@@ -219,6 +227,7 @@ const Targets = ({
         setCurYear(year)
         incomeTracker.splice(0, 1)
         incomeTracker.push(curIncome)
+        if (year < curYear) setCo2Failed(-1)
     }, [year])
 
     useEffect(() => {
@@ -239,8 +248,8 @@ const Targets = ({
     }, [showIncome])
 
     useEffect(() => {
-        console.log("incomeFailed =", incomeFailed)
-    }, [incomeFailed])
+        console.log("co2Failed =", co2Failed)
+    }, [co2Failed])
 
     return (
         targetCO2 != null && targetIncome != null && 
@@ -256,21 +265,28 @@ const Targets = ({
                 />
             </div>
             {/* CO2 TARGET */}
-            {showCO2Target && <TextInput 
-                label="CO2 ≤"
-                placeholder={targetCO2}
-                borderColor={
-                    expMode ? colorBorderDefault : 
-                    isTargetMetCO2 == 1 ? colorGood : 
-                    isTargetMetCO2 == -1 ? colorBad :
-                    colorBorderDefault
-                }
-                textColor={isValidCO2 ? colorTextDefault : colorBad}
-                unit="ppm"
-                sanityCheck={sanityCheckNumeric} 
-                handleVal={(val) => handleVal("co2", val)}
-                hide={!showCO2Target}
-            />}
+            {showCO2Target && <div className='flex gap-2 items-center'>
+                {!expMode && co2Failed != -1 && <div 
+                    className='font-bold text-center'
+                    style={{color: colorBad}} 
+                >Y{co2Failed}</div>}
+                <TextInput 
+                    label="CO2 ≤"
+                    placeholder={targetCO2}
+                    borderColor={
+                        expMode ? colorBorderDefault : 
+                        co2Failed != -1 ? colorBad :
+                        isTargetMetCO2 == 1 ? colorGood : 
+                        isTargetMetCO2 == -1 ? colorBad :
+                        colorBorderDefault
+                    }
+                    textColor={isValidCO2 ? colorTextDefault : colorBad}
+                    unit="ppm"
+                    sanityCheck={sanityCheckNumeric} 
+                    handleVal={(val) => handleVal("co2", val)}
+                    hide={!showCO2Target}
+                />
+            </div>}
             {/* INCOME */}
             {showIncomeTarget && <div className='flex gap-2 items-center'>
                 {!expMode && incomeFailed != -1 && <div 

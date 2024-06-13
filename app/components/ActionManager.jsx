@@ -107,7 +107,7 @@ const ActionManager = ({
         const maxTime = JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
         let t = 0
         rotationYears = []
-        while (t >= 0 && t <= maxTime) {
+        while (t >= 0 && t < maxTime) {
             rotationYears.push(t)
             years.add(t)
             t += rotationPeriod

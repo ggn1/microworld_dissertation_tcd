@@ -63,6 +63,7 @@ export default class Environment {
             // 4. Compute CO2 concentration.
             let ppm = co2_volume.div(this.#airVolume)
             ppm = ppm.mul(1e+6)
+            ppm = ppm.mul(JSON.parse(process.env.NEXT_PUBLIC_CO2_PPM_COEFFICIENT))
             ppm = ppm.toNumber()
             return ppm
         }

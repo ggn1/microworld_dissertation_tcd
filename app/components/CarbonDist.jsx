@@ -16,8 +16,8 @@ const CarbonDist = ({distribution}) => {
         reservoirs.push(
             <div key={reservoir} className='flex'>
                 <div className='text-[#6E6E6E] mr-1'>{reservoirLabel}:</div>
-                {/* <div>{carbon.div(Big(10**15)).toNumber().toFixed(2)}</div> */}
-                <div>{carbon.div(Big(10**6)).toNumber().toFixed(2)}</div>
+                <div>{carbon.div(Big(10**15)).toNumber().toFixed(2)}</div>
+                {/* <div>{carbon.div(Big(10**6)).toNumber().toFixed(2)}</div> */}
             </div>
         )
     }

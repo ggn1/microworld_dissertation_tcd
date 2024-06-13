@@ -8,7 +8,7 @@ let fossilFuelEmission =  Big(JSON.parse(
 export default class Environment {
     /** Environment comprises the atmosphere and the land. */
 
-    #airVolume = JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)
+    #airVolume = Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME))
 
     constructor(ffEmission=null) {
         /**
@@ -58,11 +58,12 @@ export default class Environment {
             // 3. Compute volume of CO2 in air.
             const volume_1mole_gas_stp = 22.414 // L/mole
             let co2_volume = num_moles_co2 * volume_1mole_gas_stp // L
-            co2_volume = co2_volume * 1e-3 // m^3
+            co2_volume = Big(co2_volume * 1e-3) // m^3
             
             // 4. Compute CO2 concentration.
-            const ppm = (co2_volume / this.#airVolume) * 1e6
-    
+            let ppm = co2_volume.div(this.#airVolume)
+            ppm = ppm.mul(1e+6)
+            ppm = ppm.toNumber()
             return ppm
         }
         this.getCarbon = () => {

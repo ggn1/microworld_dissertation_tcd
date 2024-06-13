@@ -36,8 +36,10 @@ export default class Tree {
          */
         this.treeType = treeType
         this.position = position
-        this.height = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_START_SEEDLING)
-        this.diameter = this.#getDiameterFromHeight(this.height)
+        // this.height = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_START_SEEDLING)
+        // this.diameter = this.#getDiameterFromHeight(this.height)
+        this.height = 0
+        this.diameter = 0
         this.stress = 0
         this.seed = false
         this.stressEnv = 0 // DEBUG
@@ -89,6 +91,7 @@ export default class Tree {
             this.height += change
             this.diameter = this.#getDiameterFromHeight(this.height)
         }
+        this.getOlder()
     }
 
     #computeBiodiversityReductionFactor() {
@@ -179,25 +182,6 @@ export default class Tree {
         } 
     }
 
-    #updateStress() {
-        /** 
-         * Computes latest value of stress. 
-         * Stress may be due to the environment 
-         * or due to aging.
-        */
-
-        // AGE RELATED STRESS
-        const stressAge = this.#getStressAge()
-        this.stressAge = stressAge // DEBUG
-        
-        // ENVIRONMENT INDUCED STRESS
-        const stressEnv = this.#getStressEnv()
-        this.stressEnv = stressEnv // DEBUG
-        
-        // Add to stress.
-        this.stress = Math.min(1, stressEnv + stressAge)
-    }
-
     #computeCarbonInTreeVolume(volume) {
         /** 
          * Compute amount of carbon in given tree volume. 
@@ -256,6 +240,7 @@ export default class Tree {
         // Process carbon needed for growth.
         // Grow physically.
         if (volumeGrowth > 0) {
+            console.log("growing")
             this.#processCarbon(volumeGrowth, "air", "vegetation")
             this.height = heightNew
             this.diameter = diameterNew
@@ -393,19 +378,22 @@ export default class Tree {
          *          exist).
         */
 
-        // Increment age.
-        this.age += 1
+        // Update stress due to environmental conditions.
+        this.stressEnv = this.#getStressEnv()
+        this.stress = Math.min(1, this.stress + this.stressEnv)
 
-        // Compute current stress level.
-        this.#updateStress()
-
-        // Update life stage.
-        this.lifeStage = this.#computeLifeStage()
-        
-        // Perform activities related to living or decaying.
-        if (this.#isAlive()) this.#live()
-        else {
-            this.stress = -0.01 // To indicate death.
+        // Perform activities related to living.
+        if (this.#isAlive()) {
+            // Increment age.
+            this.age += 1
+            // Update stress due to age.
+            this.stressAge = this.#getStressAge()
+            this.stress += Math.min(1, this.stress + this.stressAge)
+            // Update life stage.
+            this.lifeStage = this.#computeLifeStage()
+            this.#live()
+        // Perform activities related to decaying.
+        } else {
             this.#decay()
         }
 

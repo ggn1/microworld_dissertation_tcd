@@ -5,11 +5,12 @@ import Button from "./Button"
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 
-const PlanViewer = ({year, rotationPeriod, plan, pauseWorld}) => {
+const PlanViewer = ({year, rotationPeriod, rotation, plan, pauseWorld}) => {
     /**
      * Component displays most recently executed and
      * upcoming forest management plans with corresponding years.
      * @param year: The current year.
+     * @param rotation: Current rotation.
      * @param rotationPeriod: Current rotation period.
      * @param plan: Latest plan.
      * @param pauseWorld: Function that can be called to pause  
@@ -124,6 +125,7 @@ const PlanViewer = ({year, rotationPeriod, plan, pauseWorld}) => {
             <div className="flex justify-between items-center">
                 <div className="flex flex-col justisy-between gap-1">
                     <b>{rotationPeriod} Year Rotation Period</b>
+                    <b>Rotation {rotation}</b>
                 </div>
                 <Button 
                     bgColor="#08851C" outlineColor="#2D9C23" 

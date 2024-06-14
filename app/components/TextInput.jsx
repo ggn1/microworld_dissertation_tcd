@@ -52,7 +52,7 @@ const TextInput = ({
             }}
         >
             <b>{label}</b>
-            <div className="flex flex-1 w-full justify-between gap-2">
+            <div className="flex flex-1 w-full justify-between gap-2 items-center">
                 <input
                     className="text-[#6e6e6e] w-full"
                     type="text"
@@ -64,9 +64,7 @@ const TextInput = ({
                         color: textColor
                     }}
                 />
-                <div className="flex items-center">
-                    {unit}
-                </div>
+                {unit}
             </div>
         </div>
     )

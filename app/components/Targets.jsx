@@ -257,18 +257,20 @@ const Targets = ({
     }, [incomeFailed])
 
     return (
-        targetCO2 != null && targetIncome != null && 
-        <div className="flex flex-col p-3 justify-content-center items-center gap-3">
+        targetCO2 != null && targetIncome != null &&
+        <div className="flex flex-col h-full p-3 justify-center items-center gap-3">
             {/* HEADING & SWITCH */}
-            <div className="flex gap-5 h-full w-full justify-center items-center">
-                <div className="font-bold">TARGET</div>
-                <Switch 
-                    isOnStart={!expMode} 
-                    onToggle={handleExpModeToggle}
-                    onColor="#32BE51"
-                    offColor="#6E6E6E"
-                />
-            </div>
+            {(showCO2Target || showIncomeTarget) &&
+                <div className="flex gap-5 justify-center items-center">
+                    <div className="font-bold">TARGET</div>
+                    <Switch 
+                        isOnStart={!expMode} 
+                        onToggle={handleExpModeToggle}
+                        onColor="#32BE51"
+                        offColor="#6E6E6E"
+                    />
+                </div>
+            }
             {/* CO2 TARGET */}
             {showCO2Target && <div className='flex gap-2 items-center'>
                 {!expMode && co2Failed != -1 && <div 
@@ -301,7 +303,7 @@ const Targets = ({
                 <TextInput 
                     label="Rotation Income ≥"
                     placeholder={targetIncome}
-                    unit={<img src="barcon.png" className='h-4 w-auto'/>}
+                    unit={<img src="coin.png" className='h-5 r-5'/>}
                     borderColor={
                         expMode ? colorBorderDefault :
                         incomeFailed != -1 ? colorBad : 
@@ -315,26 +317,6 @@ const Targets = ({
                     hide={!showIncomeTarget}
                 />
             </div>}
-            {/* <Tag 
-                width="100%" height="100%"
-                bgColor="#FFFFFF" borderWidth="4px"
-                borderColor={
-                    expMode ? colorBorderDefault : 
-                    isTargetMetFunds == 1 ? colorGood : 
-                    isTargetMetFunds == -1 ? colorBad :
-                    colorBorderDefault
-                } 
-            >
-                <div className="flex gap-2 w-full h-full justify-between items-center px-1">
-                    <div>
-                        <b>Funds: </b>
-                        {`${utils.nFormatter(curFunds.toString(), 1)} > ${
-                            utils.nFormatter(targets.funds.toString(), 1)
-                        }`}
-                    </div>
-                    <img src="barcon.png" className='h-4 w-auto' />
-                </div>
-            </Tag> */}
         </div>
     )
 }

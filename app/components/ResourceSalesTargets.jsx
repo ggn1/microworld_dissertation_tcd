@@ -15,7 +15,7 @@ const ResourceSalesTargets = ({targets}) => {
             {Object.keys(incomeSources).map(resource => 
                 <div 
                     className='
-                        flex justify-between gap-3 items-center 
+                        flex justify-between gap-1 items-center 
                         bg-[#FFFFFF] rounded-xl py-2 px-5
                     '
                     key={`sales_${resource}`}
@@ -25,7 +25,7 @@ const ResourceSalesTargets = ({targets}) => {
                         {incomeSources[resource].label}
                     </div>
                     <div className='flex gap-2 items-center'>
-                        <img className="h-6" src="barcon.png" />
+                        <img className="h-6" src="coin.png" />
                         <div>{utils.nFormatter(
                             utils.roundToNDecimalPlaces(targets[resource], 2).toString()
                         , 1)}</div>

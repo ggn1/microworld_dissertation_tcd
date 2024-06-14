@@ -150,7 +150,7 @@ const LandingPage = () => {
                 flex justify-center text-xs
                 select-none
             ">
-                ECONOMICALLY FEASIBLE CLIMATE AWARE FOREST MANAGEMENT
+                ECONOMICALLY VIABLE CLIMATE AWARE FOREST MANAGEMENT
             </div>
         </main>
     )

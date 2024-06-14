@@ -15,6 +15,7 @@ let isExpMode = true
 // Third number is the latest push.
 // This is to keep track of past incomes.
 let incomeTracker = [Big(0), Big(0)]
+let targetFailed = {co2: -1, income: -1}
 
 const Targets = ({
     setTargets, getTargets,
@@ -70,8 +71,8 @@ const Targets = ({
     const [isTargetMetFunds, setIsTargetMetFunds] = useState(0)
     const [showCO2Target, setShowCO2Target] = useState(showCO2)
     const [showIncomeTarget, setShowIncomeTarget] = useState(showIncome)
-    const [incomeFailed, setIncomeFailed] = useState(-1)
-    const [co2Failed, setCo2Failed] = useState(-1)
+    const [incomeFailed, setIncomeFailed] = useState(targetFailed.income)
+    const [co2Failed, setCo2Failed] = useState(targetFailed.co2)
 
     const isTargetMet = (targetType, target) => {
         /** 
@@ -248,8 +249,12 @@ const Targets = ({
     }, [showIncome])
 
     useEffect(() => {
-        console.log("co2Failed =", co2Failed)
+        targetFailed.co2 = co2Failed
     }, [co2Failed])
+
+    useEffect(() => {
+        targetFailed.income = incomeFailed
+    }, [incomeFailed])
 
     return (
         targetCO2 != null && targetIncome != null && 
@@ -292,7 +297,7 @@ const Targets = ({
                 {!expMode && incomeFailed != -1 && <div 
                     className='font-bold text-center'
                     style={{color: colorBad}} 
-                >R{incomeFailed}</div>}
+                >R{incomeFailed-1}</div>}
                 <TextInput 
                     label="Rotation Income ≥"
                     placeholder={targetIncome}

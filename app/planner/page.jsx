@@ -132,9 +132,9 @@ const Planner = () => {
     }, [rotationPeriod])
 
     return (
-        simNotNull && 
+        simNotNull &&
         <div 
-            className="p-5 w-full grid grid-flow-row-dense gap-3"
+            className="p-5 flex justify-center gap-3"
             style={{
                 gridTemplateColumns: showIncDep ? "1fr 1fr 1fr" : "1fr",
                 placeItems: showIncDep ? "none" : "center"
@@ -174,33 +174,36 @@ const Planner = () => {
                 />}
             </div>
             
-            {/* INCOME DEPENDENCY */}
-            {showIncDep && <div 
-                id="planner-income-dependency" 
-                className="bg-[#F2EAD5] p-3 rounded-xl"
-            >
-                <div className="font-bold text-center mb-3">INCOME DEPENDENCY</div>
-                <IncDepSetter 
-                    getIncomeDependency={() => sim.planner.incomeDependency}
-                    setIncDep={sim.planner.setIncDep}
-                    updateSalesTargets={() => {
-                        sim.updateResourceSalesTargets()
-                        setResourceSalesTargets(sim.getResourceSalesTargets())
-                    }}
-                    sliderUpdateTrigger={incDepRefreshTrigger}
-                />
-            </div>}
+            <div className="flex flex-col gap-3 justify-between">
+                {/* INCOME DEPENDENCY */}
+                {showIncDep && <div 
+                    id="planner-income-dependency" 
+                    className="bg-[#F2EAD5] p-3 rounded-xl"
+                >
+                    <div className="font-bold text-center mb-3">INCOME DEPENDENCY</div>
+                    <IncDepSetter 
+                        getIncomeDependency={() => sim.planner.incomeDependency}
+                        setIncDep={sim.planner.setIncDep}
+                        updateSalesTargets={() => {
+                            sim.updateResourceSalesTargets()
+                            setResourceSalesTargets(sim.getResourceSalesTargets())
+                        }}
+                        sliderUpdateTrigger={incDepRefreshTrigger}
+                    />
+                </div>}
 
-            {/* ROTATION SALES TARGETS */}
-            {showIncDep && <div 
-                id="planner-sales-targets" 
-                className="bg-[#FFECFB] p-3 rounded-xl"
-            >
-                <div className="font-bold text-center mb-3">
-                    EXPECTED SALES PER ROTATION
-                </div>
-                <ResourceSalesTargets targets={resourceSalesTargets}/>
-            </div>}
+                {/* ROTATION SALES TARGETS */}
+                {showIncDep && <div 
+                    id="planner-sales-targets" 
+                    className="bg-[#FFECFB] p-3 rounded-xl"
+                >
+                    <div className="font-bold text-center mb-3">
+                        EXPECTED SALES PER ROTATION
+                    </div>
+                    <ResourceSalesTargets targets={resourceSalesTargets}/>
+                </div>}
+            </div>
+            
         </div>
     )
 }

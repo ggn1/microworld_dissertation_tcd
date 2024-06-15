@@ -227,30 +227,42 @@ export default class Simulation {
         }
     }
 
-    #generateIncome() {
+    #generateIncome(rotationUpdated) {
         /**
          * Sells resources available at the end of
          * this time step and updates income
          * generated from them.
+         * @param rotationUpdated: Whether the rotation has changed.
          */
 
-        let incomeTotal = Big(0)
-        let incomeResource = Big(0)
-        // Sell and/or use all available resources.
+        // Get income this year from selling resources.
+        this.income.year.total = Big(0)
         for (const [resource, incomeSource] of Object.entries(this.resources)) {
-            incomeResource = incomeSource.sell()
-            this.income[resource] = this.income[resource].plus(incomeResource)
-            incomeTotal = incomeTotal.plus(incomeResource)
+            this.income.year[resource] = incomeSource.sell()
+            this.income.year.total = this.income.year.total.plus(this.income.year[resource])
         }
-        this.income["total"] = this.income["total"].plus(incomeTotal)
-        this.funds = this.funds.plus(incomeTotal)
+
+        // Update funds
+        this.funds = this.funds.plus(this.income.year.total)
+
+        // Update overall & rotation income.
+        for (const [resource, yearIncome] of Object.entries(this.income.year)) {
+            this.income.overall[resource] = this.income.overall[resource].plus(yearIncome)
+            // Rotation income will be reset in the #updateRotattion function.
+            if (rotationUpdated) {
+                this.income.rotation[resource] = yearIncome
+            } else {
+                this.income.rotation[resource] = this.income.rotation[resource].plus(yearIncome)
+            }
+        }
     }  
 
     #updateRotation() {
         /**
-         * Computes which rotation it is based on
+         * Computes current rotation based on
          * current time. When new rotation starts,
          * resets income targets.
+         * @return: Whether the rotation has changed.
          */
         let newRotation = this.rotation + Number(
             this.time + 1 == (this.rotation + 1) * this.planner.rotationPeriod
@@ -258,12 +270,9 @@ export default class Simulation {
         if (newRotation != this.rotation) {
             // Update rotation count.
             this.rotation = newRotation
-            // Reset income for this rotation.
-            for (const resource of Object.keys(this.income)) {
-                this.income[resource] = Big(0)
-            }
+            return true
         }
-        
+        return false
     }
 
     #createFreshWorld() {
@@ -294,9 +303,11 @@ export default class Simulation {
                 this.getFunds
             )
         }
-        this.income = { "total": Big(0) }
-        for (const resource of Object.keys(this.resources)) {
-            this.income[resource] = Big(0)
+        this.income = {"year":{}, "overall":{}, "rotation":{}}
+        for (const resource of Object.keys(this.resources).concat(["total"])) {
+            for (const scale of ["year", "overall", "rotation"]) {
+                this.income[scale][resource] = Big(0)
+            }
         }
         // Set status of all plans to -1.
         for (const y of Object.keys(this.planner.plan)) {
@@ -402,23 +413,14 @@ export default class Simulation {
 
     #takeTimeStep() {
         /** Step forward in time by one step. */
-        this.#updateRotation()
+        const rotationUpdated = this.#updateRotation()
         this.#executePlans(this.time)
         this.time += 1
         this.env.takeTimeStep()
         this.resources.ntfp.updateAvailability()
         this.resources.recreation.updateAvailability()
-        this.#generateIncome()
+        this.#generateIncome(rotationUpdated)
         this.updateSimUI()
         this.#recordData()
-        // // DEBUG
-        // const co2_ppm = this.#runData.map(d => Number(d.co2_ppm))
-        // const co2_ppm_min = Math.min(...co2_ppm)
-        // const co2_ppm_max = Math.max(...co2_ppm)
-        // console.log(
-        //     "Min CO2 PPM =", co2_ppm_min,
-        //     "Max CO2 PPM =", co2_ppm_max,
-        //     "Range =", co2_ppm_max - co2_ppm_min
-        // )
     }
 }

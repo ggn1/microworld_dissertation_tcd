@@ -258,7 +258,7 @@ const Targets = ({
 
     return (
         targetCO2 != null && targetIncome != null &&
-        <div className="flex flex-col h-full p-3 justify-center items-center gap-3">
+        <div className="flex flex-col h-full w-full p-3 justify-center gap-3">
             {/* HEADING & SWITCH */}
             {(showCO2Target || showIncomeTarget) &&
                 <div className="flex gap-5 justify-center items-center">

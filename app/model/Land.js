@@ -237,6 +237,34 @@ export default class Land {
             }
             return activeContent
         }
+        this.countTrees = () => {
+            /** 
+             * Returns a count of no. of tree of each 
+             * lifestage category on land. 
+             * @return: No. of each type (species, life stage) of tree
+             *          currently on the land.
+             */
+            let counts = {
+                deciduous: 0, coniferous: 0,
+                seedling: 0, sapling: 0, mature: 0, 
+                old_growth: 0, senescent: 0, dead: 0
+            }
+       
+            let spotContent = []
+            let entity = null
+            for (let x = 0; x < this.size.rows; x++) {
+                for (let y = 0; y < this.size.columns; y++) {
+                    spotContent = this.content[x][y]
+                    if (spotContent.length > 0) { // Count only latest tree on land.
+                        entity = spotContent[spotContent.length-1]
+                        counts[entity.treeType] += 1
+                        counts[entity.lifeStage] += 1
+                    }
+                }
+            }
+    
+            return counts
+        }
         this.#initialize()
     }
 
@@ -294,35 +322,6 @@ export default class Land {
         this.#updateCarbon({"soil":releasedWeight.mul(-1), "air":releasedWeight})
     }
 
-    #countTrees() {
-        /** 
-         * Returns a count of no. of tree of each 
-         * lifestage category on land. 
-         * @return: No. of each type (species, life stage) of tree
-         *          currently on the land.
-         */
-        let counts = {
-            deciduous: 0, coniferous: 0,
-            seedling: 0, sapling: 0, mature: 0, 
-            old_growth: 0, senescent: 0, dead: 0
-        }
-   
-        let spotContent = []
-        let entity = null
-        for (let x = 0; x < this.size.rows; x++) {
-            for (let y = 0; y < this.size.columns; y++) {
-                spotContent = this.content[x][y]
-                if (spotContent.length > 0) { // Count only latest tree on land.
-                    entity = spotContent[spotContent.length-1]
-                    counts[entity.treeType] += 1
-                    counts[entity.lifeStage] += 1
-                }
-            }
-        }
-
-        return counts
-    }
-
     #computeBiodiversityScore() {
         /** 
          * Calculate the biodiversity score of the land. 
@@ -331,7 +330,7 @@ export default class Land {
         
         let biodiversity = 0;
 
-        const treeCounts = this.#countTrees();
+        const treeCounts = this.countTrees();
 
         // Rule = Mixed forests with more trees => more biodiversity.
         // MIN = 0

@@ -29,22 +29,33 @@ const getRenderProperties = (x, y, entity) => {
      */
     if (entity == null) {
         const svgIcon = svgIcons.none
+
         return {
             x: x, y: y,
             scale: svgIcon.scale,
             fill: `#${svgIcon.fill}`,
-            d: svgIcon.d
+            d: svgIcon.d,
+            label: "Empty Land"
         }
     } else { // Entity is a tree.
         let svgIcon = svgIcons[entity.lifeStage]
         if (entity.treeType in svgIcon) {
             svgIcon = svgIcon[entity.treeType]
         }
+        const treeType = entity.treeType.charAt(0).toUpperCase() + entity.treeType.slice(1)
+        let treeLifeStage = entity.lifeStage.split("_")
+        for(let i=0; i<treeLifeStage.length; i++) {
+            let val = treeLifeStage[i]
+            treeLifeStage[i] = val.charAt(0).toUpperCase() + val.slice(1)
+        }
+        treeLifeStage = treeLifeStage.join(" ")
+
         return {
             x: x, y: y,
             scale: svgIcon.scale,
             fill: `#${svgIcon.fill}`,
-            d: svgIcon.d
+            d: svgIcon.d,
+            label: `${treeLifeStage} ${treeType} `
         }
     }
 }
@@ -59,10 +70,14 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
      * @param bdScore: Biodiversity score.
      * @param dbCategory: Biodiversity category.
      * @param hide: Whether to show biodiveristy related data or not.
+     * @param getTreeCount: Function that returns the count of all trees on land.
      * @return: Dynamic land UI component.
      */
     const refSvg = useRef()
     const [show, setShow] = useState(!hide)
+    const [showTreeLabel, setShowTreeLabel] = useState(false)
+    const [treeLabel, setTreeLabel] = useState("Tree Label")
+    let treeCounts = {}
 
     useEffect(() => {
         // Initializes SVG elements.
@@ -119,7 +134,7 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
 
     useEffect(() => {
         // Get latest content to render.
-        const contentToRender = []
+        let contentToRender = []
         for (let i = 0; i < size.rows; i++) {
             for (let j = 0; j < size.columns; j++) {
                 contentToRender.push(getRenderProperties(i, j, content[i][j]))
@@ -127,20 +142,27 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
         }
 
         // Add land content.
-        gContent.selectAll('.land-content')
-                .data(contentToRender)
-                .join('path')
-                .attr('class', 'land-content')
-                .attr('fill', d => d.fill)
-                .attr('stroke', '#000')
-                .attr('stroke-width', 8)
-                .attr('transform', d => `
-                    translate(${scaleX(d.x)}, ${scaleY(d.y)})
-                    scale(${d.scale})
-                `)
-                .transition()
+        let landContent = gContent.selectAll('.land-content')
+                                .data(contentToRender)
+                                .join('path')
+                                .attr('class', 'land-content')
+                                .attr('fill', d => d.fill)
+                                .attr('stroke', '#000')
+                                .attr('stroke-width', 8)
+                                .attr('transform', d => `
+                                    translate(${scaleX(d.x)}, ${scaleY(d.y)})
+                                    scale(${d.scale})
+                                `)
+        landContent.transition()
                 .duration(50)
                 .attr('d', d => d.d)
+        landContent.on("mouseover", (e, d) => {
+                        setTreeLabel(d.label)
+                        setShowTreeLabel(true)
+                    })
+                    .on("mouseout", () => {
+                        setShowTreeLabel(false)
+                    })
     }, [content])
 
     useEffect(() => {
@@ -162,6 +184,10 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
             </div>}
             <div className="pt-2">
                 <svg style={{height:"350px", width:"400px"}} ref={refSvg}></svg>
+                <div className="text-center" style={{
+                    opacity: Number(showTreeLabel),
+                    transition: "opacity 0.5s"
+                }}>{treeLabel}</div>
             </div>
         </div>
     )

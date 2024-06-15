@@ -195,9 +195,7 @@ const Home = () => {
                     showIncome={showIncomeTarget}
                 />
             </div>
-            <div id="world-money" className="rounded-xl bg-[#FFECFB] col-span-8 row-span-4 p-3
-                flex items-center justify-center
-            ">
+            <div id="world-money" className="rounded-xl bg-[#FFECFB] col-span-8 row-span-4 p-3">
                 {showIncPanel ? <MoneyViewer 
                     funds={funds}
                     targets={rotationIncomeTargets} 

@@ -124,7 +124,7 @@
 
         return (
             Object.keys(targets).length > 0 && 
-            <div className='flex flex-col gap-3'>
+            <div className='flex flex-col gap-3 h-full justify-center align-middle'>
                 <div className='flex gap-3'>
                     {/* Bank Balance */}
                     <div className='flex flex-grow bg-[#FFF] rounded-lg p-2 gap-3 items-center justify-center'>

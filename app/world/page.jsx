@@ -29,6 +29,7 @@ const Home = () => {
     const [incomeDependency, setIncomeDependency] = useState({})
     const [rotationPeriod, setRotationPeriod] = useState()
     const [income, setIncome] = useState({})
+    const [expenses, setExpenses] = useState({})
     const [funds, setFunds] = useState(0)
     const [curRotation, setCurRotation] = useState(1)
     const [rotationIncomeTargets, setRotationIncomeTargets] = useState({})
@@ -58,6 +59,7 @@ const Home = () => {
         setBdCat(sim.env.land.biodiversityCategory)
         setIncomeDependency({...sim.planner.incomeDependency})
         setRotationPeriod(sim.planner.rotationPeriod)
+        setExpenses({...sim.expenses})
         setIncome({...sim.income})
         setFunds(sim.funds)
         setCurRotation(sim.rotation)
@@ -193,11 +195,14 @@ const Home = () => {
                     showIncome={showIncomeTarget}
                 />
             </div>
-            <div id="world-money" className="rounded-xl bg-[#FFECFB] col-span-8 row-span-4 p-3">
+            <div id="world-money" className="rounded-xl bg-[#FFECFB] col-span-8 row-span-4 p-3
+                flex items-center justify-center
+            ">
                 {showIncPanel ? <MoneyViewer 
                     funds={funds}
                     targets={rotationIncomeTargets} 
                     income={income}
+                    expenses={expenses}
                     rotation={curRotation}
                     dependency={incomeDependency}
                     resources={sim.resources}

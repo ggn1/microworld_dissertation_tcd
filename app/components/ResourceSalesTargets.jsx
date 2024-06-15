@@ -11,7 +11,7 @@ const ResourceSalesTargets = ({targets}) => {
     )
 
     return (
-        <div className='flex flex-col justify-between gap-3'>
+        <div className='flex flex-col min-w-72 justify-between gap-3'>
             {Object.keys(incomeSources).map(resource => 
                 <div 
                     className='

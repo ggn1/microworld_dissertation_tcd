@@ -50,6 +50,16 @@ export default class Simulation {
             salesTargets["total"] = this.planner.getTargets().income
             return salesTargets
         }
+        this.updateExpenses = (resource, change) => {
+            /**
+             * Allows one to update expenses of the year.
+             * @param resource: The resource that contributed to this change.
+             * @param change: The value to be added.
+             */
+            console.log("Updating Expenses: resource =", resource, ", change =", change)
+            this.expenses.year[resource] = this.expenses.year[resource].plus(change)
+            this.expenses.year.total = this.expenses.year.total.plus(change)
+        }
         this.updateFunds = (change) => {
             /**
              * Facilitates changing of bank balance by 
@@ -146,16 +156,22 @@ export default class Simulation {
                 const fellingCost = this.#mgmtActionCosts.fell * (
                     tree.height/tree.heightMax
                 )
+
                 // If not enough money to pay for planiting,
                 // then the action cannot be executed.
                 if (this.funds < fellingCost) return 0
+
                 // Pay the price for felling.
                 this.funds = this.funds.minus(fellingCost)
+                this.updateExpenses("timber", fellingCost)
+
                 // Fell the tree.
                 const [success, woodHarvested] = this.env.land.fellTree(
                     pos, treeType, treeLifeStage
                 ) // g
+
                 status = success
+
                 // Add harvested wood to available timber resource.
                 this.resources.timber.available += woodHarvested
             } else {
@@ -167,11 +183,14 @@ export default class Simulation {
             let pos = this.env.land.getFreeSpaces()
             if (pos.length > 0) { // Suitable spot found.
                 pos = pos[0]
-                // If not enough money to pay for planiting,
+                // If not enough money to pay for planting,
                 // then the action cannot be executed.
                 if (this.funds < this.#mgmtActionCosts.plant) return 0
+                
                 // Pay the price for planting.
                 this.funds = this.funds.minus(this.#mgmtActionCosts.plant)
+                this.updateExpenses("timber", this.#mgmtActionCosts.plant)
+                
                 // Plant the tree seedling.
                 status = this.env.land.plantTree(treeType, pos)
                 if (typeof(status) != "number") status = 1
@@ -245,10 +264,10 @@ export default class Simulation {
         // Update funds
         this.funds = this.funds.plus(this.income.year.total)
 
-        // Update overall & rotation income.
         for (const [resource, yearIncome] of Object.entries(this.income.year)) {
+            // Update overall income.
             this.income.overall[resource] = this.income.overall[resource].plus(yearIncome)
-            // Rotation income will be reset in the #updateRotattion function.
+            // Update rotation income.
             if (rotationUpdated) {
                 this.income.rotation[resource] = yearIncome
             } else {
@@ -256,6 +275,35 @@ export default class Simulation {
             }
         }
     }  
+
+    #updateExpenditure(rotationUpdated) {
+        /** 
+         * Updates overall and per rotation expenditure
+         * upon considering espenses from this year.
+         * @param rotationUpdated: Whether the rotation has changed.
+         */
+        for (const [resource, yearExpenses] of Object.entries(this.expenses.year)) {
+            // Update overall expenses.
+            this.expenses.overall[resource] = this.expenses.overall[resource].plus(yearExpenses)
+            // Update rotation expenses.
+            if (rotationUpdated) {
+                this.expenses.rotation[resource] = yearExpenses
+            } else {
+                this.expenses.rotation[resource] = this.expenses.rotation[
+                    resource
+                ].plus(yearExpenses)
+            }
+        }
+    }
+
+    #resetYearExpenses() {
+        /**
+         * Sets expenditure for the year back to 0 for each resource.
+         */
+        for (const resource of Object.keys(this.resources).concat(["total"])) {
+            this.expenses.year[resource] = Big(0)
+        }
+    }
 
     #updateRotation() {
         /**
@@ -293,20 +341,28 @@ export default class Simulation {
                 this.env.land.getDeadWoodPc,
                 this.updateFunds,
                 this.planner.getIncDep,
-                this.getFunds
+                this.getFunds,
+                this.updateExpenses
             ),
             recreation: new RecreationalActivities(
                 "recreation", 
                 this.env.land.getBiodiversityPc,
                 this.updateFunds,
                 this.planner.getIncDep,
-                this.getFunds
+                this.getFunds,
+                this.updateExpenses
             )
         }
         this.income = {"year":{}, "overall":{}, "rotation":{}}
         for (const resource of Object.keys(this.resources).concat(["total"])) {
             for (const scale of ["year", "overall", "rotation"]) {
                 this.income[scale][resource] = Big(0)
+            }
+        }
+        this.expenses = {"year":{}, "overall":{}, "rotation":{}}
+        for (const resource of Object.keys(this.resources).concat(["total"])) {
+            for (const scale of ["year", "overall", "rotation"]) {
+                this.expenses[scale][resource] = Big(0)
             }
         }
         // Set status of all plans to -1.
@@ -413,12 +469,14 @@ export default class Simulation {
 
     #takeTimeStep() {
         /** Step forward in time by one step. */
+        this.#resetYearExpenses()
         const rotationUpdated = this.#updateRotation()
         this.#executePlans(this.time)
         this.time += 1
         this.env.takeTimeStep()
         this.resources.ntfp.updateAvailability()
         this.resources.recreation.updateAvailability()
+        this.#updateExpenditure(rotationUpdated)
         this.#generateIncome(rotationUpdated)
         this.updateSimUI()
         this.#recordData()

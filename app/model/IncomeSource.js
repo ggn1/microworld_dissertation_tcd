@@ -132,10 +132,12 @@ export class NTFP extends IncomeSource {
     #updateFunds
     #getIncomeDependency
     #getFunds
+    #updateExpenses
 
     constructor(
         type, getBiodiversityPc, getDeadWoodPc, 
-        updateFunds, getIncomeDependency, getFunds
+        updateFunds, getIncomeDependency, getFunds,
+        updateExpenses
     ) {
         /**
          * Constructor.
@@ -150,6 +152,7 @@ export class NTFP extends IncomeSource {
          *                             current income dependency setting
          *                             for the NTFP income stream.
          * @param getFunds: Function that returns current bank balance.
+         * @param updateExpenses: Function that can be used to update expenditure values.
          */
         super(type)
         this.#getIncomeDependency = getIncomeDependency
@@ -157,6 +160,7 @@ export class NTFP extends IncomeSource {
         this.#getDeadWoodPc = getDeadWoodPc
         this.#updateFunds = updateFunds
         this.#getFunds = getFunds
+        this.#updateExpenses = updateExpenses
         this.updateAvailability = () => {
             /** 
              * Updates how much of this resource is available.
@@ -198,6 +202,7 @@ export class NTFP extends IncomeSource {
         const dependency = this.#getIncomeDependency("ntfp")
         if (curFunds.lt(cost)) return false
         this.#updateFunds(-1 * cost * dependency)
+        this.#updateExpenses("ntfp", cost * dependency)
         return true
     }
 }
@@ -210,10 +215,11 @@ export class RecreationalActivities extends IncomeSource {
     #updateFunds
     #getIncomeDependency
     #getFunds
+    #updateExpenses
 
     constructor(
         type, getBiodiversityPc, updateFunds, 
-        getIncomeDependency, getFunds
+        getIncomeDependency, getFunds, updateExpenses
     ) {
         /**
          * Constructor.
@@ -226,6 +232,7 @@ export class RecreationalActivities extends IncomeSource {
          *                             current income dependency setting
          *                             for the NTFP income stream.
          * @param getFunds: Function that returns current bank balance.
+         * @param updateExpenses: Function that can be used to update expenditure values.
          */
         super(type)
         this.isBuilt = false // Whether infrastructure has been established yet.
@@ -233,6 +240,7 @@ export class RecreationalActivities extends IncomeSource {
         this.#updateFunds = updateFunds
         this.#getBiodiversityPc = getBiodiversityPc
         this.#getFunds = getFunds
+        this.#updateExpenses = updateExpenses
         this.updateAvailability = () => {
             /** 
              * Updates how much of this resource is available.
@@ -275,11 +283,13 @@ export class RecreationalActivities extends IncomeSource {
         if (!this.isBuilt && dependency > 0) {
             if (curFunds < (initialCost + maintenanceCost)) return false
             this.#updateFunds(-1 * initialCost)
+            this.#updateExpenses("recreation", initialCost)
             this.isBuilt = true
         }
         // Pay maintenance costs.
         if (curFunds.lt(maintenanceCost)) return false
         this.#updateFunds(-1 * maintenanceCost)
+        this.#updateExpenses("recreation", maintenanceCost)
         return true
     }
 }

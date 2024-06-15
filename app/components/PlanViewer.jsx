@@ -125,7 +125,7 @@ const PlanViewer = ({year, rotationPeriod, rotation, plan, pauseWorld}) => {
             <div className="flex justify-between items-center">
                 <div className="flex flex-col justisy-between gap-1">
                     <b>{rotationPeriod} Year Rotation Period</b>
-                    <b>Rotation {rotation}</b>
+                    <b>ROTATION {rotation}</b>
                 </div>
                 <Button 
                     bgColor="#08851C" outlineColor="#2D9C23" 

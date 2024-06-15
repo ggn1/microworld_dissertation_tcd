@@ -134,7 +134,7 @@ const Planner = () => {
     return (
         simNotNull &&
         <div 
-            className="p-5 flex justify-center gap-3"
+            className="p-5 flex justify-center gap-3 max-w-full"
             style={{
                 gridTemplateColumns: showIncDep ? "1fr 1fr 1fr" : "1fr",
                 placeItems: showIncDep ? "none" : "center"
@@ -144,8 +144,9 @@ const Planner = () => {
             <div 
                 id="planner-main" 
                 className="
+                    flex-grow
                     bg-[#EEEEEE] col-span-2 row-span-2 rounded-xl 
-                    flex flex-col gap-5 p-3 max-w-screen-md
+                    flex flex-col gap-5 p-3 max-w-2xl
                 "
             >
                 {/* BACK BUTTON & ROTATION SETTER */}

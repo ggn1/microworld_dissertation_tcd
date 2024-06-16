@@ -105,15 +105,15 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
         gXAxis = gPlot.selectAll('.group-x-axis')
                     .data(['g'])
                     .join('g')
-                    .attr('opacity', 0)
                     .attr('class', 'group-x-axis')
                     .attr('transform', `translate(${0}, ${heightPlot+margins.top})`)
+        gXAxis.attr("opacity", "0")
         gYAxis = gPlot.selectAll('.group-y-axis')
                     .data(['g'])
-                    .attr('opacity', 0)
                     .join('g')
                     .attr('class', 'group-y-axis')
                     .attr('transform', `translate(${margins.left}, ${0})`)
+        gYAxis.attr("opacity", "0")
         
         // Set the scale of both x and y axes.
         scaleX = d3.scaleBand()

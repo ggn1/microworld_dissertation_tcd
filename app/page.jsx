@@ -19,12 +19,13 @@ const LandingPage = () => {
         <div key="dialogue_4">They say it&apos;s been here for at least 500 years.</div>,
         <div key="dialogue_5">The forest is healthy and fairly large.</div>,
         <div key="dialogue_6">I&apos;d say it&apos;s a good size for first time forest owners like yourself.</div>,
-        <div key="dialogue_7">Your forest offers ample timber. A very valuable resource.</div>,
+        <div key="dialogue_7">Your forest offers ample wood. A very valuable resource.</div>,
         <div key="dialogue_8">I&apos;m sorry to hear about global warming and rapid climate change on Earth.</div>,
         <div key="dialogue_9">But it&apos;s not a bother here; your forest regulates the carbon cycle.</div>,
         <div key="dialogue_10">As your adviser, I&apos;ve arranged for help. An interactive map will manifest when you press &quot;H&quot; on your keyboard. It&apos;ll walk you through the lay of the land and all what you can do here.</div>,
         <div key="dialogue_11">When you&apos;re ready, just press &quot;W&quot; to delve into the world.</div>,
-        <div key="dialogue_12">Explore away!</div>
+        <div key="dialogue_12">Press &quot;Escape&quot; to return to this page.</div>,
+        <div key="dialogue_13">Explore away!</div>
     ]
 
     const router = useRouter()

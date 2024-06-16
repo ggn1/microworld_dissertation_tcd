@@ -33,6 +33,7 @@ const LandingPage = () => {
         /** 
          * Function that receives a keypress event.
          */
+        if (e.key === "Enter") setStarted(prevVal => !prevVal)
         if (e.key === "w" || e.key === "W") router.push('/world')
         else if (e.key === "h" || e.key === "H") router.push('/help')
     }
@@ -73,12 +74,7 @@ const LandingPage = () => {
     }, [dialogueTrigger])
 
     return (
-        <main 
-            className="h-screen w-screen pt-5 pb-12 bg-[#121212]" 
-            onDoubleClick={() => {
-                setStarted(prevVal => !prevVal)
-            }}
-        >
+        <main className="h-screen w-screen pt-5 pb-12 bg-[#121212]">
             {/* Light */}
             {!started && <div className="light z-10"></div>}
             {/* Instruction */}
@@ -86,7 +82,7 @@ const LandingPage = () => {
                 text-xs text-[#222222] select-none 
                 itallic font-bold tracking-[0.5em] flex justify-center
             ">
-                DOUBLE CLICK
+                PRESS ENTER
             </div>}
             {/* Main Content */}
             <div className="flex flex-col justify-center items-center w-full h-full">

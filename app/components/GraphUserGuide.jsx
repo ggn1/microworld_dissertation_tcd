@@ -57,7 +57,7 @@ const GraphUserGuide = ({handleTopicSelection, nodes, links}) => {
                                 'link', 
                                 d3.forceLink(links)
                                     .id(d => d.id)
-                                    .distance(100)
+                                    .distance(150)
                             )
                             .force('charge', d3.forceManyBody().strength(-120))
                             .force("collide", d3.forceCollide(1)) // radius + 1
@@ -90,7 +90,6 @@ const GraphUserGuide = ({handleTopicSelection, nodes, links}) => {
                             .attr('fill', '#A0D58A')
                             .style("scale", "0.2")
         nodePathGroup.attr("transform", d => {
-            console.log(d)
             return `rotate(${d.id*2*10})`
         })
         nodePath.on("mouseover", (e) => {
@@ -116,17 +115,23 @@ const GraphUserGuide = ({handleTopicSelection, nodes, links}) => {
         }
 
         node.on("dblclick", (e, d, i) => {
+            console.log(d)
             handleTopicSelection(d.content)
         })
-    }, [])
+    }, [nodes, links])
 
     return (
-        <div className="flex flex-col pb-5 items-center justify-center h-full w-full">
+        <div className="flex flex-col py-5 items-center justify-center h-full w-full">
+            <div className="text-[#AAAAAA] text-xs tracking-[0.3em] font-bold">
+                CLICK & DRAG LEAVES
+            </div>
             <svg 
                 className="w-full h-full"
                 ref={refSvg}
             ></svg>
-            <div className="text-[#AAAAAA] text-xs tracking-[0.3em] font-bold">DOUBLE CLICK A TOPIC TO EXPLORE</div>
+            <div className="text-[#AAAAAA] text-xs tracking-[0.3em] font-bold">
+                DOUBLE CLICK ON A LEAF TO EXPLORE
+            </div>
         </div>
     )
 }

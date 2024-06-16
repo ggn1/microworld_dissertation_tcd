@@ -77,7 +77,6 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
     const [show, setShow] = useState(!hide)
     const [showTreeLabel, setShowTreeLabel] = useState(false)
     const [treeLabel, setTreeLabel] = useState("Tree Label")
-    let treeCounts = {}
 
     useEffect(() => {
         // Initializes SVG elements.
@@ -159,9 +158,11 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
         landContent.on("mouseover", (e, d) => {
                         setTreeLabel(d.label)
                         setShowTreeLabel(true)
+                        // d3.select(e.target).attr("stroke", "yellow")
                     })
-                    .on("mouseout", () => {
+                    .on("mouseout", (e, d) => {
                         setShowTreeLabel(false)
+                        // d3.select(e.target).attr("stroke", "black")
                     })
     }, [content])
 

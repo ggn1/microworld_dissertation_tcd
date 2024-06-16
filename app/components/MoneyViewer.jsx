@@ -191,14 +191,14 @@
                         }
                         
                     </div>
-                    {/* Expenses */}
+                    {/* EXPENSES */}
                     <div className='bg-[#FFFFFF] p-3 rounded-lg flex-grow text-center'>
                         <div className='flex gap-1 items-center justify-center font-bold mb-2'>
                             <img src="coin.png" className="h-5 w-5"/>
                             EXPENSES
                         </div>
                         <div className='flex justify-between mb-2 gap-3'>
-                            {/* Overall */}
+                            {/* OVERALL */}
                             <div className='flex items-center gap-1'>
                                 <div className='font-bold text-[#888]'>OVERALL:</div>
                                 <Money amountBig={expenses.overall.total} showUnit={false}/>
@@ -230,7 +230,7 @@
                             <div className='flex items-center gap-1 justify-center'>
                                 <div className='font-bold text-[#888]'>ROTATION:</div>
                                 <div className='flex gap-1'>
-                                    <Money amountBig={income.rotation.total} showUnit={false}/>
+                                    <Money amountBig={expenses.rotation.total} showUnit={false}/>
                                     {!hideTargets && <>
                                         <div>/</div>
                                         <Money amountBig={targets.total} showUnit={false}/>

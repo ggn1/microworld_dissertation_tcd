@@ -5,6 +5,9 @@ import { Tooltip } from 'react-tooltip'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from "react"
 
+let dialogueInProgress = false
+let introTaken = false
+
 const LandingPage = () => {
     
     const [started, setStarted] = useState(false)
@@ -34,9 +37,19 @@ const LandingPage = () => {
         /** 
          * Function that receives a keypress event.
          */
-        if (e.key === "Enter") setStarted(prevVal => !prevVal)
-        if (e.key === "w" || e.key === "W") router.push('/world')
-        else if (e.key === "h" || e.key === "H") router.push('/help')
+        const notDoneYet = <div key="dialogue_14">Appreciate the enthusiasm, but I&apos;m not done yet. Please continue clicking.</div>
+        if (e.key === "Enter") {
+            if (dialogueInProgress && !introTaken) setDialogue(notDoneYet)
+            else setStarted(prevVal => !prevVal)
+        }
+        else if (e.key === "w" || e.key === "W") {
+            if (dialogueInProgress && !introTaken) setDialogue(notDoneYet)
+            else router.push('/world')
+        }
+        else if (e.key === "h" || e.key === "H") {
+            if (dialogueInProgress && !introTaken) setDialogue(notDoneYet)
+            else router.push('/help')
+        }
     }
 
     const updateContentIdx = () => {
@@ -68,10 +81,14 @@ const LandingPage = () => {
     }, [contentIdx])
 
     useEffect(() => {
-        console.log()
         setTimeout(() => {
             setDialogue(contentList[contentIdx])
         }, 1000)
+        if (contentIdx > 0 && contentIdx < (contentList.length-1)) dialogueInProgress = true
+        else {
+            dialogueInProgress = false
+            if (contentIdx == contentList.length-1) introTaken = true
+        }
     }, [dialogueTrigger])
 
     return (

@@ -4,13 +4,12 @@ import * as d3 from "d3"
 import { saveAs } from 'file-saver'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Funds from "../components/Funds.jsx"
+import PopUp from '../components/PopUp'
 import Simulation from "../model/Simulation.js"
 import Timeline from '../components/Timeline.jsx'
 import LandPlot from "../components/LandPlot.jsx"
 import CO2Scale from "../components/CO2Scale.jsx"
 import CarbonDist from "../components/CarbonDist.jsx"
-import PropBar from '../components/PropBar.jsx'
 import Targets from '../components/Targets.jsx'
 import PlanViewer from '../components/PlanViewer.jsx'
 import EmissionsFossilFuels from '../components/EmissionsFossilFuels.jsx'
@@ -48,6 +47,8 @@ const Home = () => {
     const [showIncPanel, setShowIncPanel] = useState(true)
     const [showBiodiversity, setShowBiodiversity] = useState(true)
     const [devMode, setDevMode] = useState(false)
+
+    const [popUpContent, setPopUpContent] = useState("")
 
     const router = useRouter()
 
@@ -117,6 +118,10 @@ const Home = () => {
         saveAs(blob, "microworld_run_data.csv")
     }
 
+    const handlePopUpClose = () => {
+        setPopUpContent("")
+    }
+
     useEffect(() => {
         if (sim == null) {
             sim = new Simulation(updateSimUI, updatePlanUI)
@@ -174,75 +179,82 @@ const Home = () => {
     
     return (
         isInitialized &&
-        <div className="w-full p-5 grid grid-cols-12 gap-2">
-            <div id="world-targets" className="rounded-xl bg-[#DEEDFF] col-span-4 row-span-3 p-3">
-                <Targets 
-                    setTargets={sim.planner.setTargets} 
-                    curCO2={airCO2}
-                    curIncome={income.rotation.total.toFixed(2).toString()}
-                    curFunds={funds}
-                    getTargets={sim.planner.getTargets}
-                    startValCO2={sim.planner.getTargets().co2}
-                    startValIncome={sim.planner.getTargets().income}
-                    updateTargetIncome={sim.planner.setTargets}
-                    updateIncTargetsUI={() => setRotationIncomeTargets(
-                        sim.getResourceSalesTargets()
-                    )}
-                    year={time}
-                    rotationPeriod={rotationPeriod}
-                    rotation={curRotation}
-                    showCO2={showCO2Target}
-                    showIncome={showIncomeTarget}
-                />
-            </div>
-            <div id="world-money" className="rounded-xl bg-[#FFECFB] col-span-8 row-span-4 p-3">
-                {showIncPanel ? <MoneyViewer 
-                    funds={funds}
-                    targets={rotationIncomeTargets} 
-                    income={income}
-                    expenses={expenses}
-                    rotation={curRotation}
-                    dependency={incomeDependency}
-                    resources={sim.resources}
-                    hideTargets={!showIncomeTarget}
-                    hideIncDep={!showIncDepPanel}
-                /> : <div className='min-h-32'></div>}
-            </div>
-            <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 p-3">
-                <Timeline 
-                    goToTime={sim.goto} 
-                    triggerPause={pauseTrigger}
-                    handleSaveRunData={devMode ? handleSaveRunData : null}
-                />
-            </div>
-            <div id="world-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-1 p-3">
-                <PlanViewer 
-                    rotationPeriod={rotationPeriod} 
-                    plan={plan} 
-                    year={time}
-                    rotation={curRotation}
-                    pauseWorld={() => setPauseTrigger(prevVal => 1 - prevVal)}
-                />
-            </div> 
-            <div id="world-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-1 p-3">
-                <div class="flex w-full h-full items-center justify-center">
-                    <LandPlot 
-                        content={landContent} bdScore={bdScore} 
-                        bdCategory={bdCat} hide={!showBiodiversity}
+        <main className='relative'>
+            <div className="w-full p-5 grid grid-cols-12 gap-2">
+                <div id="world-targets" className="rounded-xl bg-[#DEEDFF] col-span-4 row-span-3 p-3">
+                    <Targets 
+                        setTargets={sim.planner.setTargets} 
+                        curCO2={airCO2}
+                        curIncome={income.rotation.total.toFixed(2).toString()}
+                        curFunds={funds}
+                        getTargets={sim.planner.getTargets}
+                        startValCO2={sim.planner.getTargets().co2}
+                        startValIncome={sim.planner.getTargets().income}
+                        updateTargetIncome={sim.planner.setTargets}
+                        updateIncTargetsUI={() => setRotationIncomeTargets(
+                            sim.getResourceSalesTargets()
+                        )}
+                        year={time}
+                        rotationPeriod={rotationPeriod}
+                        rotation={curRotation}
+                        showCO2={showCO2Target}
+                        showIncome={showIncomeTarget}
                     />
                 </div>
-            </div>
-            <div id="world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-1 p-3">
-                <div className='*:mb-3'>
-                    {showCO2Scale &&<CO2Scale concentration={airCO2}/>}
-                    {showPanelC && <CarbonDist distribution={envC}/>}
-                    {showPanelFF && <EmissionsFossilFuels 
-                        getFossilFuelEmission={sim.env.getFossilFuelEmission}
-                        setFossilFuelEmission={sim.env.setFossilFuelEmission}
-                    />}
+                <div id="world-money" className="rounded-xl bg-[#FFECFB] col-span-8 row-span-4 p-3">
+                    {showIncPanel ? <MoneyViewer 
+                        funds={funds}
+                        targets={rotationIncomeTargets} 
+                        income={income}
+                        expenses={expenses}
+                        rotation={curRotation}
+                        dependency={incomeDependency}
+                        resources={sim.resources}
+                        hideTargets={!showIncomeTarget}
+                        hideIncDep={!showIncDepPanel}
+                    /> : <div className='min-h-32'></div>}
                 </div>
-            </div>  
-        </div>
+                <div id="world-timeline" className="rounded-xl bg-[#F2EAD5] col-span-4 row-span-1 p-3">
+                    <Timeline 
+                        goToTime={sim.goto} 
+                        triggerPause={pauseTrigger}
+                        handleSaveRunData={devMode ? handleSaveRunData : null}
+                    />
+                </div>
+                <div id="world-plan" className="rounded-xl bg-[#D9ECE2] col-span-4 row-span-1 p-3">
+                    <PlanViewer 
+                        rotationPeriod={rotationPeriod} 
+                        plan={plan} 
+                        year={time}
+                        rotation={curRotation}
+                        pauseWorld={() => setPauseTrigger(prevVal => 1 - prevVal)}
+                    />
+                </div> 
+                <div id="world-land" className="rounded-xl bg-[#FDEBDE] col-span-5 row-span-1 p-3">
+                    <div class="flex w-full h-full items-center justify-center">
+                        <LandPlot 
+                            content={landContent} bdScore={bdScore} 
+                            bdCategory={bdCat} hide={!showBiodiversity}
+                        />
+                    </div>
+                </div>
+                <div id="world-state" className="rounded-xl bg-[#EEEEEE] col-span-3 row-span-1 p-3">
+                    <div className='*:mb-3'>
+                        {showCO2Scale &&<CO2Scale concentration={airCO2}/>}
+                        {showPanelC && <CarbonDist distribution={envC}/>}
+                        {showPanelFF && <EmissionsFossilFuels 
+                            getFossilFuelEmission={sim.env.getFossilFuelEmission}
+                            setFossilFuelEmission={sim.env.setFossilFuelEmission}
+                        />}
+                    </div>
+                </div>  
+            </div>
+            {popUpContent != "" && 
+                <PopUp handleClose={handlePopUpClose}>
+                    {popUpContent}
+                </PopUp>
+            }
+        </main>
     )
 }
 

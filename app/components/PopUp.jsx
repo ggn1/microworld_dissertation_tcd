@@ -5,7 +5,7 @@ const PopUp = ({children, handleClose}) => {
      * A popup window.
      */
     return (
-        <div className='absolute w-full h-full flex justify-center *:select-none overflow-hidden'>
+        <div className='absolute top-0 left-0 w-screen h-full overflow-hidden flex justify-center *:select-none overflow-hidden'>
             <div 
                 className='absolute w-full h-full bg-black opacity-80'
                 onClick={handleClose}

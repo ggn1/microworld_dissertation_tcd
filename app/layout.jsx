@@ -4,7 +4,7 @@ import "./globals.css"
 const font = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Microworld",
+  title: "Mycroforest",
   description: "A microworld to teach about forest mangement and climate change.",
 };
 

@@ -79,7 +79,7 @@ const LandingPage = () => {
             {!started && <div className="light z-10"></div>}
             {/* Instruction */}
             {!started && <div className="
-                text-xs text-[#222222] select-none 
+                text-xs text-[#666666] select-none 
                 itallic font-bold tracking-[0.5em] flex justify-center
             ">
                 PRESS ENTER
@@ -87,10 +87,13 @@ const LandingPage = () => {
             {/* Main Content */}
             <div className="flex flex-col justify-center items-center w-full h-full">
                 {/* Title */}
-                <div 
-                    className="select-none text-[32px] breathing my-3"
-                    style={{color: started ? "#FFFFFF" : "#121212"}}
-                > mycroforest </div>
+                {!started && <img src="tree.png" className='w-32'/>}
+                <div>
+                    <div 
+                        className="select-none text-[32px] breathing my-3"
+                        style={{color: started ? "#FFFFFF" : "#121212"}}
+                    >mycroforest </div>
+                </div>
                 {/* Dialogue */}
                 <div 
                     className='flex justify-center items-center text-[20px] select-none w-2/4'
@@ -142,7 +145,7 @@ const LandingPage = () => {
             </div>
             {/* Subtitle */}
             <div className="
-                text-[#555555] italic tracking-[0.5em] 
+                text-[#666666] italic tracking-[0.5em] 
                 flex justify-center text-xs
                 select-none
             ">

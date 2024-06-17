@@ -76,7 +76,12 @@ const ActionManager = ({
         */
 
         const num = parseInt(val)
-        return !isNaN(num) && rotationYears.includes(num)
+        // return !isNaN(num) && rotationYears.includes(num)
+        return (
+            !isNaN(num) &&
+            (num >= 0) &&
+            (num < JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)) 
+        )
     }
 
     const handleActionTagClick = (
@@ -107,6 +112,14 @@ const ActionManager = ({
         const maxTime = JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
         let t = 0
         rotationYears = []
+
+        // for (let t = 0; t < maxTime; t++) {
+        //     years.add(t)
+        //     if (t % rotationPeriod == 0) {
+        //         rotationYears.push(t)
+        //     }
+        // }
+
         while (t >= 0 && t < maxTime) {
             rotationYears.push(t)
             years.add(t)
@@ -266,10 +279,12 @@ const ActionManager = ({
          * Facilitates addition of selected action to the plan.
          */
         if (!isCountInvalid && !isYearInvalid) {
-            let years = [selectedYear]
-            if (repeat) {
-                const curYearIdx = rotationYears.indexOf(selectedYear)
-                years = rotationYears.slice(curYearIdx)
+            let years = []
+            let y = selectedYear
+            while (y < JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)) {
+                years.push(y)
+                if (!repeat) break
+                y += rotationPeriod
             }
             for (const year of years) {
                 addAction(
@@ -364,10 +379,7 @@ const ActionManager = ({
                 <div className='col-span-3 row-span-1'>
                     <Veil
                         borderRadius={8} 
-                        isVeiled={
-                            selectedAction == "none" ||
-                            selectedTreeType == "none"
-                        }
+                        isVeiled={selectedAction == "none" || selectedTreeType == "none"}
                         veilColor='#101626'
                     >
                         <div className='

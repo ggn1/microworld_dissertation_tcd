@@ -64,3 +64,7 @@ div {
     stroke: #777;
     stroke-width: 2px;
 }
+
+.max-h-screen-full {
+    height: max(100vh, 100%);
+}

@@ -33,7 +33,7 @@ export const getHelpJsxContent = (data) => {
         } else if (d[0] == "image") {
             toRender.push(
                 <div className='flex items-center justify-center'>
-                    <img src={d[1]} className='max-h-64 max-w-full'/>
+                    <img src={d[1]}/>
                 </div>
             )   
         } else if (d[0] == "table") {

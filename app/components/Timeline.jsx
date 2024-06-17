@@ -1,6 +1,9 @@
 "use client"
 
+import Help from "./Help"
 import Button from "./Button"
+import { PopUpContext } from '../world/page'
+import { getHelpJsxContent } from '../help/page'
 import React, { useEffect, useRef, useState } from "react"
 
 const unit = "Year"
@@ -23,6 +26,8 @@ const Timeline = ({goToTime, triggerPause, handleSaveRunData=null}) => {
      *                           save run data as a CSV file.
      * @return: UI component.
      */
+
+    const helpData = [["heading", "TIME"],["paragraph", "The unit of time in this microworld is Year"], ["paragraph", "The TIMELINE may be used to move to different points in time in the simulation."], ["image", "help/time1.png"], ["paragraph", "Clicking the PLAY BUTTON runs the simulation, and the current year in the microworld is updated with every timestep. The number in the display changes to reflect this. Once clicked, the play button changes to a PAUSE BUTTON. Clicking the pause button pauses the simulation and it changes back into the play button. The RESET BUTTON may be clicked to go back to year 0. The BACK and NEXT buttons can be clicked to go one year before or after."], ["image", "help/time2.png"], ["paragraph", "In the TEXTBOX, you may type in any year within simulation range (0 to 300 years) and the microworld jumps to that point in time. Upon entering some input, the play/pause and reset buttons change to a CONFIRM BUTTON and CANCEL BUTTON as shown above. Clicking the confirm button applies the change to the year and cancel prevents this. If input is invalid (not an integer in the allowed range) then the input box turns red to indicate this and the change will not be applied even upon confirmation."]]
 
     const [isEditing, setIsEditing] = useState(false)
     const [isValid, setIsValid] = useState(true)
@@ -173,80 +178,82 @@ const Timeline = ({goToTime, triggerPause, handleSaveRunData=null}) => {
     }, [triggerPause])
 
     return (
-        <div className="timeline p-2 h-full w-full flex gap-3 justify-center items-center">
-            {handleSaveRunData != null && <Button
-                bgColor="#FFF8E6" outlineColor="#E4DAC1"
-                onClick={handleSaveRunData}
-            >↓DATA</Button>}
-            <div className="flex items-center h-full font-bold">
-                {unit.toUpperCase()}:
-            </div>
-            <Button 
-                bgColor="#FFF8E6" outlineColor="#E4DAC1"
-                onClick={() => takeTimeStep(-1)}
-            ><div className="px-[3px] font-bold">{"<"}</div></Button>
-            <div>
-                <input type="text" 
-                    className="
-                        px-3 rounded-full text-[#888888] text-center 
-                        max-w-16 focus:text-[#CCCCCC] h-full
-                    "
-                    onChange={(e) => handleChange(e.target.value)}
-                    style={{"border": `${isValid ? 0 : 3}px solid red`}}
-                    ref={inputRef}
-                />
-            </div>
-            <Button 
-                bgColor="#FFF8E6" outlineColor="#E4DAC1"
-                onClick={() => takeTimeStep(1)}
-            ><div className="px-[3px] font-bold">{">"}</div></Button>
-            {
-                isEditing ? <>
-                    
-                    {/* Submit Change Button */}
-                    <Button 
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
-                        onClick={handleNewTimeSubmit}
-                    >
-                        <img className="h-6 w-4 py-1" src="tick.png" />
-                    </Button>
+        <Help helpData={helpData} page="world">
+            <div className="timeline p-2 pt-5 h-full w-full flex gap-3 justify-center items-center">
+                {handleSaveRunData != null && <Button
+                    bgColor="#FFF8E6" outlineColor="#E4DAC1"
+                    onClick={handleSaveRunData}
+                >↓DATA</Button>}
+                <div className="flex items-center h-full font-bold">
+                    {unit.toUpperCase()}:
+                </div>
+                <Button 
+                    bgColor="#FFF8E6" outlineColor="#E4DAC1"
+                    onClick={() => takeTimeStep(-1)}
+                ><div className="px-[3px] font-bold">{"<"}</div></Button>
+                <div>
+                    <input type="text" 
+                        className="
+                            px-3 rounded-full text-[#888888] text-center 
+                            max-w-16 focus:text-[#CCCCCC] h-full
+                        "
+                        onChange={(e) => handleChange(e.target.value)}
+                        style={{"border": `${isValid ? 0 : 3}px solid red`}}
+                        ref={inputRef}
+                    />
+                </div>
+                <Button 
+                    bgColor="#FFF8E6" outlineColor="#E4DAC1"
+                    onClick={() => takeTimeStep(1)}
+                ><div className="px-[3px] font-bold">{">"}</div></Button>
+                {
+                    isEditing ? <>
+                        
+                        {/* Submit Change Button */}
+                        <Button 
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                            onClick={handleNewTimeSubmit}
+                        >
+                            <img className="h-6 w-4 py-1" src="tick.png" />
+                        </Button>
 
-                    {/* Cancel Change Button */}
-                    <Button 
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
-                        onClick={handleNewTimeCancel}
-                    >
-                        <img className="h-6 w-4 py-1" src="cross.png" />
-                    </Button>
-                </> : <>
-                    {/* Play/Pause Button */}
-                    <Button 
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
-                        onClick={handlePlayPause}
-                    >
-                        <div className="h-6 w-4 py-0.5 flex items-center">
-                            <img 
-                                className="w-full h-auto" 
-                                src={isPaused ? "play.png" : "pause.png"}
-                            />
-                        </div>
-                    </Button>
+                        {/* Cancel Change Button */}
+                        <Button 
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                            onClick={handleNewTimeCancel}
+                        >
+                            <img className="h-6 w-4 py-1" src="cross.png" />
+                        </Button>
+                    </> : <>
+                        {/* Play/Pause Button */}
+                        <Button 
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                            onClick={handlePlayPause}
+                        >
+                            <div className="h-6 w-4 py-0.5 flex items-center">
+                                <img 
+                                    className="w-full h-auto" 
+                                    src={isPaused ? "play.png" : "pause.png"}
+                                />
+                            </div>
+                        </Button>
 
-                    {/* Reset Button */}
-                    <Button 
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1" 
-                        onClick={handleReset}
-                    >
-                        <div className="h-6 w-4 py-0.5 flex items-center">
-                            <img 
-                                className="w-full h-auto" 
-                                src="reset.png"
-                            />
-                        </div>
-                    </Button>
-                </>
-            }
-        </div>
+                        {/* Reset Button */}
+                        <Button 
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1" 
+                            onClick={handleReset}
+                        >
+                            <div className="h-6 w-4 py-0.5 flex items-center">
+                                <img 
+                                    className="w-full h-auto" 
+                                    src="reset.png"
+                                />
+                            </div>
+                        </Button>
+                    </>
+                }
+            </div>
+        </Help>
     )
 }
 

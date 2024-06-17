@@ -1,5 +1,6 @@
     "use client"
 
+    import Help from './Help.jsx'
     import Money from './Money.jsx'
     import PropBar from "./PropBar.jsx"
     import { useState, useEffect } from "react"
@@ -28,6 +29,7 @@
         const colorGood = "#32BE51"
         const colorDefault = "#EEEEEE"
         const incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
+        const helpData = [["heading", "COINS"], ["paragraph", "Coins are the currency of this microworld. The COIN PANEL displays your BANK BALANCE, INCOME and EXPENSES."],["paragraph", "BANK BALANCE: Bank balance is the total amount of coins that you have at any given point in the simulation."], ["paragraph", "INCOME: Income refers to no. of coins you have earned. Overall income is how much you've earned so far in the simulation, yearly income is how much you've earned this year alone, and rotation income is how much you have earned in this rotation alone."], ["paragraph", "EXPENSES: Expenses refer to how much you have spent overall, this year and this rotation. Felling/planting a tree costs coins that comprise this expenditure."], ["image", "help/coins_1.png"]]
 
         const [resourceIncData, setResourceIncData] = useState([])
         const [resourceExpData, setResourceExpData] = useState([])
@@ -124,47 +126,62 @@
 
         return (
             Object.keys(targets).length > 0 && 
-            <div className='flex flex-col gap-3 h-full justify-center align-middle'>
-                <div className='flex gap-3'>
-                    {/* Bank Balance */}
-                    <div className='flex flex-grow bg-[#FFF] rounded-lg p-2 gap-3 items-center justify-center'>
-                        <b>BANK BALANCE:</b>
-                        <Money amountBig={funds}/>
+            <Help helpData={helpData} page="world">
+                <div className='flex flex-col pt-6 gap-3 h-full justify-center align-middle'>
+                    <div className='flex gap-3'>
+                        {/* Bank Balance */}
+                        <div className='flex flex-grow bg-[#FFF] rounded-lg p-2 gap-3 items-center justify-center'>
+                            <b>BANK BALANCE:</b>
+                            <Money amountBig={funds}/>
+                        </div>
+                        {/* Income Dependency */}
+                        {!hideIncDep && <PropBar
+                            proportions={Object.values(dependency)}
+                            colors={Object.values(resources).map(resource => resource.color)}
+                            labels={Object.values(resources).map(resource => resource.label)}
+                        />}
                     </div>
-                    {/* Income Dependency */}
-                    {!hideIncDep && <PropBar
-                        proportions={Object.values(dependency)}
-                        colors={Object.values(resources).map(resource => resource.color)}
-                        labels={Object.values(resources).map(resource => resource.label)}
-                    />}
-                </div>
-                <div className="flex gap-3">
-                    {/* Income */}
-                    <div className='bg-[#FFFFFF] p-3 rounded-lg flex-grow text-center'>
-                        <div className='flex gap-1 items-center justify-center font-bold mb-2'>
-                            <img src="coin.png" className="h-5 w-5"/>
-                            INCOME
-                        </div>
-                        <div className='flex justify-between mb-2 gap-3'>
-                            {/* Overall */}
-                            <div className='flex items-center gap-1'>
-                                <div className='font-bold text-[#888]'>OVERALL:</div>
-                                <Money amountBig={income.overall.total} showUnit={false}/>
+                    <div className="flex gap-3">
+                        {/* Income */}
+                        <div className='bg-[#FFFFFF] p-3 rounded-lg flex-grow text-center'>
+                            <div className='flex gap-1 items-center justify-center font-bold mb-2'>
+                                <img src="coin.png" className="h-5 w-5"/>
+                                INCOME
                             </div>
-                            {/* YEAR */}
-                            <div className='flex items-center gap-1'>
-                                <div className=' font-bold text-[#888]'>YEAR:</div>
-                                <Money amountBig={income.year.total} showUnit={false}/>
+                            <div className='flex justify-between mb-2 gap-3'>
+                                {/* Overall */}
+                                <div className='flex items-center gap-1'>
+                                    <div className='font-bold text-[#888]'>OVERALL:</div>
+                                    <Money amountBig={income.overall.total} showUnit={false}/>
+                                </div>
+                                {/* YEAR */}
+                                <div className='flex items-center gap-1'>
+                                    <div className=' font-bold text-[#888]'>YEAR:</div>
+                                    <Money amountBig={income.year.total} showUnit={false}/>
+                                </div>
                             </div>
-                        </div>
-                        {/* ROTATION */}
-                        {
-                            getNumActiveResources() > 1 ?
-                            <div className='
-                                p-2 flex flex-col gap-1 border-4 border-[#EEEEEE]
-                                justify-center items-center rounded-lg border-dashed
-                            '>
-                                <div className='flex w-full gap-3 justify-between'>
+                            {/* ROTATION */}
+                            {
+                                getNumActiveResources() > 1 ?
+                                <div className='
+                                    p-2 flex flex-col gap-1 border-4 border-[#EEEEEE]
+                                    justify-center items-center rounded-lg border-dashed
+                                '>
+                                    <div className='flex w-full gap-3 justify-between'>
+                                        <div className='font-bold text-[#888]'>ROTATION:</div>
+                                        <div className='flex gap-1'>
+                                            <Money amountBig={income.rotation.total} showUnit={false}/>
+                                            {!hideTargets && <>
+                                                <div>/</div>
+                                                <Money amountBig={targets.total} showUnit={false}/>
+                                            </>}
+                                        </div>
+                                    </div>
+                                    <div className='flex gap-2 justify-center'>
+                                        {resourceIncData}
+                                    </div>
+                                </div> :
+                                <div className='flex items-center gap-1 justify-center'>
                                     <div className='font-bold text-[#888]'>ROTATION:</div>
                                     <div className='flex gap-1'>
                                         <Money amountBig={income.rotation.total} showUnit={false}/>
@@ -173,74 +190,61 @@
                                             <Money amountBig={targets.total} showUnit={false}/>
                                         </>}
                                     </div>
-                                </div>
-                                <div className='flex gap-2 justify-center'>
-                                    {resourceIncData}
-                                </div>
-                            </div> :
-                            <div className='flex items-center gap-1 justify-center'>
-                                <div className='font-bold text-[#888]'>ROTATION:</div>
-                                <div className='flex gap-1'>
-                                    <Money amountBig={income.rotation.total} showUnit={false}/>
-                                    {!hideTargets && <>
-                                        <div>/</div>
-                                        <Money amountBig={targets.total} showUnit={false}/>
-                                    </>}
-                                </div>
-                            </div> 
-                        }
-                        
-                    </div>
-                    {/* EXPENSES */}
-                    <div className='bg-[#FFFFFF] p-3 rounded-lg flex-grow text-center'>
-                        <div className='flex gap-1 items-center justify-center font-bold mb-2'>
-                            <img src="coin.png" className="h-5 w-5"/>
-                            EXPENSES
+                                </div> 
+                            }
+                            
                         </div>
-                        <div className='flex justify-between mb-2 gap-3'>
-                            {/* OVERALL */}
-                            <div className='flex items-center gap-1'>
-                                <div className='font-bold text-[#888]'>OVERALL:</div>
-                                <Money amountBig={expenses.overall.total} showUnit={false}/>
+                        {/* EXPENSES */}
+                        <div className='bg-[#FFFFFF] p-3 rounded-lg flex-grow text-center'>
+                            <div className='flex gap-1 items-center justify-center font-bold mb-2'>
+                                <img src="coin.png" className="h-5 w-5"/>
+                                EXPENSES
                             </div>
-                            {/* YEAR */}
-                            <div className='flex items-center gap-1'>
-                                <div className=' font-bold text-[#888]'>YEAR:</div>
-                                <Money amountBig={expenses.year.total} showUnit={false}/>
+                            <div className='flex justify-between mb-2 gap-3'>
+                                {/* OVERALL */}
+                                <div className='flex items-center gap-1'>
+                                    <div className='font-bold text-[#888]'>OVERALL:</div>
+                                    <Money amountBig={expenses.overall.total} showUnit={false}/>
+                                </div>
+                                {/* YEAR */}
+                                <div className='flex items-center gap-1'>
+                                    <div className=' font-bold text-[#888]'>YEAR:</div>
+                                    <Money amountBig={expenses.year.total} showUnit={false}/>
+                                </div>
                             </div>
-                        </div>
-                        {/* ROTATION */}
-                        {
-                            getNumActiveResources() > 1 ?
-                            <div className='
-                                p-2 flex flex-col gap-1 border-4 border-[#EEEEEE]
-                                justify-center items-center rounded-lg border-dashed
-                            '>
-                                <div className='flex w-full gap-3 justify-between'>
+                            {/* ROTATION */}
+                            {
+                                getNumActiveResources() > 1 ?
+                                <div className='
+                                    p-2 flex flex-col gap-1 border-4 border-[#EEEEEE]
+                                    justify-center items-center rounded-lg border-dashed
+                                '>
+                                    <div className='flex w-full gap-3 justify-between'>
+                                        <div className='font-bold text-[#888]'>ROTATION:</div>
+                                        {getNumActiveResources() > 1 && <Money 
+                                            amountBig={expenses.rotation.total} 
+                                            showUnit={false}
+                                        />}
+                                    </div>
+                                    <div className='flex gap-2 justify-center'>
+                                        {resourceExpData}
+                                    </div>
+                                </div>:
+                                <div className='flex items-center gap-1 justify-center'>
                                     <div className='font-bold text-[#888]'>ROTATION:</div>
-                                    {getNumActiveResources() > 1 && <Money 
-                                        amountBig={expenses.rotation.total} 
-                                        showUnit={false}
-                                    />}
-                                </div>
-                                <div className='flex gap-2 justify-center'>
-                                    {resourceExpData}
-                                </div>
-                            </div>:
-                            <div className='flex items-center gap-1 justify-center'>
-                                <div className='font-bold text-[#888]'>ROTATION:</div>
-                                <div className='flex gap-1'>
-                                    <Money amountBig={expenses.rotation.total} showUnit={false}/>
-                                    {!hideTargets && <>
-                                        <div>/</div>
-                                        <Money amountBig={targets.total} showUnit={false}/>
-                                    </>}
-                                </div>
-                            </div> 
-                        }
+                                    <div className='flex gap-1'>
+                                        <Money amountBig={expenses.rotation.total} showUnit={false}/>
+                                        {!hideTargets && <>
+                                            <div>/</div>
+                                            <Money amountBig={targets.total} showUnit={false}/>
+                                        </>}
+                                    </div>
+                                </div> 
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
+            </Help>         
         )
     }
 

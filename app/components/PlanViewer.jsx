@@ -1,6 +1,6 @@
 "use client"
 
-// import Link from "next/link"
+import Help from "./Help"
 import Button from "./Button"
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
@@ -16,6 +16,8 @@ const PlanViewer = ({year, rotationPeriod, rotation, plan, pauseWorld}) => {
      * @param pauseWorld: Function that can be called to pause  
      *                    a running simulation.
      */
+
+    const helpData = [["heading", "PLAN VIEWER"], ["paragraph", "Possible forest management actions include cutting down (felling) trees or planting them. Trees may be felled or planted every X no. of years. This X is the ROTATION PERIOD. Management actions such as FELL and PLANT may be scheduled at the end of each ROTATION. This type of planning in rotations mimics real world practices. In agriculture and forestry harvests are often planned in rotations. A rotation is thus defined as 'the number of years between the formation or regeneration of a crop and its harvest'"], ["paragraph", "Planning can be done using the planner that may be accessed via clicking the PLAN button within the PLAN VIEWER PANEL as shown below."], ["paragraph", "The plan viewer displays planned actions. It also shows the current rotation and set rotation period on the top left (ROTATION DISPLAY and ROTATION PERIOD DISPLAY)."], ["paragraph", "Once a plan has been drafted. Actions that were most recently processed as well as the associated year is displayed under Previous Actions. Similarly, actions to be processed next along with the corresponding year, are displayed under Upcoming Actions. These action tags are horizontally scrollable if there are more of them than can fit within the view frame."], ["image", "help/management_1.png"], ["paragraph", "Clicking on the plan button will take you to the PLANNING PAGE."]]
 
     const colorBad = "#F44A4A"
     const colorGood = "#32CE51"
@@ -121,11 +123,12 @@ const PlanViewer = ({year, rotationPeriod, rotation, plan, pauseWorld}) => {
     }, [idxPast, idxUpcoming])
 
     return (
-        <div className="flex flex-col h-full w-full gap-3">
-            <div className="flex justify-between items-center">
-                <div className="flex flex-col justisy-between gap-1">
-                    <b>{rotationPeriod} Year Rotation Period</b>
-                    <b>ROTATION {rotation}</b>
+        <Help helpData={helpData} page="world">
+            {/* ROTATION INFO & PLAN BUTTON */}
+            <div className="flex justify-between items-center pt-4 mb-3">
+                <div className="font-bold">
+                    <p>{rotationPeriod} Year Rotation Period</p>
+                    <p>ROTATION {rotation}</p>
                 </div>
                 <Button 
                     bgColor="#08851C" outlineColor="#2D9C23" 
@@ -136,8 +139,7 @@ const PlanViewer = ({year, rotationPeriod, rotation, plan, pauseWorld}) => {
                 > PLAN </Button>
             </div>
             {/* PREVIOUS & UPCOMING PLANS */}
-            <div className="
-                bg-white h-full grid grid-rows-2 grid-col-1 p-3 rounded-lg">
+            <div className="bg-white grid grid-cols-1 grid-rows-2 h-4/5 p-3 rounded-lg">
                 {/* UPCOMING PLANS */}
                 <div>
                     <div className="flex justify-between gap-3 mb-1"> 
@@ -177,7 +179,7 @@ const PlanViewer = ({year, rotationPeriod, rotation, plan, pauseWorld}) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </Help>
     )
 }
 

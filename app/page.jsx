@@ -26,9 +26,10 @@ const LandingPage = () => {
         <div key="dialogue_8">I&apos;m sorry to hear about global warming and rapid climate change on Earth.</div>,
         <div key="dialogue_9">But it&apos;s not a bother here; your forest regulates the carbon cycle.</div>,
         <div key="dialogue_10">As your adviser, I&apos;ve arranged for help. An interactive map will manifest when you press &quot;H&quot; on your keyboard. It&apos;ll walk you through the lay of the land and all what you can do here.</div>,
-        <div key="dialogue_11">When you&apos;re ready, just press &quot;W&quot; to delve into the world.</div>,
-        <div key="dialogue_12">Press &quot;Escape&quot; to return to this page.</div>,
-        <div key="dialogue_13">Explore away!</div>
+        <div key="dialogue_11" className='flex gap-1'>Help will also appear upon clicking the &quot;?&quot; symbol whenever available.</div>,
+        <div key="dialogue_12">When you&apos;re ready, just press &quot;W&quot; to delve into the world.</div>,
+        <div key="dialogue_13">Press &quot;Escape&quot; to return to this page.</div>,
+        <div key="dialogue_14">Explore away!</div>
     ]
 
     const router = useRouter()
@@ -37,7 +38,7 @@ const LandingPage = () => {
         /** 
          * Function that receives a keypress event.
          */
-        const notDoneYet = <div key="dialogue_14">Appreciate the enthusiasm, but I&apos;m not done yet. Please continue clicking.</div>
+        const notDoneYet = <div key="dialogue_15">Your enthusiasm is much appreciated, but I&apos;m not done yet. Please continue clicking.</div>
         if (e.key === "Enter") {
             if (dialogueInProgress && !introTaken) setDialogue(notDoneYet)
             else setStarted(prevVal => !prevVal)

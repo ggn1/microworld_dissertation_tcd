@@ -1,4 +1,5 @@
 import Card from './Card'
+import Help from './Help'
 import { Tooltip } from 'react-tooltip'
 
 const CO2Scale = ({concentration}) => {
@@ -7,6 +8,8 @@ const CO2Scale = ({concentration}) => {
      * on a color coded scale. 
      * @param concentration: Current atmospheric CO2 concentration.
      */
+
+    const helpData = [["heading", "CO2"], ["paragraph", "Natural processes like respiration and anthropogenic (human generated) ones like burning of wood or fossil fuels, and so on, release carbon into the atmosphere in gaseous form, of which a large part is CO2. CO2 is a greenhouse gas that traps heat within the atmosphere and keeps the planet toasty. Mars has too little CO2. Venus has too much. On Earth, it's just right. Mars and Venus are both thought to have started out much like earth with similar conditions."], ["paragraph", "Atmospheric CO2 concentration is expressed in Parts Per Million (ppm). This is the standard. It is a measure of the concentration of a substance in a solution or gas. It is a proportion, just like percent. 80 percent is 80 parts out of 100. 80 ppm is 80 parts out of 1,000,000. Here, this indicates the number of parts of CO2 per 1 million parts of the total air in the atmosphere."], ["paragraph", "CO2 concentration in the microworld has been organized into an easy-to-read scale as shown below. Associated with each band in the scale, is a label that is indicative of the expected quality of life for humans at that level of atmospheric CO2 concentration after considering climate change related effects."], ["image", "help/air_1.png"], ["image", "help/air_2.png"], ["paragraph", "Current levels of CO2 at each point in the simulation is displayed in the ATMOSPHERIC CO2 CONCENTRATION panel as shown below. The number within a colored tile is the current concentration. Hovering over each tile, reveals its range and quality of life label."], ["image", "help/air_3.png"]]
 
     // Round CO2 concentration in the atmosphere to 2 decimal places.
     concentration = concentration.toFixed(2)
@@ -48,13 +51,15 @@ const CO2Scale = ({concentration}) => {
     }
 
     return (
-        <div className='co2concentration'>
-            <Card bgColor={"#FFFFFF"} heading="ATMOSPHERIC CO2 CONCENTRATION (ppm)">
-                <div className='flex'>
-                    <div className='w-full flex flex-row gap-2'>{[scaleColorDivs]}</div>
-                </div>
-            </Card>
-        </div>
+        <Help helpData={helpData} page="world">
+            <div className='co2concentration'>
+                <Card bgColor={"#FFFFFF"} heading="ATMOSPHERIC CO2 CONCENTRATION (ppm)">
+                    <div className='flex'>
+                        <div className='w-full flex flex-row gap-2'>{[scaleColorDivs]}</div>
+                    </div>
+                </Card>
+            </div>
+        </Help>
     )
 }
 

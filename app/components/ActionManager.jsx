@@ -1,5 +1,6 @@
 "use client"
 
+import Veil from './Veil.jsx'
 import Button from './Button.jsx'
 import Switch from './Switch.jsx'
 import TextInput from './TextInput.jsx'
@@ -7,7 +8,6 @@ import YearActions from './YearActions.jsx'
 import { useEffect, useState } from 'react'
 import ActionSelector from './ActionSelector.jsx'
 import TreeTypeSelector from './TreeTypeSelector.jsx'
-import Veil from './Veil.jsx'
 
 let yearActions = {}
 let rotationYears = []
@@ -293,7 +293,7 @@ const ActionManager = ({
     }, [])
 
     return (
-        <div>
+        <>
             {/* VIEWER */}
             <div className='mb-5 -mt-2'>
                 {/* LABELS & DELETE, SAVE, UPLOAD BUTTONS */}
@@ -429,7 +429,7 @@ const ActionManager = ({
                     </Veil>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 

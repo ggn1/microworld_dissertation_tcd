@@ -1,7 +1,9 @@
 import Big from 'big.js'
+import Help from './Help'
 import Switch from "./Switch"
 import TextInput from "./TextInput"
 import * as utils from '../utils.js'
+
 import {useState, useEffect } from "react"
 
 let targets = {"co2": null, "income": null, "funds": Big(JSON.parse(
@@ -22,7 +24,7 @@ const Targets = ({
     curCO2, curIncome, curFunds,
     updateTargetIncome, updateIncTargetsUI,
     year, rotationPeriod, rotation,
-    showCO2=true, showIncome=true
+    showCO2=true, showIncome=true,
 }) => {
     /**
      * This component both displays targets and allows 
@@ -56,6 +58,8 @@ const Targets = ({
     const colorBorderDefault = "#ffffff"
     const colorGood = "#32BE51"
     const colorBad = "#F44A4A"
+
+    const helpData = [["heading", "TARGET"], ["paragraph", "You may set yourself a target as part of challenges. The TARGET panel displays this as follows"], ["image", "help/targets1.png"], ["paragraph", "You may type into the TEXTBOX, the CO2 concentration below which atmospheric CO2 levels must never dip."], ["paragraph", "The VIEW switch can be toggled on and off. When on, the target panel displays whether the target is being currently met or not."], ["paragraph", "If the success condition is satisfied, then a green border indicates this. If the target could not be met, then a red border shows this. The point in time at which the target first failed, is also indicated (notation Y2, Y3 and so on, means Year 2, Year 3, etc.)."], ["image", "help/targets2.png"]]
 
     const [curYear, setCurYear] = useState(year)
     const [curRotation, setCurRotation] = useState(rotation)
@@ -257,10 +261,11 @@ const Targets = ({
     }, [incomeFailed])
 
     return (
-        targetCO2 != null && targetIncome != null &&
-        <div className="flex flex-col h-full w-full p-3 justify-center gap-3">
-            {/* HEADING & SWITCH */}
-            {(showCO2Target || showIncomeTarget) &&
+        (targetCO2 != null && targetIncome != null) &&
+        (showCO2Target || showIncomeTarget) &&
+        <Help helpData={helpData} page="world">
+            <div className="flex flex-col h-full w-full justify-center gap-3">
+                {/* HEADING & SWITCH */}
                 <div className="flex gap-5 justify-center items-center">
                     <div className="font-bold">TARGET</div>
                     <Switch 
@@ -270,54 +275,54 @@ const Targets = ({
                         offColor="#6E6E6E"
                     />
                 </div>
-            }
-            {/* CO2 TARGET */}
-            {showCO2Target && <div className='flex gap-2 items-center'>
-                {!expMode && co2Failed != -1 && <div 
-                    className='font-bold text-center'
-                    style={{color: colorBad}} 
-                >Y{co2Failed}</div>}
-                <TextInput 
-                    label="CO2 ≤"
-                    placeholder={targetCO2}
-                    borderColor={
-                        expMode ? colorBorderDefault : 
-                        co2Failed != -1 ? colorBad :
-                        isTargetMetCO2 == 1 ? colorGood : 
-                        isTargetMetCO2 == -1 ? colorBad :
-                        colorBorderDefault
-                    }
-                    textColor={isValidCO2 ? colorTextDefault : colorBad}
-                    unit="ppm"
-                    sanityCheck={sanityCheckNumeric} 
-                    handleVal={(val) => handleVal("co2", val)}
-                    hide={!showCO2Target}
-                />
-            </div>}
-            {/* INCOME */}
-            {showIncomeTarget && <div className='flex gap-2 items-center'>
-                {!expMode && incomeFailed != -1 && <div 
-                    className='font-bold text-center'
-                    style={{color: colorBad}} 
-                >R{incomeFailed-1}</div>}
-                <TextInput 
-                    label="Rotation Income ≥"
-                    placeholder={targetIncome}
-                    unit={<img src="coin.png" className='h-5 r-5'/>}
-                    borderColor={
-                        expMode ? colorBorderDefault :
-                        incomeFailed != -1 ? colorBad : 
-                        isTargetMetIncome == 1 ? colorGood : 
-                        isTargetMetIncome == -1 ? colorBad :
-                        colorBorderDefault
-                    }
-                    textColor={isValidIncome ? colorTextDefault : colorBad}
-                    sanityCheck={sanityCheckNumeric} 
-                    handleVal={(val) => handleVal("income", val)}
-                    hide={!showIncomeTarget}
-                />
-            </div>}
-        </div>
+                {/* CO2 TARGET */}
+                {showCO2Target && <div className='flex gap-2 items-center'>
+                    {!expMode && co2Failed != -1 && <div 
+                        className='font-bold text-center'
+                        style={{color: colorBad}} 
+                    >Y{co2Failed}</div>}
+                    <TextInput 
+                        label="CO2 ≤"
+                        placeholder={targetCO2}
+                        borderColor={
+                            expMode ? colorBorderDefault : 
+                            co2Failed != -1 ? colorBad :
+                            isTargetMetCO2 == 1 ? colorGood : 
+                            isTargetMetCO2 == -1 ? colorBad :
+                            colorBorderDefault
+                        }
+                        textColor={isValidCO2 ? colorTextDefault : colorBad}
+                        unit="ppm"
+                        sanityCheck={sanityCheckNumeric} 
+                        handleVal={(val) => handleVal("co2", val)}
+                        hide={!showCO2Target}
+                    />
+                </div>}
+                {/* INCOME */}
+                {showIncomeTarget && <div className='flex gap-2 items-center'>
+                    {!expMode && incomeFailed != -1 && <div 
+                        className='font-bold text-center'
+                        style={{color: colorBad}} 
+                    >R{incomeFailed-1}</div>}
+                    <TextInput 
+                        label="Rotation Income ≥"
+                        placeholder={targetIncome}
+                        unit={<img src="coin.png" className='h-5 r-5'/>}
+                        borderColor={
+                            expMode ? colorBorderDefault :
+                            incomeFailed != -1 ? colorBad : 
+                            isTargetMetIncome == 1 ? colorGood : 
+                            isTargetMetIncome == -1 ? colorBad :
+                            colorBorderDefault
+                        }
+                        textColor={isValidIncome ? colorTextDefault : colorBad}
+                        sanityCheck={sanityCheckNumeric} 
+                        handleVal={(val) => handleVal("income", val)}
+                        hide={!showIncomeTarget}
+                    />
+                </div>}
+            </div>
+        </Help>
     )
 }
 

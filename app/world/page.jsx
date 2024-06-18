@@ -16,7 +16,7 @@ import EmissionsFossilFuels from '../components/EmissionsFossilFuels.jsx'
 import MoneyViewer from '../components/MoneyViewer.jsx'
 
 export let sim = null
-export let challenge = 1
+export let challenge = 1np
 export const PopUpContextWorld = React.createContext()
 
 const Home = () => {    

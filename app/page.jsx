@@ -38,9 +38,10 @@ const LandingPage = () => {
         /** 
          * Function that receives a keypress event.
          */
-        const notDoneYet = <div key="dialogue_15">Your enthusiasm is much appreciated, but I&apos;m not done yet. Please continue clicking.</div>
+        console.log("dialogueInProgress =", dialogueInProgress)
+        const notDoneYet = <Fade>Your enthusiasm is much appreciated, but I&apos;m not done yet. Please continue clicking. I promise this won't take long.</Fade>
         if (e.key === "Enter") {
-            if (dialogueInProgress && !introTaken) setDialogue(notDoneYet)
+            if (dialogueInProgress) setDialogue(notDoneYet)
             else setStarted(prevVal => !prevVal)
         }
         else if (e.key === "w" || e.key === "W") {
@@ -82,14 +83,15 @@ const LandingPage = () => {
     }, [contentIdx])
 
     useEffect(() => {
-        setTimeout(() => {
-            setDialogue(contentList[contentIdx])
-        }, 1000)
-        if (contentIdx > 0 && contentIdx < (contentList.length-1)) dialogueInProgress = true
-        else {
+        if (contentIdx > 0 && contentIdx < (contentList.length-1)) {
+            dialogueInProgress = true
+        } else {
             dialogueInProgress = false
             if (contentIdx == contentList.length-1) introTaken = true
         }
+        setTimeout(() => {
+            setDialogue(contentList[contentIdx])
+        }, 1000)
     }, [dialogueTrigger])
 
     return (
@@ -120,13 +122,19 @@ const LandingPage = () => {
                 >
                     {started && 
                         <Fade trigger={dialogueTrigger}>
-                            <div className='text-[25px] *:text-[#888888] *:hover:brightness-150 *:text-center' onClick={updateContentIdx}>{dialogue}</div>
+                            <div className='text-[25px] *:text-[#888888] *:hover:brightness-150 *:text-center' onClick={updateContentIdx}>
+                                {dialogue}
+                                {!introTaken && contentIdx == 0 && <>
+                                    <div className='animate-bounce'>↑</div>
+                                    <div className='text=[#666666] text-sm font-bold animate-pulse -mt-3'>CLICK</div>
+                                </>}
+                            </div>
                         </Fade>
                     }
                     {contentIdx == contentList.length - 1 && 
                         <div className='absolute h-full w-full flex justify-center items-center brightness-50 pt-20 z-0'>
                             <Fade trigger={contentIdx == contentList.length - 1}>
-                                <img src="reset.png" className='h-5 invert w-auto hover:scale-125' onClick={() => setContentIdx(0)}/>
+                                <img src="reset.png" className='h-5 invert w-auto hover:scale-150' onClick={() => setContentIdx(0)}/>
                             </Fade>
                         </div>
                     }

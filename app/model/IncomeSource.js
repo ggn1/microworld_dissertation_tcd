@@ -2,11 +2,12 @@ import Big from 'big.js'
 import * as utils from '../utils.js'
 
 export default class IncomeSource {
-    /** Class that represents one source of income
-     *  from the forest. */
+    /** 
+     * Class that represents a source
+     * of income from the forest. 
+    */
 
     #pricePerUnit
-    #unit
 
     constructor(type) {
         /**
@@ -18,7 +19,6 @@ export default class IncomeSource {
             process.env.NEXT_PUBLIC_INCOME_SOURCES
         )[type]
         this.color = "#"+resourceDef.color
-        this.#unit = resourceDef.unit
         this.#pricePerUnit = resourceDef.price_per_unit
         this.label = resourceDef.label
         this.image = resourceDef.image
@@ -207,7 +207,7 @@ export class NTFP extends IncomeSource {
     }
 }
 
-export class RecreationalActivities extends IncomeSource {
+export class Recreation extends IncomeSource {
     /** Class embodies income that hunting and fishing
      *  activities present. */
 
@@ -216,6 +216,7 @@ export class RecreationalActivities extends IncomeSource {
     #getIncomeDependency
     #getFunds
     #updateExpenses
+    #isBuilt
 
     constructor(
         type, getBiodiversityPc, updateFunds, 
@@ -235,7 +236,7 @@ export class RecreationalActivities extends IncomeSource {
          * @param updateExpenses: Function that can be used to update expenditure values.
          */
         super(type)
-        this.isBuilt = false // Whether infrastructure has been established yet.
+        this.#isBuilt = false // Whether infrastructure has been established yet.
         this.#getIncomeDependency = getIncomeDependency
         this.#updateFunds = updateFunds
         this.#getBiodiversityPc = getBiodiversityPc
@@ -280,11 +281,11 @@ export class RecreationalActivities extends IncomeSource {
         const initialCost = costs.initial
         const maintenanceCost = costs.maintenance * dependency
         // Build infrastructure if needed.
-        if (!this.isBuilt && dependency > 0) {
+        if (!this.#isBuilt && dependency > 0) {
             if (curFunds < (initialCost + maintenanceCost)) return false
             this.#updateFunds(-1 * initialCost)
             this.#updateExpenses("recreation", initialCost)
-            this.isBuilt = true
+            this.#isBuilt = true
         }
         // Pay maintenance costs.
         if (curFunds.lt(maintenanceCost)) return false

@@ -36,8 +36,6 @@ export default class Tree {
          */
         this.treeType = treeType
         this.position = position
-        // this.height = JSON.parse(process.env.NEXT_PUBLIC_HEIGHT_START_SEEDLING)
-        // this.diameter = this.#getDiameterFromHeight(this.height)
         this.height = 0
         this.diameter = 0
         this.stress = 0
@@ -91,7 +89,6 @@ export default class Tree {
             this.height += change
             this.diameter = this.#getDiameterFromHeight(this.height)
         }
-        // console.log(`NEW tree at ${this.position}`)
         this.getOlder()
     }
 

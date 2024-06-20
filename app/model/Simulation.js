@@ -1,7 +1,7 @@
 import Big from 'big.js'
 import Planner from "./Planner.js"
 import Environment from "./Environment.js"
-import { Timber, RecreationalActivities, NTFP } from "./IncomeSource.js"
+import { Timber, Recreation, NTFP } from "./IncomeSource.js"
 
 export default class Simulation {
     /** This class shall encapsulate the
@@ -344,7 +344,7 @@ export default class Simulation {
                 this.getFunds,
                 this.updateExpenses
             ),
-            recreation: new RecreationalActivities(
+            recreation: new Recreation(
                 "recreation", 
                 this.env.land.getBiodiversityPc,
                 this.updateFunds,

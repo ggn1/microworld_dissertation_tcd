@@ -16,9 +16,9 @@ export default class Environment {
          * @param ffEmission: Fossil fuel emissions start value.
          */
         if (ffEmission != null) fossilFuelEmission = ffEmission
-        const carbonAmounts = JSON.parse(process.env.NEXT_PUBLIC_C_START)
+        const carbonStart = JSON.parse(process.env.NEXT_PUBLIC_C_START)
         this.carbon = {} // g
-        for (const [reservoir, carbonAmount] of Object.entries(carbonAmounts)) {
+        for (const [reservoir, carbonAmount] of Object.entries(carbonStart)) {
             this.carbon[reservoir] = Big(carbonAmount)
         }
         this.updateCarbon = (amount) => {
@@ -89,16 +89,16 @@ export default class Environment {
         this.land = new Land(this.updateCarbon, this.getCarbon, this.getAirCO2ppm)
     }
 
-    computeCfromCO2(massCO2) {
-        /**
-         * Computes g C from g CO2.
-         * @param massCO2: Amount of CO2 in g.
-         * @return: Equivalent amount of C in g.
-         */
-        const molecularMassC = 12 // g/mol
-        const molecularMassCO2 = 44 // g/mol
-        return massCO2 * (molecularMassC/molecularMassCO2)
-    }
+    // computeCfromCO2(massCO2) {
+    //     /**
+    //      * Computes g C from g CO2.
+    //      * @param massCO2: Amount of CO2 in g.
+    //      * @return: Equivalent amount of C in g.
+    //      */
+    //     const molecularMassC = 12 // g/mol
+    //     const molecularMassCO2 = 44 // g/mol
+    //     return massCO2 * (molecularMassC/molecularMassCO2)
+    // }
 
     takeTimeStep() {
         /**

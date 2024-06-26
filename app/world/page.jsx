@@ -16,7 +16,7 @@ import EmissionsFossilFuels from '../components/EmissionsFossilFuels.jsx'
 import MoneyViewer from '../components/MoneyViewer.jsx'
 
 export let sim = null
-export let challenge = 1
+export let challenge = 0
 export const PopUpContextWorld = React.createContext()
 
 const Home = () => {    
@@ -47,7 +47,7 @@ const Home = () => {
     const [showIncDepPanel, setShowIncDepPanel] = useState(true)
     const [showIncPanel, setShowIncPanel] = useState(true)
     const [showBiodiversity, setShowBiodiversity] = useState(true)
-    const [devMode, setDevMode] = useState(false)
+    const [devMode, setDevMode] = useState(true)
 
     const [popUpContent, setPopUpContent] = useState("")
 
@@ -137,7 +137,6 @@ const Home = () => {
     }, [])
 
     useEffect(() => {
-        // console.log(`World configured for challenge ${curChallenge}.`)
         challenge = curChallenge
         if (challenge == 0) { // Full Features
             setShowCO2Target(true)
@@ -247,6 +246,7 @@ const Home = () => {
                             <LandPlot 
                                 content={landContent} bdScore={bdScore} 
                                 bdCategory={bdCat} hide={!showBiodiversity}
+                                devMode={devMode}
                             />
                         </div>
                     </div>

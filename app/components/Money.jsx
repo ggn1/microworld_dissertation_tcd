@@ -6,7 +6,7 @@ const Money = ({amountBig, showUnit=true}) => {
      * @param amountBig: Amount as a Big object.
      */
     return (
-        <div className='flex gap-1 items-center justify-center'>
+        <div className='flex gap-1 items-center justify-center select-none'>
             {showUnit && <img src="coin.png" className="h-5 w-5"/>}
             {utils.nFormatter(amountBig.toFixed(2).toString(), 2)}
         </div>

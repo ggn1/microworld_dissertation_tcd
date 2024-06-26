@@ -14,7 +14,8 @@ let rotationYears = []
 
 const ActionManager = ({
     rotationPeriod, getPlan, addAction, 
-    deleteAction, onSave, onLoad, updateTrigger
+    deleteAction, onSave, onLoad, updateTrigger,
+    incDep, setIncDep=null
 }) => {
     /**
      * Provides an interface using which learners
@@ -28,12 +29,15 @@ const ActionManager = ({
      *                a previously saved microworld state.
      * @param updateTrigger: A 0/1 value that is updated
      *                       to trigger plan refreshing.
+     * @param incDep: Latest income dependency values.
+     * @param setIncDep: Sets income dependency values.
      */
 
     const colorBad = "#F44A4A"
     const colorDefaultText = "#232323"
     const placeholderTreeCount = 1
     const placeholderYear = 0
+    const incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
     
     const [yearActionObjects, setYearActionsObjects] = useState([])
     const [selectedAction, setSelectedAction] = useState("none")
@@ -44,6 +48,9 @@ const ActionManager = ({
     const [repeat, setRepeat] = useState(false)
     const [isCountInvalid, setIsCountInvalid] = useState(false)
     const [isYearInvalid, setIsYearInvalid] = useState(false)
+    const [incomeDependency, setIncomeDependency] = useState(incDep)
+    const [incDepSwitches, setIncDepSwitches] = useState([])
+    const [triggerSwitchUpdate, setTriggerSwitchUpdate] = useState(0)
 
     const sanityCheckTreeCount = (val) => {
         /** 
@@ -297,10 +304,59 @@ const ActionManager = ({
         }
     }
 
+    const toggleDependence = (stream) => {
+        /**
+         * Function that turns an income 
+         * stream off or on.
+         * @param stream: Name of income stream.
+         */
+        const newVal = JSON.parse(JSON.stringify(incomeDependency))
+        newVal[stream] = 1 - newVal[stream]
+        setIncDep(newVal)
+        setIncomeDependency(newVal)
+    }
+
     useEffect(() => {
         updateYearActions()
         setYearActionsObjects(getYearActionsObjects())
     }, [rotationPeriod, updateTrigger])
+
+    useEffect(() => {
+        let switches = []
+        for(const [stream, dependence] of Object.entries(incomeDependency)) {
+            if (stream != "timber") {
+                switches.push(
+                    <div 
+                        key={`switch-${stream}`} 
+                        className='
+                            p-2 bg-[#FFF] flex flex-col 
+                            justify-center rounded-lg
+                            items-center gap-1
+                        '
+                    >
+                        <div className='font-bold text-[#888] text-sm text-center'>{
+                            incomeSources[stream].label.toUpperCase()
+                        }</div>
+                        <div className='flex gap-3 justify-center items-center'>
+                            <img src={`${stream}.png`} className='h-12' />
+                            <Switch 
+                                isOnStart={dependence == 1} 
+                                onToggle={() => toggleDependence(stream)}
+                                onColor="#32BE51"
+                                offColor="#6E6E6E"
+                            />
+                        </div>
+                    </div>
+                )
+            }
+        }
+        setIncDepSwitches(switches)
+        setTriggerSwitchUpdate(prevVal => 1 - prevVal)
+    }, [incomeDependency])
+
+    useEffect(() => {
+        setIncomeDependency(incDep)
+    }, [incDep])
 
     useEffect(() => {
         updateYearActions()
@@ -308,9 +364,9 @@ const ActionManager = ({
     }, [])
 
     return (
-        <>
+        <div className='grid grid-cols-2 gap-5 max-w-5xl'>
             {/* VIEWER */}
-            <div className='mb-5 -mt-2'>
+            <div className='mb-5 col-span-1 row-span-1'>
                 {/* LABELS & DELETE, SAVE, UPLOAD BUTTONS */}
                 <div className='flex justify-between gap-5 mb-3 items-center flex-wrap'>
                     <div className='flex gap-5 justify-evenly'>
@@ -353,19 +409,19 @@ const ActionManager = ({
                     '>{[yearActionObjects]}</div>
                 </div>
             </div>
-            
+
             {/* ACTION & TREE TYPE SELECTION */}
             <div className='
-                grid grid-rows-1 grid-cols-9 justify-between gap-3 
-                rounded-lg bg-[#AAAAAA] p-3 h-60 w-full
+                grid grid-rows-1 grid-cols-3 justify-between gap-3 
+                rounded-lg bg-[#AAAAAA] p-3 col-span-1 row-span-2
             '>
                 {/* ACTION BUTTONS */}
-                <div className='col-span-2 row-span-1'>
+                <div className='col-span-1 row-span-1'>
                     <ActionSelector handleSelection={handleActionSelection}/>
                 </div>
                 
                 {/* TREE TYPE BUTTONS */}
-                <div className='col-span-4 row-span-1'>
+                <div className='col-span-2 row-span-1'>
                     <Veil 
                         borderRadius={8} 
                         isVeiled={selectedAction == "none"}
@@ -376,56 +432,55 @@ const ActionManager = ({
                 </div>
                 
                 {/* COUNT, YEAR, REPEAT SETTERS + BUTTONS */}
-                <div className='col-span-3 row-span-1'>
+                <div className='col-span-3 row-span-1 h-[105px]'>
                     <Veil
                         borderRadius={8} 
                         isVeiled={selectedAction == "none" || selectedTreeType == "none"}
                         veilColor='#101626'
                     >
-                        <div className='
-                            grid grid-rows-4 grid-cols-1 gap-2
-                            max-h-full p-3
-                        '>
-                        
-                            {/* YEAR SELECTOR */}
-                            <TextInput 
-                                label='YEAR:'
-                                placeholder={placeholderYear}
-                                textColor={isYearInvalid ? colorBad : colorDefaultText}
-                                sanityCheck={sanityCheckYear} 
-                                handleVal={handleYearChange}
-                                maxWidth="30px"
-                                bgColor='#EEEEEE'
-                                borderColor='#EEEEEE'
-                            />
-
-                            {/* COUNT SELECTOR */}
-                            <TextInput 
-                                label='COUNT:'
-                                placeholder={placeholderTreeCount}
-                                textColor={isCountInvalid ? colorBad : colorDefaultText}
-                                sanityCheck={sanityCheckTreeCount} 
-                                handleVal={handleTreeCountChange}
-                                maxWidth="30px"
-                                bgColor='#EEEEEE'
-                                borderColor='#EEEEEE'
-                            />
-
-                            {/* REPEAT SELECTOR */}
-                            <div className='
-                                flex items-center justify-between 
-                                gap-2 p-3 bg-[#EEEEEE] rounded-full
-                                h-full w-full
-                            '>
-                                <b>REPEAT:</b>
-                                <Switch 
-                                    isOnStart={repeat} 
-                                    onToggle={(val) => setRepeat(val)}
-                                    onColor="#32BE51"
-                                    offColor="#6E6E6E"
-                                />
+                        <div className='grid grid-cols-3 gap-2 p-3'>
+                            <div className='flex gap-5 justify-between col-span-2'>
+                                <div className='flex flex-col justify-between gap-2'>
+                                    {/* YEAR SELECTOR */}
+                                    <TextInput 
+                                        label='YEAR:'
+                                        placeholder={placeholderYear}
+                                        textColor={isYearInvalid ? colorBad : colorDefaultText}
+                                        sanityCheck={sanityCheckYear} 
+                                        handleVal={handleYearChange}
+                                        maxWidth="30px"
+                                        bgColor='#EEEEEE'
+                                        borderColor='#EEEEEE'
+                                    />
+                                    {/* COUNT SELECTOR */}
+                                    <TextInput 
+                                        label='COUNT:'
+                                        placeholder={placeholderTreeCount}
+                                        textColor={isCountInvalid ? colorBad : colorDefaultText}
+                                        sanityCheck={sanityCheckTreeCount} 
+                                        handleVal={handleTreeCountChange}
+                                        maxWidth="30px"
+                                        bgColor='#EEEEEE'
+                                        borderColor='#EEEEEE'
+                                    />
+                                </div>
+                                {/* REPEAT SELECTOR */}
+                                <div>
+                                    <div className='
+                                        flex flex-col items-center justify-between 
+                                        gap-2 p-3 bg-[#EEEEEE] rounded-lg
+                                    '>
+                                        <b>REPEAT</b>
+                                        <Switch 
+                                            isOnStart={repeat} 
+                                            onToggle={(val) => setRepeat(val)}
+                                            onColor="#32BE51"
+                                            offColor="#6E6E6E"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-
+                        
                             {/* ADD, FILTER BUTTONS */}
                             <div className='
                                 flex flex-wrap gap-3 justify-center
@@ -441,7 +496,20 @@ const ActionManager = ({
                     </Veil>
                 </div>
             </div>
-        </>
+
+            {/* INCOME STREAM SETTER */}
+            {setIncDep != null && 
+                <div className='col-span-1 row-span-1 flex gap-3 justify-evenly items-center -mt-6'>
+                    <div className='text-right flex flex-col justify-center items-right'>
+                        <b>OTHER</b>
+                        <b>INCOME</b>
+                        <b>STREAMS</b>
+                    </div>
+                    <b>:</b>
+                    {triggerSwitchUpdate >= 0 && incDepSwitches}
+                </div>
+            }
+        </div>
     )
 }
 

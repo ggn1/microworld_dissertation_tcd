@@ -1,5 +1,9 @@
-/** This file shall contain common functions that multiple other 
- *  files may require. */
+import Big from 'big.js'
+
+/** 
+ * This file shall contain common functions that multiple other 
+ * files may require.
+*/
 
 const linearInterpolator = require('linear-interpolator')
 
@@ -234,4 +238,102 @@ export function reverseNFormatter(formattedStr) {
     }
 
     return number.toString();
+}
+
+export function computePressureCO2(reservoirType, carbonGrams) {
+    /**
+     * Computes partial pressure of CO2 in either the air or water.
+     * @param reservoirType: "air" or "water"
+     * @param carbonGrams: Amount of carbon in the reservoir as a Big object.
+     * @return: Partial pressure of CO2 assuming that all carbon in 
+     *          the reservoir is in the form of CO2.
+     */
+    const massCO2 = carbonGrams.mul(32)
+    const molarMassCO2 = 44
+    const R = 0.0821
+    const n = massCO2.div(molarMassCO2)
+    let ppCO2 = 0
+    let T = 0
+    let V = 0
+    if (reservoirType == "air") {
+        T = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["air"] + 273.15 // K
+        V = Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)).mul(1000) // L
+    } else if (reservoirType == "water") {
+        T = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["water"] + 273.15 // K
+        V = Big(JSON.parse(
+            process.env.NEXT_PUBLIC_WATER_VOLUME
+        )).mul(JSON.parse(
+            process.env.NEXT_PUBLIC_WATER_VOLUME_SURFACE_PC
+        )).mul(1000) // L
+    } else {
+        return -1
+    }
+    ppCO2 = n.mul(R).mul(T)
+    ppCO2 = ppCO2.div(V)
+    return ppCO2
+}
+
+export function computeAirWaterTransferC(pCO2air, pCO2water) {
+    /**
+     * Returns the amount of carbon that is to be exchanged between
+     * the air and water reservoirs.
+     * @param pCO2air: Pressure of CO2 in the air in atm as a Big object.
+     * @param pCO2water: Pressure of CO2 in the water in atm as a Big object.
+     * @return: Amount of C in g that must be transferred between air
+     *          and water. If this is positive, then that means
+     *          that transfer will be from air to water. If it is
+     *          negative, this will be from water to air.
+     */
+    const pCO2 = {"air": pCO2air, "water": pCO2water}
+    const V = {
+        "air": Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)).mul(1000),
+        "water": Big(JSON.parse(
+            process.env.NEXT_PUBLIC_WATER_VOLUME
+        )).mul(JSON.parse(
+            process.env.NEXT_PUBLIC_WATER_VOLUME_SURFACE_PC
+        )).mul(1000) // L
+    } // L
+    const T = {
+        air: JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["air"] + 273.15,
+        water: JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["water"] + 273.15
+    }
+    const kH = 0.034 * (Math.exp(((1/T.water)-(1/298.15))*2400))
+    const pCO2Eq = (pCO2air.div(kH)).mul(1.014) // mol/L.atm
+    const transferCoef = JSON.parse(process.env.NEXT_PUBLIC_TRANSFER_RATE_CO2_AIR_WATER)
+    const molarMassC = 12
+
+    // Determining direction of flow.
+    let source = ""
+    let sink = ""
+
+    if (pCO2air.lt(pCO2Eq) && pCO2water.gt(pCO2Eq)) {
+        // CO2 flows from water to air only when 
+        // pCO2air < pCO2waterEq &&  pCO2water > pCO2waterEq
+        source = "water"
+        sink = "air"
+    } else if (pCO2water.lt(pCO2Eq) && pCO2air.gt(pCO2Eq)) {
+        // CO2 flows from air to water only when 
+        // pCO2water < pCO2waterEq &&  pCO2air > pCO2waterEq
+        source = "air"
+        sink = "water"
+    } else {
+        source = "water"
+        sink = "water"
+    }
+
+    const deltaP = pCO2[source].minus(pCO2[sink])
+    const cCO2 = deltaP.mul(kH)
+    // const nCO2 = cCO2
+    const nCO2 =  V[source].mul(cCO2)
+    const nC = nCO2
+    const c = nC.mul(molarMassC).mul(transferCoef)
+    
+    // console.log(
+    //     "pCO2air =", pCO2air.toFixed(2), 
+    //     "pCO2Eq =", pCO2Eq.toFixed(2),
+    //     "pCO2water =", pCO2water.toFixed(2)
+    // )
+    // console.log(c.toString(), "gC from", source, "to", sink)
+
+    return {carbon: c, source:source, sink:sink}
 }

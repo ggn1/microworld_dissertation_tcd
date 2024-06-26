@@ -7,7 +7,7 @@ export default class IncomeSource {
      * of income from the forest. 
     */
 
-    #pricePerUnit
+    #price
 
     constructor(type) {
         /**
@@ -19,7 +19,7 @@ export default class IncomeSource {
             process.env.NEXT_PUBLIC_INCOME_SOURCES
         )[type]
         this.color = "#"+resourceDef.color
-        this.#pricePerUnit = resourceDef.price_per_unit
+        this.#price = resourceDef.price
         this.label = resourceDef.label
         this.image = resourceDef.image
         this.available = 0
@@ -53,11 +53,15 @@ export default class IncomeSource {
             // Because wood weight is in grams and
             // price is per kg. Thus, wood weight
             // must be divided by 1000.
-            fundsReceived = Big((this.available/1000) * this.#pricePerUnit)
+            fundsReceived = Big((this.available/1000) * this.#price.per_unit)
             this.useWood(this.available)
-        } else {
-            fundsReceived = Big(this.available * this.#pricePerUnit)
-        }
+        } else if (this.type == "recreation" && this.available > 0) {
+            fundsReceived = Big(
+                (this.available-2) * this.#price.per_unit
+            ).plus(this.#price.per_year)
+        } else {[
+            fundsReceived = Big(this.available * this.#price.per_unit)
+        ]}
         this.available = 0
         return fundsReceived
     }
@@ -180,8 +184,7 @@ export class NTFP extends IncomeSource {
                 let availabilityDw = Math.max(
                     0, availabilityMax - (availabilityMax * (1 - deadwoodPc))
                 )
-                const dependency = this.#getIncomeDependency("ntfp")
-                this.available = ((availabilityBd + availabilityDw) / 2) * dependency
+                this.available = ((availabilityBd + availabilityDw) / 2)
             } else {
                 this.available = 0
             }
@@ -195,15 +198,18 @@ export class NTFP extends IncomeSource {
          * @return: True if there was enough money to pay for this
          *          and false otherwise.
          */
-        const cost = JSON.parse(
-            process.env.NEXT_PUBLIC_INCOME_SOURCES
-        ).ntfp.cost.maintenance
-        const curFunds = this.#getFunds()
         const dependency = this.#getIncomeDependency("ntfp")
-        if (curFunds.lt(cost)) return false
-        this.#updateFunds(-1 * cost * dependency)
-        this.#updateExpenses("ntfp", cost * dependency)
-        return true
+        if (dependency > 0) {
+            const cost = JSON.parse(
+                process.env.NEXT_PUBLIC_INCOME_SOURCES
+            ).ntfp.cost.maintenance
+            const curFunds = this.#getFunds()
+            if (curFunds.lt(cost)) return false
+            this.#updateFunds(-1 * cost)
+            this.#updateExpenses("ntfp", cost)
+            return true
+        } 
+        return false
     }
 }
 
@@ -258,8 +264,7 @@ export class Recreation extends IncomeSource {
                 let availabilityBd = Math.max(
                     0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
                 )
-                const dependency = this.#getIncomeDependency("recreation")
-                this.available = availabilityBd * dependency
+                this.available = availabilityBd
             } else {
                 this.available = 0
             }
@@ -273,24 +278,28 @@ export class Recreation extends IncomeSource {
          * @return: True if there was enough money to build and/or 
          *          maintain infrastructure and false otherwise.
          */
-        const curFunds = this.#getFunds()
         const dependency = this.#getIncomeDependency("recreation")
-        const costs = JSON.parse(
-            process.env.NEXT_PUBLIC_INCOME_SOURCES
-        ).recreation.cost
-        const initialCost = costs.initial
-        const maintenanceCost = costs.maintenance * dependency
-        // Build infrastructure if needed.
-        if (!this.#isBuilt && dependency > 0) {
-            if (curFunds < (initialCost + maintenanceCost)) return false
-            this.#updateFunds(-1 * initialCost)
-            this.#updateExpenses("recreation", initialCost)
-            this.#isBuilt = true
+        if (dependency > 0)  {
+            const curFunds = this.#getFunds()
+            const costs = JSON.parse(
+                process.env.NEXT_PUBLIC_INCOME_SOURCES
+            ).recreation.cost
+            const initialCost = costs.initial
+            // const initialCost = 0 // Covered by grants and aids.
+            const maintenanceCost = costs.maintenance
+            // Build infrastructure if needed.
+            if (!this.#isBuilt) {
+                if (curFunds < (initialCost + maintenanceCost)) return false
+                this.#updateFunds(-1 * initialCost)
+                this.#updateExpenses("recreation", initialCost)
+                this.#isBuilt = true
+            }
+            // Pay maintenance costs.
+            if (curFunds.lt(maintenanceCost)) return false
+            this.#updateFunds(-1 * maintenanceCost)
+            this.#updateExpenses("recreation", maintenanceCost)
+            return true
         }
-        // Pay maintenance costs.
-        if (curFunds.lt(maintenanceCost)) return false
-        this.#updateFunds(-1 * maintenanceCost)
-        this.#updateExpenses("recreation", maintenanceCost)
-        return true
+        return false
     }
 }

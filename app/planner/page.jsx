@@ -32,6 +32,7 @@ const Planner = () => {
     )
     const [planRefreshTrigger, setPlanRefreshTrigger] = useState(0)
     const [incDepRefreshTrigger, setIncDepRefreshTrigger] = useState(0)
+    const [incomeDependency, setIncomeDependency] = useState(sim ? sim.planner.incomeDependency : {})
 
     const [popUpContent, setPopUpContent] = useState("")
 
@@ -139,6 +140,10 @@ const Planner = () => {
         }
     }, [rotationPeriod])
 
+    useEffect(() => {
+        setIncomeDependency(sim ? sim.planner.incomeDependency : {})
+    }, [incDepRefreshTrigger])
+
     return (
         simNotNull &&
         <PopUpContextPlanner.Provider value={[popUpContent, setPopUpContent]}>
@@ -153,9 +158,8 @@ const Planner = () => {
                 <div 
                     id="planner-main" 
                     className="
-                        flex-grow
                         bg-[#EEEEEE] col-span-2 row-span-2 rounded-xl 
-                        flex flex-col gap-5 p-3 max-w-2xl
+                        flex flex-col gap-5 p-3
                     "
                 >
                     {/* BACK BUTTON & ROTATION SETTER */}
@@ -183,37 +187,9 @@ const Planner = () => {
                         onSave={handleSave}
                         onLoad={handleLoad}
                         updateTrigger={planRefreshTrigger}
+                        incDep={incomeDependency}
+                        setIncDep={showIncDep ? sim.planner.setIncDep : null}
                     />}
-                </div>
-                
-                <div className="flex flex-col gap-3 justify-between">
-                    {/* INCOME DEPENDENCY */}
-                    {showIncDep && <div 
-                        id="planner-income-dependency" 
-                        className="bg-[#F2EAD5] p-3 rounded-xl"
-                    >
-                        <div className="font-bold text-center mb-3">INCOME DEPENDENCY</div>
-                        <IncDepSetter 
-                            getIncomeDependency={() => sim.planner.incomeDependency}
-                            setIncDep={sim.planner.setIncDep}
-                            updateSalesTargets={() => {
-                                sim.updateResourceSalesTargets()
-                                setResourceSalesTargets(sim.getResourceSalesTargets())
-                            }}
-                            sliderUpdateTrigger={incDepRefreshTrigger}
-                        />
-                    </div>}
-
-                    {/* ROTATION SALES TARGETS */}
-                    {showIncDep && <div 
-                        id="planner-sales-targets" 
-                        className="bg-[#FFECFB] p-3 rounded-xl"
-                    >
-                        <div className="font-bold text-center mb-3">
-                            EXPECTED SALES PER ROTATION
-                        </div>
-                        <ResourceSalesTargets targets={resourceSalesTargets}/>
-                    </div>}
                 </div>
                 {popUpContent != "" && 
                     <PopUp handleClose={() => setPopUpContent("")}>

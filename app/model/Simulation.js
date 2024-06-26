@@ -56,7 +56,6 @@ export default class Simulation {
              * @param resource: The resource that contributed to this change.
              * @param change: The value to be added.
              */
-            console.log("Updating Expenses: resource =", resource, ", change =", change)
             this.expenses.year[resource] = this.expenses.year[resource].plus(change)
             this.expenses.year.total = this.expenses.year.total.plus(change)
         }
@@ -377,6 +376,11 @@ export default class Simulation {
             }
         }
 
+        // Let the forest grow for some years.
+        for (let i = 0; i < JSON.parse(process.env.NEXT_PUBLIC_INIT_NUM_YEARS); i++) {
+            this.env.takeTimeStep(true)
+        }
+
         this.#initRunData() // DEV
     }
 
@@ -430,15 +434,18 @@ export default class Simulation {
                 let contentStressAge = null
                 let contentStressEnv = null
                 let contentCO2Ppm = null
+                let contentCAbsorbed = null
                 if (content.length == 0) {
                     contentType = "O"
                     contentLifestage = 0
                     contentStress = 0
                     contentStressAge = 0
                     contentStressEnv = 0
+                    contentCAbsorbed = 0
                     contentCO2Ppm = this.#runData[this.time].co2_ppm
                 } else {
                     const tree = content[content.length-1]
+                    contentCAbsorbed = tree.cAbsorbed.toFixed(2).toString()
                     if (tree.treeType == "deciduous") {
                         contentType = "D"
                         contentLifestage = treeLifeStages.indexOf(tree.lifeStage)+1
@@ -463,6 +470,7 @@ export default class Simulation {
                 this.#runData[this.time][`p${r}${c}_stress_age`] = contentStressAge
                 this.#runData[this.time][`p${r}${c}_stress_env`] = contentStressEnv
                 this.#runData[this.time][`p${r}${c}_co2_ppm`] = contentCO2Ppm
+                this.#runData[this.time][`p${r}${c}_c_absorbed`] = contentCAbsorbed
             }
         }
     }

@@ -40,6 +40,7 @@ export default class Tree {
         this.diameter = 0
         this.stress = 0
         this.seed = false
+        this.cAbsorbed = Big(0) // DEBUG
         this.stressEnv = 0 // DEBUG
         this.stressAge = 0 // DEBUG
         this.age = 0 // years
@@ -140,7 +141,6 @@ export default class Tree {
          */
         let stressEnv = 0
         const availabilityCO2 = this.#getAirCO2ppm()
-        if (availabilityCO2 < 200) console.log("availabilityCO2 < 200")
         this.airCO2ppm = availabilityCO2 // DEBUG
         const stressLifestage = (
             this.lifeStage == "seedling" || 
@@ -209,6 +209,10 @@ export default class Tree {
         update[srcReservoir] = scaleFactor.mul(carbonWeight).mul(-1)
         update[dstReservoir] = scaleFactor.mul(carbonWeight)
         this.#updateCarbon(update)
+
+        if (dstReservoir == "vegetation") {
+            this.cAbsorbed = scaleFactor.mul(carbonWeight)
+        }
     }
 
     #grow() {
@@ -381,6 +385,7 @@ export default class Tree {
         // Update stress due to environmental conditions.
         this.stressEnv = this.#getStressEnv()
         this.stress = Math.min(1, this.stress + this.stressEnv)
+        this.lifeStage = this.#computeLifeStage() // Update life stage.
         
         // Perform activities related to living.
         if (this.#isAlive()) {
@@ -389,22 +394,12 @@ export default class Tree {
             // Update stress due to age.
             this.stressAge = this.#getStressAge()
             this.stress += Math.min(1, this.stress + this.stressAge)
-            // Update life stage.
-            this.lifeStage = this.#computeLifeStage()
-            // console.log(`tree at ${this.position} LIVES`)
+            this.lifeStage = this.#computeLifeStage() // Update life stage.
             this.#live()
         // Perform activities related to decaying.
         } else {
-            if (this.age == 0 && this.stress == 1) {
-                // console.log(`tree at ${this.position} died immediately`)
-            }
-            // console.log(`tree at ${this.position} DECAYS`)
             this.#decay()
         }
-        // console.log(
-        //     `tree at ${this.position} height =`, 
-        //     this.height, ", diameter =", this.diameter
-        // ) 
 
         // Check if this tree still exists 
         // in the world.

@@ -3,7 +3,9 @@
     import Help from './Help.jsx'
     import Money from './Money.jsx'
     import PropBar from "./PropBar.jsx"
+    import * as utils from '../utils.js'
     import { useState, useEffect } from "react"
+    import { Tooltip } from 'react-tooltip'
 
     const MoneyViewer = ({
         targets, funds, income, resources, dependency, 
@@ -33,7 +35,9 @@
 
         const [resourceIncData, setResourceIncData] = useState([])
         const [resourceExpData, setResourceExpData] = useState([])
-        const [breakdown, setBreakdown] = useState("rotation")
+        const [incProp, setIncProp] = useState({})
+        const [expProp, setExpProp] = useState({})
+        const [breakdownIncLvl, setBreakdownIncLvl] = useState("rotation")
 
         const getNumActiveResources = () => {
             /**
@@ -47,38 +51,34 @@
             return numResources
         }
 
-        const getResourceIncDivs = () => {
+        const getResourceIncExpDivs = (incExp) => {
             /**
              * Returns a list of renderable divs containing all
-             * relavent income related data per resource.
+             * relavent income or expenses related data per resource.
+             * @param incExp: Whether income or expenses is to be returned.
              * @return: List of <div>s with all resource information. 
              */
             let resourceData = []
             for (const resource of Object.keys(incomeSources)) {
                 if (dependency[resource] > 0) {
                     resourceData.push(
-                        <div
-                            className="
-                                rounded-lg px-2 py-1 text-center 
-                                flex flex-col justify-center items-center
-                            "
-                            style={{backgroundColor: income.rotation[resource].lt(
-                                targets[resource]
-                            ) || hideTargets ? colorDefault : colorGood}}
-                        >
+                        <div className="
+                            rounded-lg px-2 py-1 text-center flex
+                            flex-col justify-center items-center bg-[#EEE]
+                        ">
                             <img 
                                 src={incomeSources[resource].image} 
                                 className="h-8 w-auto"
-                                data-tooltip-id={`tooltip-${resource}`}
+                                data-tooltip-id={`tooltip-${incExp}-${resource}`}
                                 data-tooltip-content={incomeSources[resource].label}
-                                data-tooltip-place="left"
+                                data-tooltip-place="top"
                             />
-                            <Money amountBig={income.rotation[resource]} showUnit={false}/>
-                            {!hideTargets && <>
-                                <div className="bg-[#232323] h-[1px] rounded-full w-full"></div>
-                                {/* <div>/</div> */}
-                                <Money amountBig={targets[resource]} showUnit={false}/>
-                            </>}
+                            <Money amountBig={
+                                incExp == "income" ?
+                                income[breakdownIncLvl][resource] : 
+                                expenses[breakdownIncLvl][resource]
+                            } showUnit={false}/>
+                            <Tooltip id={`tooltip-${incExp}-${resource}`}/>
                         </div>
                     )
                 }
@@ -86,42 +86,35 @@
             return resourceData
         }
 
-        const getResourceExpDivs = () => {
+        const updateIncExpProp = () => {
             /**
-             * Returns a list of renderable divs containing all
-             * relavent expenditure related data per resource.
-             * @return: List of <div>s with all resource information. 
+             * Computes and sets income dependency proportions.
              */
-            let resourceData = []
-            for (const resource of Object.keys(incomeSources)) {
-                if (dependency[resource] > 0) {
-                    resourceData.push(
-                        <div
-                            className="
-                                rounded-lg px-2 py-1 text-center 
-                                flex flex-col justify-center items-center
-                            "
-                            style={{backgroundColor: colorDefault}}
-                        >
-                            <img 
-                                src={incomeSources[resource].image} 
-                                className="h-8 w-auto"
-                                data-tooltip-id={`tooltip-${resource}`}
-                                data-tooltip-content={incomeSources[resource].label}
-                                data-tooltip-place="left"
-                            />
-                            <Money amountBig={expenses.rotation[resource]} showUnit={false}/>
-                        </div>
-                    )
-                }
+            const resourceProp = {income:{}, expenses:{}}
+            for (const resource of Object.keys(resources)) {
+                if (income.overall.total.eq(0)) resourceProp.income[resource] = 0
+                else resourceProp.income[resource] = income.overall[resource].div(
+                    income.overall.total
+                ).toFixed(2)
+                if (expenses.overall.total.eq(0)) resourceProp.expenses[resource] = 0
+                else resourceProp.expenses[resource] = expenses.overall[resource].div(
+                    expenses.overall.total
+                ).toFixed(2)
             }
-            return resourceData
+            setIncProp(resourceProp.income)
+            setExpProp(resourceProp.expenses)
         }
 
         useEffect(() => {
+            setResourceIncData(getResourceIncExpDivs("income"))
+            setResourceExpData(getResourceIncExpDivs("expenses"))
+        }, [breakdownIncLvl])
+
+        useEffect(() => {
             Object.keys(targets).length > 0 && 
-            setResourceIncData(getResourceIncDivs())
-            setResourceExpData(getResourceExpDivs())
+            setResourceIncData(getResourceIncExpDivs("income"))
+            setResourceExpData(getResourceIncExpDivs("expenses"))
+            updateIncExpProp()
         }, [targets, income, hideTargets])
 
         return (
@@ -134,113 +127,183 @@
                             <b>BANK BALANCE:</b>
                             <Money amountBig={funds}/>
                         </div>
-                        {/* Income Dependency */}
-                        {!hideIncDep && <PropBar
-                            proportions={Object.values(dependency)}
-                            colors={Object.values(resources).map(resource => resource.color)}
-                            labels={Object.values(resources).map(resource => resource.label)}
-                        />}
                     </div>
                     <div className="flex gap-3">
-                        {/* Income */}
+                        {/* INCOME */}
                         <div className='bg-[#FFFFFF] p-3 rounded-lg flex-grow text-center'>
-                            <div className='flex gap-1 items-center justify-center font-bold mb-2'>
-                                <img src="coin.png" className="h-5 w-5"/>
-                                INCOME
-                            </div>
-                            <div className='flex justify-between mb-2 gap-3'>
+                            <div className='flex justify-between'>
+                                {/* TITLE */}
+                                <div className='flex gap-1 items-center justify-center font-bold mb-2'>
+                                    <img src="coin.png" className="h-5 w-5"/>
+                                    INCOME
+                                </div>
                                 {/* Overall */}
                                 <div className='flex items-center gap-1'>
-                                    <div className='font-bold text-[#888]'>OVERALL:</div>
+                                    <div 
+                                        className='
+                                            font-bold *:font-bold text-[#888] *:text-[#888] 
+                                            select-none hover:underline cursor-pointer
+                                        '
+                                        onClick={() => {
+                                            if (breakdownIncLvl != "overall") {
+                                                setBreakdownIncLvl("overall")
+                                            }  
+                                        }}
+                                    >
+                                        {breakdownIncLvl == "overall" ? <u>OVERALL:</u> : "OVERALL:"}
+                                    </div>
                                     <Money amountBig={income.overall.total} showUnit={false}/>
                                 </div>
-                                {/* YEAR */}
-                                <div className='flex items-center gap-1'>
-                                    <div className=' font-bold text-[#888]'>YEAR:</div>
-                                    <Money amountBig={income.year.total} showUnit={false}/>
-                                </div>
                             </div>
-                            {/* ROTATION */}
-                            {
-                                getNumActiveResources() > 1 ?
-                                <div className='
-                                    p-2 flex flex-col gap-1 border-4 border-[#EEEEEE]
-                                    justify-center items-center rounded-lg border-dashed
-                                '>
-                                    <div className='flex w-full gap-3 justify-between'>
-                                        <div className='font-bold text-[#888]'>ROTATION:</div>
-                                        <div className='flex gap-1'>
-                                            <Money amountBig={income.rotation.total} showUnit={false}/>
-                                            {!hideTargets && <>
-                                                <div>/</div>
-                                                <Money amountBig={targets.total} showUnit={false}/>
-                                            </>}
-                                        </div>
+                            <div className='flex justify-between mb-2 gap-3'>
+                                {/* ROTATION */}
+                                <div className='flex w-full gap-3'>
+                                    <div 
+                                        className='
+                                            font-bold *:font-bold text-[#888] *:text-[#888] 
+                                            select-none hover:underline cursor-pointer
+                                        '
+                                        onClick={() => {
+                                            if (breakdownIncLvl != "rotation") {
+                                                setBreakdownIncLvl("rotation")
+                                            }  
+                                        }}
+                                    >
+                                        {breakdownIncLvl == "rotation" ? <u>ROTATION:</u> : "ROTATION:"}
                                     </div>
-                                    <div className='flex gap-2 justify-center'>
-                                        {resourceIncData}
-                                    </div>
-                                </div> :
-                                <div className='flex items-center gap-1 justify-center'>
-                                    <div className='font-bold text-[#888]'>ROTATION:</div>
                                     <div className='flex gap-1'>
                                         <Money amountBig={income.rotation.total} showUnit={false}/>
                                         {!hideTargets && <>
-                                            <div>/</div>
+                                            <div className='select-none'>/</div>
                                             <Money amountBig={targets.total} showUnit={false}/>
                                         </>}
                                     </div>
-                                </div> 
-                            }
-                            
-                        </div>
-                        {/* EXPENSES */}
-                        <div className='bg-[#FFFFFF] p-3 rounded-lg flex-grow text-center'>
-                            <div className='flex gap-1 items-center justify-center font-bold mb-2'>
-                                <img src="coin.png" className="h-5 w-5"/>
-                                EXPENSES
-                            </div>
-                            <div className='flex justify-between mb-2 gap-3'>
-                                {/* OVERALL */}
-                                <div className='flex items-center gap-1'>
-                                    <div className='font-bold text-[#888]'>OVERALL:</div>
-                                    <Money amountBig={expenses.overall.total} showUnit={false}/>
                                 </div>
                                 {/* YEAR */}
                                 <div className='flex items-center gap-1'>
-                                    <div className=' font-bold text-[#888]'>YEAR:</div>
+                                    <div 
+                                        className='
+                                            font-bold *:font-bold text-[#888] *:text-[#888] 
+                                            select-none hover:underline cursor-pointer
+                                        '
+                                        onClick={() => {
+                                            if (breakdownIncLvl != "year") {
+                                                setBreakdownIncLvl("year")
+                                            }  
+                                        }}
+                                    >
+                                        {breakdownIncLvl == "year" ? <u>YEAR:</u> : "YEAR:"}
+                                    </div>
+                                    <Money amountBig={income.year.total} showUnit={false}/>
+                                </div>
+                            </div>
+                            {/* BREAKDOWN */}
+                            <div className='flex gap-3 justify-center items-center'>
+                                {resourceIncData}
+                            </div>
+                            {/* DEPENDENCY */}
+                            {resourceIncData.length > 1 && <PropBar
+                                title=""
+                                proportions={Object.values(incProp)}
+                                colors={Object.keys(incProp).map(resource => {
+                                    return resources[resource].color
+                                })}
+                                labels={Object.keys(incProp).map(r => {
+                                    const resource = resources[r]
+                                    return (
+                                        `${resource.label} = ${incProp[resource.type]*100}%\n`
+                                        + `(${utils.nFormatter(
+                                            income.overall[resource.type].toFixed(2), 2
+                                        )} coins)`
+                                    )
+                                })}
+                            />}
+                        </div>
+                        {/* EXPENSES */}
+                        <div className='bg-[#FFFFFF] p-3 rounded-lg flex-grow text-center'>
+                            <div className='flex justify-between'>
+                                {/* TITLE */}
+                                <div className='flex gap-1 items-center justify-center font-bold mb-2'>
+                                    <img src="coin.png" className="h-5 w-5"/>
+                                    EXPENSES
+                                </div>
+                                {/* Overall */}
+                                <div className='flex items-center gap-1'>
+                                    <div 
+                                        className='
+                                            font-bold *:font-bold text-[#888] *:text-[#888] 
+                                            select-none hover:underline cursor-pointer
+                                        '
+                                        onClick={() => {
+                                            if (breakdownIncLvl != "overall") {
+                                                setBreakdownIncLvl("overall")
+                                            }  
+                                        }}
+                                    >
+                                        {breakdownIncLvl == "overall" ? <u>OVERALL:</u> : "OVERALL:"}
+                                    </div>
+                                    <Money amountBig={expenses.overall.total} showUnit={false}/>
+                                </div>
+                            </div>
+                            <div className='flex justify-between mb-2 gap-3'>
+                                {/* ROTATION */}
+                                <div className='flex w-full gap-3'>
+                                    <div 
+                                        className='
+                                            font-bold *:font-bold text-[#888] *:text-[#888] 
+                                            select-none hover:underline cursor-pointer
+                                        '
+                                        onClick={() => {
+                                            if (breakdownIncLvl != "rotation") {
+                                                setBreakdownIncLvl("rotation")
+                                            }  
+                                        }}
+                                    >
+                                        {breakdownIncLvl == "rotation" ? <u>ROTATION:</u> : "ROTATION:"}
+                                    </div>
+                                    <div className='flex gap-1'>
+                                        <Money amountBig={expenses.rotation.total} showUnit={false}/>
+                                    </div>
+                                </div>
+                                {/* YEAR */}
+                                <div className='flex items-center gap-1'>
+                                    <div 
+                                        className='
+                                            font-bold *:font-bold text-[#888] *:text-[#888] 
+                                            select-none hover:underline cursor-pointer
+                                        '
+                                        onClick={() => {
+                                            if (breakdownIncLvl != "year") {
+                                                setBreakdownIncLvl("year")
+                                            }  
+                                        }}
+                                    >
+                                        {breakdownIncLvl == "year" ? <u>YEAR:</u> : "YEAR:"}
+                                    </div>
                                     <Money amountBig={expenses.year.total} showUnit={false}/>
                                 </div>
                             </div>
-                            {/* ROTATION */}
-                            {
-                                getNumActiveResources() > 1 ?
-                                <div className='
-                                    p-2 flex flex-col gap-1 border-4 border-[#EEEEEE]
-                                    justify-center items-center rounded-lg border-dashed
-                                '>
-                                    <div className='flex w-full gap-3 justify-between'>
-                                        <div className='font-bold text-[#888]'>ROTATION:</div>
-                                        {getNumActiveResources() > 1 && <Money 
-                                            amountBig={expenses.rotation.total} 
-                                            showUnit={false}
-                                        />}
-                                    </div>
-                                    <div className='flex gap-2 justify-center'>
-                                        {resourceExpData}
-                                    </div>
-                                </div>:
-                                <div className='flex items-center gap-1 justify-center'>
-                                    <div className='font-bold text-[#888]'>ROTATION:</div>
-                                    <div className='flex gap-1'>
-                                        <Money amountBig={expenses.rotation.total} showUnit={false}/>
-                                        {!hideTargets && <>
-                                            <div>/</div>
-                                            <Money amountBig={targets.total} showUnit={false}/>
-                                        </>}
-                                    </div>
-                                </div> 
-                            }
+                            {/* BREAKDOWN */}
+                            <div className='flex gap-3 justify-center items-center'>
+                                {resourceExpData}
+                            </div>
+                            {/* DEPENDENCY */}
+                            {resourceIncData.length > 1 && <PropBar
+                                title=""
+                                proportions={Object.values(expProp)}
+                                colors={Object.keys(expProp).map(resource => {
+                                    return resources[resource].color
+                                })}
+                                labels={Object.keys(expProp).map(r => {
+                                    const resource = resources[r]
+                                    return (
+                                        `${resource.label} = ${expProp[resource.type]*100}%\n`
+                                        + `(${utils.nFormatter(
+                                            expenses.overall[resource.type].toFixed(2), 2
+                                        )} coins)`
+                                    )
+                                })}
+                            />}
                         </div>
                     </div>
                 </div>

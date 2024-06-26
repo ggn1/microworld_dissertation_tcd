@@ -305,10 +305,10 @@ export default class Land {
         // Soil releases a portion of the carbon stored in it.
         this.#releaseCarbonFromSoil()
 
-        // Let the forest grow for some years.
-        for (let i = 0; i < JSON.parse(process.env.NEXT_PUBLIC_INIT_NUM_YEARS); i++) {
-            this.takeTimeStep()
-        }
+        // // Let the forest grow for some years.
+        // for (let i = 0; i < JSON.parse(process.env.NEXT_PUBLIC_INIT_NUM_YEARS); i++) {
+        //     this.takeTimeStep()
+        // }
     }
 
     #releaseCarbonFromSoil() {
@@ -328,9 +328,9 @@ export default class Land {
          * @return: Biodiversity score.
          */
         
-        let biodiversity = 0;
+        let biodiversity = 0
 
-        const treeCounts = this.countTrees();
+        const treeCounts = this.countTrees()
 
         // Rule = Mixed forests with more trees => more biodiversity.
         // MIN = 0
@@ -340,21 +340,23 @@ export default class Land {
         const diff = more - less
         const sim = less
         biodiversity += 3 * (sim * 2)
-        if (diff%2 == 0) biodiversity += 2 * diff
-        else biodiversity += (2 * (diff - 1)) + 1
+        if (diff%2 == 0) biodiversity += 1.5 * diff
+        else biodiversity += (1.5 * (diff - 1)) + 0.5
 
         // Rule = More old growth => more biodiversity.
         // MIN = 0
-        // MAX = num_rows * num_columns * 3
+        // MAX = num_rows * num_columns * 3.5
         biodiversity += 0.5 * treeCounts.seedling
-        biodiversity += 0.8 * treeCounts.sapling
+        biodiversity += 1 * treeCounts.sapling
         biodiversity += 2 * treeCounts.mature
-        biodiversity += 3 * treeCounts.old_growth
+        biodiversity += 3.5 * treeCounts.old_growth
         biodiversity += 1 * treeCounts.dead
 
         // MIN = 0
-        // MAX = 2 * num_rows * num_columns * 3
-        return (biodiversity/(2 * this.size.rows * this.size.columns * 3)).toFixed(2)
+        // MAX = (3*num_rows*num_columns) + (3.5*num_rows*num_columns)
+        const numLandSpots = this.size.rows * this.size.columns
+        biodiversity = (biodiversity/((3*numLandSpots)+(3.5*numLandSpots))).toFixed(2)
+        return biodiversity
     }
 
     #computeBiodiversityCategory() {
@@ -440,9 +442,6 @@ export default class Land {
                     // from the land to reflect this.
                     this.content[pos[0]][pos[1]].splice(i, 1)
                 }
-                // if (this.isLandFree(pos[0], pos[1]) && entity.seed) {
-                //     this.plantTree(entity.treeType, pos)
-                // }
             }
         }
 

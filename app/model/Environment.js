@@ -1,5 +1,6 @@
 import Big from 'big.js'
 import Land from "./Land.js"
+import * as utils from '../utils.js'
 
 let fossilFuelEmission =  Big(JSON.parse(
     process.env.NEXT_PUBLIC_CO2_FOSSIL_FUEL_ANNUAL_EMISSION_START
@@ -89,26 +90,38 @@ export default class Environment {
         this.land = new Land(this.updateCarbon, this.getCarbon, this.getAirCO2ppm)
     }
 
-    // computeCfromCO2(massCO2) {
-    //     /**
-    //      * Computes g C from g CO2.
-    //      * @param massCO2: Amount of CO2 in g.
-    //      * @return: Equivalent amount of C in g.
-    //      */
-    //     const molecularMassC = 12 // g/mol
-    //     const molecularMassCO2 = 44 // g/mol
-    //     return massCO2 * (molecularMassC/molecularMassCO2)
-    // }
-
-    takeTimeStep() {
+    takeTimeStep(isInit=false) {
         /**
          * Moves one step forward in time.
+         * @param isInit: The world is being initialized.
          */
-        // Update carbon in air due to 
-        this.updateCarbon({
-            "fossil_fuels": fossilFuelEmission.mul(-1),
-            "air": fossilFuelEmission
-        })
+        
+        if (!isInit) {
+            // Update carbon in air due to fossil fuels.
+            let toEmit = fossilFuelEmission
+            if (toEmit.gt(this.carbon.fossil_fuels)) {
+                // Can only emit as much as is available.
+                toEmit = this.carbon.fossil_fuels
+            }
+            this.updateCarbon({
+                "fossil_fuels": toEmit.mul(-1),
+                "air": toEmit
+            })
+        }
+        
+        // Update carbon in air and water.
+        const cExhangeAirWater = utils.computeAirWaterTransferC(
+            utils.computePressureCO2("air", this.carbon.air),
+            utils.computePressureCO2("water", this.carbon.water)
+        )
+        let cUpdateAirWater = {}
+        if (this.carbon[cExhangeAirWater.source].lt(cExhangeAirWater.carbon)) {
+            cExhangeAirWater.carbon = this.carbon[cExhangeAirWater.source]
+        }
+        cUpdateAirWater[cExhangeAirWater.source] = cExhangeAirWater.carbon.mul(-1)
+        cUpdateAirWater[cExhangeAirWater.sink] = cExhangeAirWater.carbon
+        this.updateCarbon(cUpdateAirWater)
+        
         // Update land content.
         this.land.takeTimeStep()
     }

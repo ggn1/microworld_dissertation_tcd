@@ -1,7 +1,7 @@
 import Card from './Card'
 import { Tooltip } from 'react-tooltip'
 
-const PropBar = ({proportions, labels, colors}) => {
+const PropBar = ({title, proportions, labels, colors}) => {
     /** 
      * Displays given proportions using a single
      * stacked bar plot.
@@ -17,23 +17,23 @@ const PropBar = ({proportions, labels, colors}) => {
         propBars.push(
             <a 
                 style={{"minWidth": `${prop}%`}}
-                data-tooltip-id={`tooltip-${labels[i]}`}
-                data-tooltip-content={`${labels[i]} = ${prop}%`}
+                data-tooltip-id={`tooltip-${i}`}
+                data-tooltip-content={`${labels[i]}`}
                 data-tooltip-place="top"
             >   
                 <div 
-                    key={`prop-bar-${labels[i]}`} 
+                    key={`prop-bar-${i}`} 
                     className="rounded-full h-3"
                     style={{"backgroundColor": colors[i]}}
                 >
-                    <Tooltip id={`tooltip-${labels[i]}`}/>
+                    <Tooltip id={`tooltip-${i}`}/>
                 </div>  
             </a>
         )
     }
 
     return (
-        <Card heading="INCOME DEPENDENCY" bgColor="#FFFFFF">
+        <Card heading={title} bgColor="#FFFFFF">
             <div className='flex gap-1 justify-center'>
                 {propBars}
             </div>

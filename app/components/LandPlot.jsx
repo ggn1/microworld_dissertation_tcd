@@ -19,49 +19,7 @@ let gContent
 const size = JSON.parse(process.env.NEXT_PUBLIC_LAND_SIZE)
 const svgIcons = JSON.parse(process.env.NEXT_PUBLIC_LAND_ICONS_SVG)
 
-const getRenderProperties = (x, y, entity) => {
-    /** Returns properties of the path that is to be the icon
-     *  to represent given entity.
-     *  @param x: The index of the row of this entity.
-     *  @param y: The index of the columns of this entity.
-     *  @param entity: This entity object or null.
-     *  @return: Properties returned includes fill color, 
-     *           position x, position y, d and scale.
-     */
-    if (entity == null) {
-        const svgIcon = svgIcons.none
-
-        return {
-            x: x, y: y,
-            scale: svgIcon.scale,
-            fill: `#${svgIcon.fill}`,
-            d: svgIcon.d,
-            label: "Empty Land"
-        }
-    } else { // Entity is a tree.
-        let svgIcon = svgIcons[entity.lifeStage]
-        if (entity.treeType in svgIcon) {
-            svgIcon = svgIcon[entity.treeType]
-        }
-        const treeType = entity.treeType.charAt(0).toUpperCase() + entity.treeType.slice(1)
-        let treeLifeStage = entity.lifeStage.split("_")
-        for(let i=0; i<treeLifeStage.length; i++) {
-            let val = treeLifeStage[i]
-            treeLifeStage[i] = val.charAt(0).toUpperCase() + val.slice(1)
-        }
-        treeLifeStage = treeLifeStage.join(" ")
-
-        return {
-            x: x, y: y,
-            scale: svgIcon.scale,
-            fill: `#${svgIcon.fill}`,
-            d: svgIcon.d,
-            label: `${treeLifeStage} ${treeType} `
-        }
-    }
-}
-
-const LandPlot = ({content, bdScore, bdCategory, hide}) => {
+const LandPlot = ({content, bdScore, bdCategory, hide, devMode}) => {
     /**
      * This component represents the plot of land that shall be rendered
      * on the screen. This land displays growth of plants and changes in
@@ -83,6 +41,52 @@ const LandPlot = ({content, bdScore, bdCategory, hide}) => {
     const [show, setShow] = useState(!hide)
     const [showTreeLabel, setShowTreeLabel] = useState(false)
     const [treeLabel, setTreeLabel] = useState("Tree Label")
+
+    const getRenderProperties = (x, y, entity) => {
+        /** Returns properties of the path that is to be the icon
+         *  to represent given entity.
+         *  @param x: The index of the row of this entity.
+         *  @param y: The index of the columns of this entity.
+         *  @param entity: This entity object or null.
+         *  @param devMode: Whether the app is running in developer mode.
+         *  @return: Properties returned includes fill color, 
+         *           position x, position y, d and scale.
+         */
+        if (entity == null) {
+            const svgIcon = svgIcons.none
+    
+            return {
+                x: x, y: y,
+                scale: svgIcon.scale,
+                fill: `#${svgIcon.fill}`,
+                d: svgIcon.d,
+                label: "Empty Land"
+            }
+        } else { // Entity is a tree.
+            let svgIcon = svgIcons[entity.lifeStage]
+            if (entity.treeType in svgIcon) {
+                svgIcon = svgIcon[entity.treeType]
+            }
+            const treeType = entity.treeType.charAt(0).toUpperCase() + entity.treeType.slice(1)
+            let treeLifeStage = entity.lifeStage.split("_")
+            for(let i=0; i<treeLifeStage.length; i++) {
+                let val = treeLifeStage[i]
+                treeLifeStage[i] = val.charAt(0).toUpperCase() + val.slice(1)
+            }
+            treeLifeStage = treeLifeStage.join(" ")
+    
+            let label = `${treeLifeStage} ${treeType}`
+            if (devMode) label += ` (Stress = ${entity.stress})`
+    
+            return {
+                x: x, y: y,
+                scale: svgIcon.scale,
+                fill: `#${svgIcon.fill}`,
+                d: svgIcon.d,
+                label: label
+            }
+        }
+    }
 
     useEffect(() => {
         // Initializes SVG elements.

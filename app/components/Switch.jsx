@@ -15,12 +15,8 @@ const Switch = ({isOnStart, onToggle, offColor, onColor}) => {
     const [isOn, setIsOn] = useState(isOnStart)
 
     useEffect(() => {
-        /** 
-         * Pass updated switch value to onToggle function
-         * every time the state of the switch changes. 
-         */
-        onToggle(isOn)
-    }, [isOn])
+        setIsOn(isOnStart)
+    }, [isOnStart])
 
     return (
         <div className="w-10 h-6 rounded-full relative" style={{
@@ -32,7 +28,11 @@ const Switch = ({isOnStart, onToggle, offColor, onColor}) => {
             >
                 <div 
                     className="bg-white rounded-full w-4 h-4 cursor-pointer"
-                    onClick={() => setIsOn(prevVal => !prevVal)}
+                    onClick={() => {
+                        const curVal = isOn
+                        setIsOn(!curVal)
+                        onToggle(!curVal)
+                    }}
                 ></div>
             </div>
         </div>

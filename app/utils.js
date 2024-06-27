@@ -50,25 +50,6 @@ export function getAdjacentPositions(x, y, level2) {
      *          immediately adjacent to the given position.
      */
     
-    // const posRange = level2 ? [-2, 2] : [-1, 1]
-    // let adjacentPositions = []
-    // for (let i = posRange[0]; i <= posRange[1]; i++) {
-    //     for (let j = posRange[0]; j <= posRange[1]; j++) {
-    //         adjacentPositions.push([x+i, y+j])
-    //     }
-    // }
-
-    // const adjacentPositions = [
-    //     [x - 1, y - 1], // Top-left
-    //     [x - 1, y],     // Top
-    //     [x - 1, y + 1], // Top-right
-    //     [x, y - 1],     // Left
-    //     [x, y + 1],     // Right
-    //     [x + 1, y - 1], // Bottom-left
-    //     [x + 1, y],     // Bottom
-    //     [x + 1, y + 1], // Bottom-right
-    // ]
-
     let adjacentPositions = [
         [x - 1, y - 1], // Top-left
         [x - 1, y],     // Top

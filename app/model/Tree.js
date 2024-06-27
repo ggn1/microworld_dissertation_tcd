@@ -39,7 +39,6 @@ export default class Tree {
         this.height = 0
         this.diameter = 0
         this.stress = 0
-        this.seed = false
         this.cAbsorbed = Big(0) // DEBUG
         this.stressEnv = 0 // DEBUG
         this.stressAge = 0 // DEBUG
@@ -155,8 +154,8 @@ export default class Tree {
          * Computes and returns age related stress.
          */
         let stressAge = 0
-        // If this tree has crossed max age, then stess is 100%.
-        if (this.age > this.ageMax) stressAge = 1.0
+        // If this tree has reached max age, then stess is 100%.
+        if (this.age >= this.ageMax) stressAge = 1.0
         // Upon reaching the senescence stage, stress increases by 
         // x amount every year. This models how health declines slowly 
         // when a tree is old and close to death.
@@ -172,13 +171,10 @@ export default class Tree {
          * recover from past stress. By how much they recover, 
          * depends on their remaining health.
          */
-        const stressEnv = this.#getStressEnv()
-        if (stressEnv <= JSON.parse(process.env.NEXT_PUBLIC_STRESS_ENV_THRESHOLD)){ 
-            const health = (1 - this.stress)
-            this.stress = Math.max(0, this.stress - (JSON.parse(
-                process.env.NEXT_PUBLIC_STRESS_RECOVERY_FACTOR
-            ) * health))
-        } 
+        const health = (1 - this.stress)
+        this.stress = Math.max(0, this.stress - (JSON.parse(
+            process.env.NEXT_PUBLIC_STRESS_RECOVERY_FACTOR
+        ) * health))
     }
 
     #computeCarbonInTreeVolume(volume) {
@@ -219,6 +215,7 @@ export default class Tree {
         /**
          * Facilitates physical growth of a plant.
         */
+       
         // Compute volume by which this tree grows to 
         // to maintain it's current biomass (damage repair, shedding, etc.)
         const volumeOld = utils.volumeCylinder(this.height, this.diameter/2)
@@ -228,8 +225,9 @@ export default class Tree {
         
         // Compute volume by which this tree grows in height.
         const bdRed = this.#computeBiodiversityReductionFactor()
-        const growthHeight = (1 - Math.max(0, this.stress - bdRed)) * this.ghMax
-        const growthDiameter = (1 - Math.max(0, this.stress - bdRed)) * this.gdMax
+        const growthRate = (1 - Math.max(0, this.stress - bdRed))
+        const growthHeight = growthRate * this.ghMax
+        const growthDiameter = growthRate * this.gdMax
         const heightNew = Math.min(this.heightMax, this.height + growthHeight) // Grow until max height.
         const diameterNew = Math.min(this.diameterMax, this.diameter + growthDiameter) // Grow until max diameter.
         const volumeNew = utils.volumeCylinder(heightNew, diameterNew/2)
@@ -267,14 +265,13 @@ export default class Tree {
          *                   initialized to achive a desired tree age 
          *                   and tree type composition.
          */
-        // Recover from past stress if possible.
-        this.#recover()
-
-        // Grow physically.
-        this.#grow()
-
-        // Reproduce if enabled.
-        if (this.reproduction) this.#reproduce()
+        // Update lifestage and proceed if not dead.
+        this.lifeStage = this.#computeLifeStage()
+        if (this.lifeStage != "dead") {
+            this.#recover()  // Recover from past stress.
+            this.#grow() // Grow physically.
+            if (this.reproduction) this.#reproduce() // Reproduce if possible.
+        }
     }
 
     #decay() {
@@ -350,9 +347,6 @@ export default class Tree {
         // If all above checks are false, then the tree
         // is eligible to reproduce.
 
-        // If no seed is present in this position, add one.
-        if (!this.seed) this.seed = true
-
         // A tree may only reproduce if it's own position or
         // a position adjacent to it (vertical, horizontal, 
         // diagonal), is free.
@@ -382,31 +376,22 @@ export default class Tree {
          *          exist).
         */
 
-        // Update stress due to environmental conditions.
-        this.stressEnv = this.#getStressEnv()
-        this.stress = Math.min(1, this.stress + this.stressEnv)
-        this.lifeStage = this.#computeLifeStage() // Update life stage.
-        
-        // Perform activities related to living.
-        if (this.#isAlive()) {
-            // Increment age.
+        // Check if tree is alive.
+        if (this.#isAlive()) { // Alive => try to live.
+            // Update stress due to environmental conditions.
+            this.stressEnv = this.#getStressEnv()
+            this.stress = Math.min(1, this.stress + this.stressEnv)
+            // Increment age and update stress due to age.
             this.age += 1
-            // Update stress due to age.
             this.stressAge = this.#getStressAge()
-            this.stress += Math.min(1, this.stress + this.stressAge)
-            this.lifeStage = this.#computeLifeStage() // Update life stage.
+            this.stress += Math.min(1, this.stress + this.stressAge)           
             this.#live()
-        // Perform activities related to decaying.
-        } else {
+        } else { // Dead => decay.
             this.#decay()
         }
 
-        // Check if this tree still exists 
-        // in the world.
-        if (this.height <= 0 || this.diameter <= 0) {
-            return false
-        }
-
+        // Return whether this tree still exists in the world.
+        if (this.height <= 0 || this.diameter <= 0) return false
         return true
     }
 }

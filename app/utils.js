@@ -240,36 +240,42 @@ export function reverseNFormatter(formattedStr) {
     return number.toString();
 }
 
+export function co2massFromCmass (cMassBig) {
+    /** 
+     * Given mass of carbon, returns that of CO2
+     * assuming all carbon is found in the form of
+     * CO2. 
+     * @param cMassBig: Mass of carbon as a Big object.
+     * @return co2Mass: Mass of CO2 as a Big object.
+     */
+    const molarMassCO2 = 44.01
+    const molarMassC = 12.01
+    return cMassBig.mul(molarMassCO2/molarMassC)
+}
+
 export function computePressureCO2(reservoirType, carbonGrams) {
     /**
-     * Computes partial pressure of CO2 in either the air or water.
+     * Computes partial pressure of CO2 in either the air or water
+     * based on the Ideam Gas Law PV = nRT.
      * @param reservoirType: "air" or "water"
      * @param carbonGrams: Amount of carbon in the reservoir as a Big object.
      * @return: Partial pressure of CO2 assuming that all carbon in 
      *          the reservoir is in the form of CO2.
      */
-    const massCO2 = carbonGrams.mul(32)
-    const molarMassCO2 = 44
-    const R = 0.0821
+    const massCO2 = co2massFromCmass(carbonGrams)
+    const molarMassCO2 = 44.01
     const n = massCO2.div(molarMassCO2)
-    let ppCO2 = 0
+    const R = 0.0821
     let T = 0
     let V = 0
     if (reservoirType == "air") {
         T = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["air"] + 273.15 // K
-        V = Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)).mul(1000) // L
+        V = Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)) // L
     } else if (reservoirType == "water") {
         T = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["water"] + 273.15 // K
-        V = Big(JSON.parse(
-            process.env.NEXT_PUBLIC_WATER_VOLUME
-        )).mul(JSON.parse(
-            process.env.NEXT_PUBLIC_WATER_VOLUME_SURFACE_PC
-        )).mul(1000) // L
-    } else {
-        return -1
+        V = Big(JSON.parse(process.env.NEXT_PUBLIC_WATER_VOLUME)) // L
     }
-    ppCO2 = n.mul(R).mul(T)
-    ppCO2 = ppCO2.div(V)
+    const ppCO2 = (n.mul(R).mul(T)).div(V) // P = (nRT)/V
     return ppCO2
 }
 
@@ -286,54 +292,45 @@ export function computeAirWaterTransferC(pCO2air, pCO2water) {
      */
     const pCO2 = {"air": pCO2air, "water": pCO2water}
     const V = {
-        "air": Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)).mul(1000),
-        "water": Big(JSON.parse(
-            process.env.NEXT_PUBLIC_WATER_VOLUME
-        )).mul(JSON.parse(
-            process.env.NEXT_PUBLIC_WATER_VOLUME_SURFACE_PC
-        )).mul(1000) // L
+        air: Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)),
+        water: Big(JSON.parse(process.env.NEXT_PUBLIC_WATER_VOLUME))
     } // L
     const T = {
         air: JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["air"] + 273.15,
         water: JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["water"] + 273.15
     }
-    const kH = 0.034 * (Math.exp(((1/T.water)-(1/298.15))*2400))
-    const pCO2Eq = (pCO2air.div(kH)).mul(1.014) // mol/L.atm
+    const kH = JSON.parse(process.env.NEXT_PUBLIC_kH)
+    const pCO2waterEq = (pCO2air.div(kH)) // mol/L.atm
     const transferCoef = JSON.parse(process.env.NEXT_PUBLIC_TRANSFER_RATE_CO2_AIR_WATER)
-    const molarMassC = 12
 
     // Determining direction of flow.
     let source = ""
     let sink = ""
 
-    if (pCO2air.lt(pCO2Eq) && pCO2water.gt(pCO2Eq)) {
-        // CO2 flows from water to air only when 
-        // pCO2air < pCO2waterEq &&  pCO2water > pCO2waterEq
-        source = "water"
-        sink = "air"
-    } else if (pCO2water.lt(pCO2Eq) && pCO2air.gt(pCO2Eq)) {
-        // CO2 flows from air to water only when 
-        // pCO2water < pCO2waterEq &&  pCO2air > pCO2waterEq
+    if (pCO2water.lt(pCO2waterEq)) {
         source = "air"
         sink = "water"
+    } else if (pCO2water.gt(pCO2waterEq)) {
+        source = "water"
+        sink = "air"
     } else {
         source = "water"
         sink = "water"
     }
 
-    const deltaP = pCO2[source].minus(pCO2[sink])
-    const cCO2 = deltaP.mul(kH)
-    // const nCO2 = cCO2
-    const nCO2 =  V[source].mul(cCO2)
+    const R = 0.0821
+    const molarMassC = 12
+    const deltaP = pCO2waterEq.minus(pCO2water).abs()
+    const nCO2 =  deltaP.mul(V["water"]).div(R*T["water"])
     const nC = nCO2
     const c = nC.mul(molarMassC).mul(transferCoef)
     
-    // console.log(
-    //     "pCO2air =", pCO2air.toFixed(2), 
-    //     "pCO2Eq =", pCO2Eq.toFixed(2),
-    //     "pCO2water =", pCO2water.toFixed(2)
-    // )
-    // console.log(c.toString(), "gC from", source, "to", sink)
+    console.log(
+        "pCO2air =", pCO2air.toFixed(5), 
+        "pCO2waterEq =", pCO2waterEq.toFixed(5),
+        "pCO2water =", pCO2water.toFixed(5), "\n",
+        c.toString(), "gC from", source, "to", sink
+    )
 
     return {carbon: c, source:source, sink:sink}
 }

@@ -48,12 +48,14 @@ const Home = () => {
     const [showIncPanel, setShowIncPanel] = useState(true)
     const [showBiodiversity, setShowBiodiversity] = useState(true)
     const [devMode, setDevMode] = useState(true)
+    const [targetFailYearCO2, setTargetFailYearCO2] = useState(-1)
+    const [targetFailYearIncome, setTargetFailYearIncome] = useState(-1)
 
     const [popUpContent, setPopUpContent] = useState("")
 
     const router = useRouter()
 
-    const updateSimUI = () => {
+    const updateSimUI = (targetFailYear) => {
         setLandContent(sim.env.land.getActiveLandContent())
         setAirCO2(sim.env.getAirCO2ppm())
         setEnvC({...sim.env.carbon})
@@ -66,6 +68,8 @@ const Home = () => {
         setFunds(sim.funds)
         setCurRotation(sim.rotation)
         setTime(sim.time)
+        setTargetFailYearCO2(targetFailYear.co2)
+        setTargetFailYearIncome(targetFailYear.income)
     }
 
     const updatePlanUI = () => {
@@ -130,7 +134,7 @@ const Home = () => {
             sim.updateSimUI = updateSimUI
             sim.updatePlanUI = updatePlanUI
         }
-        updateSimUI()
+        updateSimUI(sim.planner.targetFailYear)
         updatePlanUI()
         setIsInitialized(true)
         document.addEventListener('keydown', detectKeyDown, true)
@@ -186,22 +190,17 @@ const Home = () => {
                         rounded-xl bg-[#DEEDFF] col-span-4 row-span-3 p-3
                     ">
                         <Targets 
-                            setTargets={sim.planner.setTargets} 
-                            curCO2={airCO2}
-                            curIncome={income.rotation.total.toFixed(2).toString()}
-                            curFunds={funds}
-                            getTargets={sim.planner.getTargets}
-                            startValCO2={sim.planner.getTargets().co2}
-                            startValIncome={sim.planner.getTargets().income}
+                            setTargets={sim.planner.setTargets}
+                            getTargets={sim.planner.getTargets} 
+                            promptTargetMetCheck = {sim.promptTargetMetCheck}
                             updateTargetIncome={sim.planner.setTargets}
                             updateIncTargetsUI={() => setRotationIncomeTargets(
                                 sim.getResourceSalesTargets()
                             )}
-                            year={time}
-                            rotationPeriod={rotationPeriod}
-                            rotation={curRotation}
                             showCO2={showCO2Target}
                             showIncome={showIncomeTarget}
+                            targetFailYearCO2 = {targetFailYearCO2}
+                            targetFailYearIncome = {targetFailYearIncome}
                         />
                     </div>
                     <div id="world-money" className="

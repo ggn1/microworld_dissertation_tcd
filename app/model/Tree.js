@@ -60,8 +60,8 @@ export default class Tree {
             process.env.NEXT_PUBLIC_REPRODUCTION_INTERVAL
         )[this.treeType]
         this.woodDensity = JSON.parse(process.env.NEXT_PUBLIC_WOOD_DENSITY)[this.treeType]
-        this.ghMax = this.heightMax/(this.#lifeStages.old_growth+1)
-        this.gdMax = this.diameterMax/(this.#lifeStages.old_growth+1)
+        this.ghMax = this.heightMax/(this.#lifeStages.mature)
+        this.gdMax = this.diameterMax/(this.#lifeStages.mature)
         const toleranceCO2 = JSON.parse(process.env.NEXT_PUBLIC_TOLERANCE_CO2)
         this.tolerance = {"co2": {
             "mature": new Tolerance(toleranceCO2.mature),

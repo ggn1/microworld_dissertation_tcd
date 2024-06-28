@@ -11,20 +11,11 @@ let targets = {"co2": null, "income": null, "funds": Big(JSON.parse(
 ))}
 let isExpMode = true
 
-// First number is the index of income 
-// corresponding to this time step.
-// Second number is the last saved income.
-// Third number is the latest push.
-// This is to keep track of past incomes.
-let incomeTracker = [Big(0), Big(0)]
-let targetFailed = {co2: -1, income: -1}
-
 const Targets = ({
-    setTargets, getTargets,
-    curCO2, curIncome, curFunds,
+    setTargets, getTargets, promptTargetMetCheck,
     updateTargetIncome, updateIncTargetsUI,
-    year, rotationPeriod, rotation,
-    showCO2=true, showIncome=true,
+    targetFailYearCO2, targetFailYearIncome,
+    showCO2=true, showIncome=true
 }) => {
     /**
      * This component both displays targets and allows 
@@ -38,6 +29,9 @@ const Targets = ({
      *                    key pairs as input.
      * @param getTargets: Function that can be used to fetch latest
      *                    income/co2 targets from the simulation.
+     * @param promptTargetMetCheck: A function that prompts the 
+     *                              planner to check the target 
+     *                              met condition and return results.
      * @param curCO2: Current atmospheric CO2 concentration.
      * @param curIncome: Latest user income.
      * @param curFunds: Latest funds that the user has.
@@ -52,6 +46,10 @@ const Targets = ({
      * @param rotation: This rotation.
      * @param showCO2: Whether to show the CO2 target.
      * @param showIncome: Whether to show the CO2 target
+     * @param targetFailYearCO2: The year at which the target for CO2 has
+     *                           already been failed.
+     * @param targetFailYearIncome: The year at which the target for CO2 has
+     *                              already been failed.
      */
 
     const colorTextDefault = "#888888"
@@ -61,65 +59,16 @@ const Targets = ({
 
     const helpData = [["heading", "TARGET"], ["paragraph", "You may set yourself a target as part of challenges. The TARGET panel displays this as follows"], ["image", "help/targets1.png"], ["paragraph", "You may type into the TEXTBOX, the CO2 concentration below which atmospheric CO2 levels must never dip."], ["paragraph", "The VIEW switch can be toggled on and off. When on, the target panel displays whether the target is being currently met or not."], ["paragraph", "If the success condition is satisfied, then a green border indicates this. If the target could not be met, then a red border shows this. The point in time at which the target first failed, is also indicated (notation Y2, Y3 and so on, means Year 2, Year 3, etc.)."], ["image", "help/targets2.png"]]
 
-    const [curYear, setCurYear] = useState(year)
-    const [curRotation, setCurRotation] = useState(rotation)
-    const [curRotationPeriod, setCurRotationPeriod] = useState(rotationPeriod)
     const [expMode, setExpMode] = useState(isExpMode)
     const [targetCO2, setTargetCO2] = useState(null) 
     const [targetIncome, setTargetIncome] = useState(null) 
 
     const [isValidCO2, setIsValidCO2] = useState(false)
     const [isValidIncome, setIsValidIncome] = useState(false)
-    const [isTargetMetCO2, setIsTargetMetCO2] = useState(0)
-    const [isTargetMetIncome, setIsTargetMetIncome] = useState(0)
-    const [isTargetMetFunds, setIsTargetMetFunds] = useState(0)
     const [showCO2Target, setShowCO2Target] = useState(showCO2)
     const [showIncomeTarget, setShowIncomeTarget] = useState(showIncome)
-    const [incomeFailed, setIncomeFailed] = useState(targetFailed.income)
-    const [co2Failed, setCo2Failed] = useState(targetFailed.co2)
-
-    const isTargetMet = (targetType, target) => {
-        /** 
-         * Checks whether current values meet the target or not
-         * and changes state accordingly.
-         * @param targetType: Type of target being 
-         *                    checked (co2 / income / funds).
-         * @param target: The target value checked against.
-         */
-        if (targetType == "co2") {
-            if(target >= curCO2) setIsTargetMetCO2(1)
-            else {
-                setIsTargetMetCO2(-1)
-                if (co2Failed == -1) setCo2Failed(curYear)
-            }
-        }
-        if (targetType == "income") {
-            // If total income this rotation is >= target,
-            // then income target is met.
-            if(target.lte(curIncome)) {
-                setIsTargetMetIncome(1)
-            } else {
-                // If is not rotation 0 and
-                // income from the previous rotation is
-                // still <= target, then last rotation's
-                // income target was not met before reset.
-                if ( 
-                    curYear > 0 &&
-                    target.gte(incomeTracker[0]) &&
-                    (curYear == (curRotationPeriod * curRotation)) &&
-                    curYear != JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX)
-                ) {
-                    setIsTargetMetIncome(-1)
-                    if(incomeFailed == -1) setIncomeFailed(curRotation)
-                }
-                else setIsTargetMetIncome(0)
-            }
-        }
-        if (targetType == "funds") {
-            if(target.lte(curFunds)) setIsTargetMetFunds(1)
-            else setIsTargetMetFunds(-1)
-        }
-    }
+    const [incomeFailed, setIncomeFailed] = useState(targetFailYearIncome)
+    const [co2Failed, setCO2Failed] = useState(targetFailYearCO2)
 
     const sanityCheckNumeric = (val) => {
         /** 
@@ -144,34 +93,29 @@ const Targets = ({
          * @param val: User input from the CO2 text box as a string value.
         */
 
-        setCo2Failed(-1)
-        setIncomeFailed(-1)
-
         // Check if given value is valid.
         // If the value is an empty string, then it is invalid.
         // If it contains unexpected characters, then too, it is invalid.
         // Else, it is valid.
         let isValid = val != "" && sanityCheckNumeric(val)
-        if (!isValid) val = 0
         if (targetType == "co2") {
             setIsValidCO2(isValid)
+            if (isValid) {
+                val = utils.roundToNDecimalPlaces(val, 0)
+                targets.co2 = val
+                setTargetCO2(targets.co2)
+                setCO2Failed(promptTargetMetCheck().co2)
+            }
         } else if (targetType == "income") {
             setIsValidIncome(isValid)
-            val = Big(val)
-        }
-
-        // Check if targets are met.
-        if (targetType == "co2") {
-            isTargetMet("co2", val)
-            targets.co2 = val
-            setTargetCO2(utils.roundToNDecimalPlaces(val, 0))
-        }
-        if (targetType == "income") {
-            isTargetMet("income", val)
-            targets.income = val
-            setTargetIncome(targets.income.toFixed(0).toString())
-            updateTargetIncome({income: targets.income})
-            updateIncTargetsUI()
+            if (isValid) {
+                val = Big(val)
+                targets.income = val
+                setTargetIncome(targets.income.toFixed(2))
+                setIncomeFailed(promptTargetMetCheck().income)
+                updateTargetIncome({income: targets.income})
+                updateIncTargetsUI()
+            }
         }
     }
 
@@ -186,29 +130,21 @@ const Targets = ({
     }
 
     useEffect(() => {
-        curFunds = Big(curFunds)
-        isTargetMet("funds", targets.funds)
-    }, [curFunds])
-
-    useEffect(() => {
-        if (targetCO2 != null) isTargetMet("co2", targetCO2)
-    }, [curCO2])
-
-    useEffect(() => {
-        if (targetIncome != null) {
-            curIncome = Big(curIncome)
-            isTargetMet("income", Big(targetIncome))
-        }
-    }, [curIncome])
-
-    useEffect(() => {
         /** 
          * Initially, check if default targets are met.
          */
         targets = getTargets()
-        handleVal("co2", targets.co2) 
-        handleVal("income", targets.income.toFixed(2).toString())
+        handleVal("co2", targets.co2)
+        handleVal("income", targets.income)
     }, [])
+
+    useEffect(() => {
+        setCO2Failed(targetFailYearCO2)
+    }, [targetFailYearCO2])
+
+    useEffect(() => {
+        setIncomeFailed(targetFailYearIncome)
+    }, [targetFailYearIncome])
 
     useEffect(() => {
         /**
@@ -221,44 +157,12 @@ const Targets = ({
     }, [targetCO2, targetIncome])
 
     useEffect(() => {
-        if (
-            targetIncome != null
-            // && (curYear == (curRotationPeriod * curRotation))
-            // || (curYear == JSON.parse(process.env.NEXT_PUBLIC_TIME_MAX))
-        ) isTargetMet("income", Big(targetIncome))
-    }, [curYear])
-
-    useEffect(() => {
-        setCurYear(year)
-        incomeTracker.splice(0, 1)
-        incomeTracker.push(curIncome)
-        if (year < curYear) setCo2Failed(-1)
-    }, [year])
-
-    useEffect(() => {
-        setCurRotation(rotation)
-        if (rotation < incomeFailed) setIncomeFailed(-1)
-    }, [rotation])
-
-    useEffect(() => {
-        setCurRotationPeriod(rotationPeriod)
-    }, [rotationPeriod])
-
-    useEffect(() => {
         setShowCO2Target(showCO2)
     }, [showCO2])
 
     useEffect(() => {
         setShowIncomeTarget(showIncome)
     }, [showIncome])
-
-    useEffect(() => {
-        targetFailed.co2 = co2Failed
-    }, [co2Failed])
-
-    useEffect(() => {
-        targetFailed.income = incomeFailed
-    }, [incomeFailed])
 
     return (
         (targetCO2 != null && targetIncome != null) &&
@@ -277,7 +181,7 @@ const Targets = ({
                 </div>
                 {/* CO2 TARGET */}
                 {showCO2Target && <div className='flex gap-2 items-center'>
-                    {!expMode && co2Failed != -1 && <div 
+                    {(!expMode && co2Failed >= 0) && <div 
                         className='font-bold text-center'
                         style={{color: colorBad}} 
                     >Y{co2Failed}</div>}
@@ -286,9 +190,8 @@ const Targets = ({
                         placeholder={targetCO2}
                         borderColor={
                             expMode ? colorBorderDefault : 
-                            co2Failed != -1 ? colorBad :
-                            isTargetMetCO2 == 1 ? colorGood : 
-                            isTargetMetCO2 == -1 ? colorBad :
+                            co2Failed >= 0 ? colorBad :
+                            co2Failed == -2 ? colorGood : 
                             colorBorderDefault
                         }
                         textColor={isValidCO2 ? colorTextDefault : colorBad}
@@ -300,19 +203,18 @@ const Targets = ({
                 </div>}
                 {/* INCOME */}
                 {showIncomeTarget && <div className='flex gap-2 items-center'>
-                    {!expMode && incomeFailed != -1 && <div 
+                    {(!expMode && incomeFailed >= 0) && <div 
                         className='font-bold text-center'
                         style={{color: colorBad}} 
-                    >R{incomeFailed-1}</div>}
+                    >R{incomeFailed}</div>}
                     <TextInput 
                         label="Rotation Income ≥"
                         placeholder={targetIncome}
                         unit={<img src="coin.png" className='h-5 r-5'/>}
                         borderColor={
                             expMode ? colorBorderDefault :
-                            incomeFailed != -1 ? colorBad : 
-                            isTargetMetIncome == 1 ? colorGood : 
-                            isTargetMetIncome == -1 ? colorBad :
+                            incomeFailed >= 0 ? colorBad : 
+                            incomeFailed == -2 ? colorGood : 
                             colorBorderDefault
                         }
                         textColor={isValidIncome ? colorTextDefault : colorBad}

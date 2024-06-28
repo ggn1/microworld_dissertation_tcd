@@ -90,19 +90,6 @@ export default class Environment {
             })
         }
         
-        // // Update carbon in air and water.
-        // const cExhangeAirWater = utils.computeAirWaterTransferC(
-        //     utils.computePressureCO2("air", this.carbon.air),
-        //     utils.computePressureCO2("water", this.carbon.water)
-        // )
-        // let cUpdateAirWater = {}
-        // if (this.carbon[cExhangeAirWater.source].lt(cExhangeAirWater.carbon)) {
-        //     cExhangeAirWater.carbon = this.carbon[cExhangeAirWater.source]
-        // }
-        // cUpdateAirWater[cExhangeAirWater.source] = cExhangeAirWater.carbon.mul(-1)
-        // cUpdateAirWater[cExhangeAirWater.sink] = cExhangeAirWater.carbon
-        // this.updateCarbon(cUpdateAirWater)
-        
         // Update land content.
         this.land.takeTimeStep()
     }

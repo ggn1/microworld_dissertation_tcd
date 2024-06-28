@@ -37,6 +37,18 @@ export default class Simulation {
         this.planner = new Planner(this.updateResourceSalesTargets)
         this.updateSimUI = updateSimUI
         this.updatePlanUI = updatePlanUI
+        this.promptTargetMetCheck = () => {
+            /** 
+             * Prompts checking of whether 
+             * latest targets are met.
+             */
+            return this.planner.checkTargetMet(
+                this.env.getAirCO2ppm(), 
+                this.income.rotation.total,
+                this.funds, this.time,
+                this.rotation
+            )
+        }
         this.getResourceSalesTargets = () => {
             /**
              * Returns current per rotation sales
@@ -86,7 +98,6 @@ export default class Simulation {
             if (timesteps < 0) {
                 timesteps = time
                 this.#createFreshWorld() // Reset world.
-                this.updateSimUI()
             }
 
             // For as many timesteps as required, 
@@ -100,6 +111,7 @@ export default class Simulation {
                     this.#takeTimeStep()
                 }
             }
+            this.updateSimUI(this.planner.targetFailYear)
         }
         this.loadState = (state) => {
             /**
@@ -380,7 +392,7 @@ export default class Simulation {
         for (let i = 0; i < JSON.parse(process.env.NEXT_PUBLIC_INIT_NUM_YEARS); i++) {
             this.env.takeTimeStep(true)
         }
-
+        this.promptTargetMetCheck()
         this.#initRunData() // DEV
     }
 
@@ -486,7 +498,7 @@ export default class Simulation {
         this.resources.recreation.updateAvailability()
         this.#updateExpenditure(rotationUpdated)
         this.#generateIncome(rotationUpdated)
-        this.updateSimUI()
+        this.promptTargetMetCheck()
         this.#recordData()
     }
 }

@@ -47,7 +47,7 @@ const Home = () => {
     const [showIncDepPanel, setShowIncDepPanel] = useState(true)
     const [showIncPanel, setShowIncPanel] = useState(true)
     const [showBiodiversity, setShowBiodiversity] = useState(true)
-    const [devMode, setDevMode] = useState(true)
+    const [devMode, setDevMode] = useState(JSON.parse(process.env.NEXT_PUBLIC_DEV_MODE))
     const [targetFailYearCO2, setTargetFailYearCO2] = useState(-1)
     const [targetFailYearIncome, setTargetFailYearIncome] = useState(-1)
 

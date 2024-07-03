@@ -12,6 +12,7 @@ export default class Planner {
     }
     #updateUISalesTargets
     #lastYear = 0
+    #rotIncTargetMet = false
     
     constructor(updateUISalesTargets) {
         /**
@@ -237,12 +238,20 @@ export default class Planner {
             if (co2 <= this.#targets.co2) this.targetFailYear.co2 = -2 // CO2 target met.
             else this.targetFailYear.co2 = year // CO2 target failed.      
         }
+        if (year%this.rotationPeriod == (this.rotationPeriod - 1)) {
+            this.#rotIncTargetMet = (this.targetFailYear.income == -2)
+        }
         if (this.targetFailYear.income < 0) { // Income target has not failed yet.
-            if (rotation != 0 && rotation%this.rotationPeriod == 1) { // New rotation.
-                if (income.lt(this.#targets.income)) { // Income target failed.
-                    this.targetFailYear.income = rotation - 1
-                } else { // Income target has not failed.
+            // Reset and evaluate at the starting of a new rotation.
+            if (year != 0 && year%this.rotationPeriod == 0) { // New rotation.
+                // Income target was met the last rotation.
+                if (this.#rotIncTargetMet) {
                     this.targetFailYear.income = -1
+                    this.#rotIncTargetMet = false
+                } 
+                // Income target was not met the last rotation.
+                else { // Income target has not failed.
+                    this.targetFailYear.income = rotation - 1
                 }
             }
             if (income.gte(this.#targets.income)) {

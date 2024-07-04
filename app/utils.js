@@ -1,11 +1,7 @@
-import Big from 'big.js'
-
 /** 
  * This file shall contain common functions that multiple other 
  * files may require.
 */
-
-const linearInterpolator = require('linear-interpolator')
 
 export function getRandomIntegerBetween(x, y) {
     /** Returns a random integer between integers 
@@ -20,21 +16,6 @@ export function getRandomIntegerBetween(x, y) {
 export function volumeCylinder(height, radius) {
     /** Computes and returns the volume of a cylinder. */
     return Math.PI * (radius ** 2) * height
-}
-
-export function convertScale(scaleFrom, scaleTo, x) {
-    /** 
-     * Converts given number x from given "from" scale
-     * to given "to" scale.
-     * @param scaleFrom: The scale that x belongs [min, max].
-     * @param scaleTo: The scale that y should belong to [min, max].
-     * @return y: Given x in scale "scaleTo".
-    */
-    const y = (
-        ((x - scaleFrom[0]) * (scaleTo[1] - scaleTo[0])) /
-        (scaleFrom[1] - scaleFrom[0])
-    ) + scaleFrom[0]
-    return y
 }
 
 export function getAdjacentPositions(x, y, level2) {
@@ -76,26 +57,6 @@ export function getAdjacentPositions(x, y, level2) {
     }
 
     return adjacentPositions
-}
-
-export function createInterpolationFunction(xyPoints) {
-    /** 
-     * A function that returns a linear interpolator
-     * that connects given points using a line.
-     * @param xyPoints: Points to interpolate between.
-     * @return: The interpolation function.
-     */
-
-    // Create the interpolation function.
-    const interpolationFunction = linearInterpolator(xyPoints)
-
-    // Define a new function that takes an x value 
-    // and returns the interpolated y value.
-    function interpolatedFunction(x) {
-        return interpolationFunction(x)
-    }
-
-    return interpolatedFunction
 }
 
 export function shuffle(array) { 
@@ -232,86 +193,4 @@ export function co2massFromCmass (cMassBig) {
     const molarMassCO2 = 44.01
     const molarMassC = 12.01
     return cMassBig.mul(molarMassCO2/molarMassC)
-}
-
-export function computePressureCO2(reservoirType, carbonGrams) {
-    /**
-     * Computes partial pressure of CO2 in either the air or water
-     * based on the Ideam Gas Law PV = nRT.
-     * @param reservoirType: "air" or "water"
-     * @param carbonGrams: Amount of carbon in the reservoir as a Big object.
-     * @return: Partial pressure of CO2 assuming that all carbon in 
-     *          the reservoir is in the form of CO2.
-     */
-    const massCO2 = co2massFromCmass(carbonGrams)
-    const molarMassCO2 = 44.01
-    const n = massCO2.div(molarMassCO2)
-    const R = 0.0821
-    let T = 0
-    let V = 0
-    if (reservoirType == "air") {
-        T = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["air"] + 273.15 // K
-        V = Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)) // L
-    } else if (reservoirType == "water") {
-        T = JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["water"] + 273.15 // K
-        V = Big(JSON.parse(process.env.NEXT_PUBLIC_WATER_VOLUME)) // L
-    }
-    const ppCO2 = (n.mul(R).mul(T)).div(V) // P = (nRT)/V
-    return ppCO2
-}
-
-export function computeAirWaterTransferC(pCO2air, pCO2water) {
-    /**
-     * Returns the amount of carbon that is to be exchanged between
-     * the air and water reservoirs.
-     * @param pCO2air: Pressure of CO2 in the air in atm as a Big object.
-     * @param pCO2water: Pressure of CO2 in the water in atm as a Big object.
-     * @return: Amount of C in g that must be transferred between air
-     *          and water. If this is positive, then that means
-     *          that transfer will be from air to water. If it is
-     *          negative, this will be from water to air.
-     */
-    const pCO2 = {"air": pCO2air, "water": pCO2water}
-    const V = {
-        air: Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_VOLUME)),
-        water: Big(JSON.parse(process.env.NEXT_PUBLIC_WATER_VOLUME))
-    } // L
-    const T = {
-        air: JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["air"] + 273.15,
-        water: JSON.parse(process.env.NEXT_PUBLIC_TEMPERATURE)["water"] + 273.15
-    }
-    const kH = JSON.parse(process.env.NEXT_PUBLIC_kH)
-    const pCO2waterEq = (pCO2air.div(kH)) // mol/L.atm
-    const transferCoef = JSON.parse(process.env.NEXT_PUBLIC_TRANSFER_RATE_CO2_AIR_WATER)
-
-    // Determining direction of flow.
-    let source = ""
-    let sink = ""
-
-    if (pCO2water.lt(pCO2waterEq)) {
-        source = "air"
-        sink = "water"
-    } else if (pCO2water.gt(pCO2waterEq)) {
-        source = "water"
-        sink = "air"
-    } else {
-        source = "water"
-        sink = "water"
-    }
-
-    const R = 0.0821
-    const molarMassC = 12
-    const deltaP = pCO2waterEq.minus(pCO2water).abs()
-    const nCO2 =  deltaP.mul(V["water"]).div(R*T["water"])
-    const nC = nCO2
-    const c = nC.mul(molarMassC).mul(transferCoef)
-    
-    console.log(
-        "pCO2air =", pCO2air.toFixed(5), 
-        "pCO2waterEq =", pCO2waterEq.toFixed(5),
-        "pCO2water =", pCO2water.toFixed(5), "\n",
-        c.toString(), "gC from", source, "to", sink
-    )
-
-    return {carbon: c, source:source, sink:sink}
 }

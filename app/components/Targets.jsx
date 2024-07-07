@@ -57,7 +57,13 @@ const Targets = ({
     const colorGood = "#32BE51"
     const colorBad = "#F44A4A"
 
-    const helpData = [["heading", "TARGET"], ["paragraph", "You may set yourself a target as part of challenges. The TARGET panel displays this as follows"], ["image", "help/targets1.png"], ["paragraph", "You may type into the TEXTBOX, the CO2 concentration below which atmospheric CO2 levels must never dip."], ["paragraph", "The VIEW switch can be toggled on and off. When on, the target panel displays whether the target is being currently met or not."], ["paragraph", "If the success condition is satisfied, then a green border indicates this. If the target could not be met, then a red border shows this. The point in time at which the target first failed, is also indicated (notation Y2, Y3 and so on, means Year 2, Year 3, etc.)."], ["image", "help/targets2.png"]]
+    const helpData = [["heading", "TARGET"], ["paragraph", "You may set yourself a target as part of challenges. The TARGET panel displays this as follows."], ["image", "help/targets1.png"], ["paragraph", "You may type into the TEXTBOX, the CO2 concentration below which atmospheric CO2 levels must never dip."], ["paragraph", "The VIEW switch can be toggled on and off. When on, the target panel displays whether the target is being currently met or not."], ["paragraph", "If the success condition is satisfied, then a green border indicates this. If the target could not be met, then a red border shows this. The point in time at which the target first failed, is also indicated (notation Y2, Y3 and so on, means Year 2, Year 3, etc.)."], ["image", "help/targets2.png"]]
+
+    if (showIncome) {
+        helpData.push(["paragraph", "Similarly, a target income value can also be set. This is the minimum income you're looking to earn every rotation."])
+        helpData.push(["paragraph", "If you fail to meet this target, the rotation at which this failure first occurred  is displayed beside the target field using the notation of letter R followed by the rotation number."])
+        helpData.push(["image", "help/targets3.png"])
+    }
 
     const [expMode, setExpMode] = useState(isExpMode)
     const [targetCO2, setTargetCO2] = useState(null) 
@@ -73,12 +79,12 @@ const Targets = ({
     const sanityCheckNumeric = (val) => {
         /** 
          * Here, input is considered valid only if
-         * it is a positive number (integer / floating point number).
+         * it is a positive number (integer).
          * @param val: Input as a string.
          * @return: True if the input was deemed valid and
          *          false otherwise.
         */ 
-        const regex = /^([0-9]*[.])?[0-9]+$/
+        const regex = /^([0-9]*)?[0-9]+$/
         if (regex.test(val)) {
             const number = parseFloat(val)
             return number >= 0
@@ -111,7 +117,7 @@ const Targets = ({
             if (isValid) {
                 val = Big(val)
                 targets.income = val
-                setTargetIncome(targets.income.toFixed(2))
+                setTargetIncome(targets.income.toFixed(0))
                 setIncomeFailed(promptTargetMetCheck().income)
                 updateTargetIncome({income: targets.income})
                 updateIncTargetsUI()

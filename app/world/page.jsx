@@ -16,7 +16,7 @@ import EmissionsFossilFuels from '../components/EmissionsFossilFuels.jsx'
 import MoneyViewer from '../components/MoneyViewer.jsx'
 
 export let sim = null
-export let challenge = 0
+export let challenge = 1
 export const PopUpContextWorld = React.createContext()
 
 const Home = () => {    
@@ -99,6 +99,12 @@ const Home = () => {
                 case "3": // Ctrl + Alt + 3 => Challenge 3
                     setCurChallenge(3)
                     break
+                case "4": // Ctrl + Alt + 4 => Challenge 4
+                    setCurChallenge(4)
+                    break
+                case "5": // Ctrl + Alt + 5 => Challenge 5
+                    setCurChallenge(5)
+                    break
                 default:
                     break
             }
@@ -175,6 +181,24 @@ const Home = () => {
             setShowPanelC(false)
             setShowPanelFF(false)
             setShowIncDepPanel(false)
+            setShowBiodiversity(false)
+            setShowIncomeTarget(false)
+            setShowIncPanel(true)
+        } else if (challenge == 4) { // Challenge 4
+            setShowCO2Target(true)
+            setShowCO2Scale(true)
+            setShowPanelC(false)
+            setShowPanelFF(true)
+            setShowIncDepPanel(false)
+            setShowBiodiversity(false)
+            setShowIncomeTarget(false)
+            setShowIncPanel(true)
+        } else if (challenge == 5) { // Challenge 4
+            setShowCO2Target(true)
+            setShowCO2Scale(true)
+            setShowPanelC(false)
+            setShowPanelFF(true)
+            setShowIncDepPanel(true)
             setShowBiodiversity(false)
             setShowIncomeTarget(false)
             setShowIncPanel(true)

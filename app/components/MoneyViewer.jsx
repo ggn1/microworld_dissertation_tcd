@@ -31,7 +31,7 @@
         const colorGood = "#32BE51"
         const colorDefault = "#EEEEEE"
         const incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
-        const helpData = [["heading", "COINS"], ["paragraph", "Coins are the currency of this microworld. The COIN PANEL displays your BANK BALANCE, INCOME and EXPENSES."],["paragraph", "BANK BALANCE: Bank balance is the total amount of coins that you have at any given point in the simulation."], ["paragraph", "INCOME: Income refers to no. of coins you have earned. Overall income is how much you've earned so far in the simulation, yearly income is how much you've earned this year alone, and rotation income is how much you have earned in this rotation alone."], ["paragraph", "EXPENSES: Expenses refer to how much you have spent overall, this year and this rotation. Felling/planting a tree costs coins that comprise this expenditure."], ["image", "help/coins_1.png"]]
+        const helpData = [["heading", "COINS"], ["paragraph", "Coins are the currency of this microworld. The COIN PANEL displays your bank balance, income, and expenses."],["paragraph", "BANK BALANCE is the total amount of coins that you have at any given point in the simulation."], ["paragraph", "INCOME refers to no. of coins you have earned. Overall income is how much you've earned so far in the simulation, yearly income is how much you've earned this year alone, and rotation income is how much you have earned in this rotation alone."], ["paragraph", "EXPENSES refer to how much you have spent overall, this year, and this rotation. Felling/planting a tree costs coins that comprise this expenditure."], ["image", "help/coins_1.png"], ["paragraph", "By default, it is income/expense per rotation that is visible below the icon representing type of income stream. You may click on 'OVERALL', 'YEAR' or 'ROTATION' to update this. Hover over the icon to view the name of the income stream."], ["image", "help/coins_2.png"]]
 
         const [resourceIncData, setResourceIncData] = useState([])
         const [resourceExpData, setResourceExpData] = useState([])
@@ -109,6 +109,13 @@
             setResourceIncData(getResourceIncExpDivs("income"))
             setResourceExpData(getResourceIncExpDivs("expenses"))
         }, [breakdownIncLvl])
+
+        useEffect(() => {
+            if (resourceIncData.length > 1 || resourceExpData.length > 1) {
+                helpData.push(["paragraph", "When there are multiple sources of income, a breakup of income and expenses per stream is displayed using a color coded proportion bar. Hover over each color to view the income stream and its contribution."])
+                helpData.push(["image", "help/coins_3.png"])
+            }
+        }, [resourceIncData, resourceExpData])
 
         useEffect(() => {
             Object.keys(targets).length > 0 && 

@@ -1,6 +1,7 @@
 "use client"
 
 import Big from 'big.js'
+import Help from './Help'
 import { useState, useEffect, useRef } from 'react'
 import TextInput from './TextInput'
 
@@ -14,6 +15,8 @@ const EmissionsFossilFuels = ({getFossilFuelEmission, setFossilFuelEmission}) =>
      * @param setFossilFuelEmission: Sets current amount of C released
      *                               into the air due to use of fossil fuels.
      */
+
+    const helpData = [["heading", "FOSSIL FUEL EMISSIONS"], ["paragraph", "In 2023, 36.8 GtCO2 which is about 10 GtC was released into the atmosphere due to fossil fuel usage."], ["paragraph", "By, default, annual emissions due to fossil fuel use is set to 0 GtC. This can be changed by typing any positive whole number into the textbox as shown below."], ["image", "help/fossil_fuel_usage1.png"]]
 
     const colorDefault = "#888888"
     const colorBad = "#F44A4A"
@@ -66,18 +69,20 @@ const EmissionsFossilFuels = ({getFossilFuelEmission, setFossilFuelEmission}) =>
     }, [emissionRate])
 
     return (
-        <div ref={refInput} className='py-3 rounded-lg bg-[#FFFFFF] rounded-lg'>
-            <div className='text-center font-bold px-3'>FOSSIL FUEL USAGE</div>
-            <div className='text-center px-3'>Annual Carbon Emission</div>
-            <TextInput
-                label=''
-                unit="Gt"
-                sanityCheck={sanityCheckNumeric}
-                placeholder={emissionRate}
-                handleVal={handleVal}
-                textColor={isValid ? colorDefault : colorBad}
-            />
-        </div>
+        <Help helpData={helpData} page="world">
+            <div ref={refInput} className='py-3 rounded-lg bg-[#FFFFFF] rounded-lg'>
+                <div className='text-center font-bold px-3'>FOSSIL FUEL USAGE</div>
+                <div className='text-center px-3'>Annual Carbon Emission</div>
+                <TextInput
+                    label=''
+                    unit="Gt"
+                    sanityCheck={sanityCheckNumeric}
+                    placeholder={emissionRate}
+                    handleVal={handleVal}
+                    textColor={isValid ? colorDefault : colorBad}
+                />
+            </div>
+        </Help>
     )
 }
 

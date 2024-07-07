@@ -34,11 +34,11 @@ const LandPlot = ({content, bdScore, bdCategory, hide, devMode}) => {
      */
 
     const helpData = [
-        ["heading", "LAND"], ["paragraph", "Your land has 36 spots arranged in a 6 x 6 grid. Each of these 36 spots may either contain a tree or nothing. Hover over land content to view its type"], ["image", "help/land_1.png"], ["paragraph", "Trees in this microworld are of 2 types, CONIFEROUS (triangular symbols) and DECIDUOUS (circular symbols). At any given time, a tree may be in one of 6 possible life stages: SEEDLING, SAPLING, MATURE, OLD GROWTH, SENESCENT and DEAD. A spot on the land is empty if there is no tree there. Each spot can have at most one live tree. The following image shows the different symbols used to represent “empty land spot” as well as trees of varying type and age."], ["image", "help/tree_1.png"], ["paragraph", "New trees spawn either naturally as they reproduce or if you decide to plant a tree in an empty spot. During reproduction, a parent tree can give rise to new seedlings of its type at one free spot adjacent to itself. Where there are no free spots or it is not the time for reproduction, it does not occur."], ["paragraph", "Trees that die naturally, remain on land as dead wood for a while until it decays. This decay also releases some CO2 into the air."], ["paragraph", "The primary differences among the two types of trees are as follows."], ["table", <table key="coniferous_defiduous_diff"><tr><th>CONIFEROUS</th><th>DECIDUOUS</th></tr><tr><td>1. Slightly slower growth rate (meters grown per year) = 0.7 m/s.</td><td>1. Slightly faster growth rate (meters grown per year) = 0.9 m/s.</td></tr><tr><td>2. Taller. Max height = 70 m.</td><td>2. Shorter. Max height = 40 m.</td></tr><tr><td>3. Longer reproduction interval. Reproduces every 2.5 years.</td><td>3. Shorter reproduction interval. Reproduces every year.</td></tr><tr><td>4. Wood is less dense at 600kg/m3.</td><td>4. Wood is denser at 700kg/m3.</td></tr><tr><td>5. Evergreen. So, absorbs a lesser amount of carbon for maintenance.</td><td>5. Foliage changes in accordance with seasons. Sheds leaves in Autumn and regains them in Spring.</td></tr><tr><td>6. Remains a seedling for 4 years.</td><td>6. Remains a seedling for 3 years.</td></tr><tr><td>7. Remains a sapling for 22 years.</td><td>7. Remains a sapling for 18 years.</td></tr><tr><td>8. Matures at the age of 26 years.</td><td>8. Matures at the age of 21 years.</td></tr><tr><td>9. Enters the old growth stage of life at the age of 60.</td><td>9. Enters the old growth stage of life at the age of 47.</td></tr><tr><td>10. Enters the senescent stage of life at the age of 90.</td><td>10. Enters the senescent stage of life at the age of 70.</td></tr><tr><td>11. Lives longer. Dies at the age of 100.</td><td>11. Shorter lived. Dies at the age of 80.</td></tr></table>]
+        ["heading", "LAND"], ["paragraph", "Your land has 36 spots arranged in a 6 x 6 grid. Each of these 36 spots may either contain a tree or nothing. Hover over land content to view its type"], ["image", "help/land_1.png"], ["paragraph", "Trees in this microworld are of 2 types, CONIFEROUS (triangular symbols) and DECIDUOUS (circular symbols). At any given time, a tree may be in one of 6 possible life stages: SEEDLING, SAPLING, MATURE, OLD GROWTH, SENESCENT and DEAD. A spot on the land is empty if there is no tree there. Each spot can have at most one live tree. The following image shows the different symbols used to represent “empty land spot” as well as trees of varying type and age."], ["image", "help/tree_1.png"], ["paragraph", "New trees spawn either naturally as they reproduce or if you decide to plant a tree in an empty spot. During reproduction, a parent tree can give rise to new seedlings of its type at one free spot adjacent to itself. Where there are no free spots or it is not the time for reproduction, it does not occur."], ["paragraph", "Trees that die naturally, remain on land as dead wood for a while until it decays. This decay also releases some CO2 into the air."], ["paragraph", "The primary differences among the two types of trees are as follows."], ["table", <table key="coniferous_defiduous_diff"><tr><th>CONIFEROUS</th><th>DECIDUOUS</th></tr><tr><td>1. Slightly slower growth rate (meters grown per year) = 0.7 m/s.</td><td>1. Slightly faster growth rate (meters grown per year) = 0.9 m/s.</td></tr><tr><td>2. Taller. Max height = 70 m.</td><td>2. Shorter. Max height = 40 m.</td></tr><tr><td>3. Longer reproduction interval. Reproduces every 2.5 years.</td><td>3. Shorter reproduction interval. Reproduces every year.</td></tr><tr><td>4. Wood is less dense at 600kg/m3.</td><td>4. Wood is denser at 700kg/m3.</td></tr><tr><td>5. Evergreen. So, absorbs a lesser amount of carbon for maintenance.</td><td>5. Foliage changes in accordance with seasons. Sheds leaves in Autumn and regains them in Spring.</td></tr><tr><td>6. Lives longer.</td><td>6. Shorter lived.</td></tr></table>]
     ]
 
     const refSvg = useRef()
-    const [show, setShow] = useState(!hide)
+    const [showBd, setShowBd] = useState(!hide)
     const [showTreeLabel, setShowTreeLabel] = useState(false)
     const [treeLabel, setTreeLabel] = useState("Tree Label")
 
@@ -168,23 +168,21 @@ const LandPlot = ({content, bdScore, bdCategory, hide, devMode}) => {
         landContent.on("mouseover", (e, d) => {
                         setTreeLabel(d.label)
                         setShowTreeLabel(true)
-                        // d3.select(e.target).attr("stroke", "yellow")
                     })
                     .on("mouseout", (e, d) => {
                         setShowTreeLabel(false)
-                        // d3.select(e.target).attr("stroke", "black")
                     })
     }, [content])
 
     useEffect(() => {
-        setShow(!hide)
+        setShowBd(!hide)
     }, [hide])
 
 
     return (
         <Help helpData={helpData} page="world">
             <div className="pt-5">
-                {show && <div className='flex justify-between gap-2'>
+                {showBd && <div className='flex justify-between gap-2'>
                     <div className='flex'>
                         <p className='text-[#6E6E6E] mr-2'>Class:</p> 
                         <p>{bdCategory}</p>

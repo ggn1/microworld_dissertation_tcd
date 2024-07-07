@@ -179,7 +179,7 @@ const Timeline = ({goToTime, triggerPause, handleSaveRunData=null}) => {
 
     return (
         <Help helpData={helpData} page="world">
-            <div className="timeline">
+            <div className="timeline flex flex-col gap-2 justify-center h-full">
                 <div className="p-2 pt-5 h-full w-full flex gap-3 justify-center items-center">
                     <div className="flex items-center h-full font-bold">
                         {unit.toUpperCase()}:
@@ -250,12 +250,14 @@ const Timeline = ({goToTime, triggerPause, handleSaveRunData=null}) => {
                         </>
                     }
                 </div>
-                <div className="flex justify-center">
-                    {handleSaveRunData != null && <Button
-                        bgColor="#FFF8E6" outlineColor="#E4DAC1"
-                        onClick={handleSaveRunData}
-                    >↓DATA</Button>}
-                </div>
+                {handleSaveRunData != null &&
+                    <div className="flex justify-center">
+                        <Button
+                            bgColor="#FFF8E6" outlineColor="#E4DAC1"
+                            onClick={handleSaveRunData}
+                        >↓DATA</Button>
+                    </div>
+                }
             </div>
         </Help>
     )

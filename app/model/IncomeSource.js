@@ -178,13 +178,11 @@ export class NTFP extends IncomeSource {
                 let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
                 const biodiversityPc = this.#getBiodiversityPc()
                 let availabilityBd = Math.max(
-                    0, availabilityMax - (availabilityMax * (1 - biodiversityPc))
+                    0, availabilityMax - (0.5 * availabilityMax * (1 - biodiversityPc))
                 )
                 const deadwoodPc = this.#getDeadWoodPc()
-                let availabilityDw = Math.max(
-                    0, availabilityMax - (availabilityMax * (1 - deadwoodPc))
-                )
-                this.available = ((availabilityBd + availabilityDw) / 2)
+                let availabilityDw = availabilityBd + (0.5 * availabilityMax * deadwoodPc)
+                this.available = availabilityDw
             } else {
                 this.available = 0
             }

@@ -328,35 +328,60 @@ export default class Land {
          * @return: Biodiversity score.
          */
         
-        let biodiversity = 0
+        let bSpecies = 0
+        let bAge = 0
+        let b = 0
+        let bCat = ""
+        const ageComp = JSON.parse(process.env.NEXT_PUBLIC_LAND_AGE_COMP)
 
         const treeCounts = this.countTrees()
 
-        // Rule = Mixed forests with more trees => more biodiversity.
-        // MIN = 0
-        // MAX = num_rows * num_columns * 3
+        // Rule: Mixed forests with more trees => more biodiversity.
         const more = Math.max(treeCounts.coniferous, treeCounts.deciduous)
         const less = Math.min(treeCounts.coniferous, treeCounts.deciduous)
         const diff = more - less
         const sim = less
-        biodiversity += 3 * (sim * 2)
-        if (diff%2 == 0) biodiversity += 1.5 * diff
-        else biodiversity += (1.5 * (diff - 1)) + 0.5
+        bSpecies += 1 * sim * 2
+        if (diff%2 == 0) bSpecies += 0.3 * diff
+        else bSpecies += (0.5 * (diff - 1)) + 0.05
+        bSpecies = bSpecies/(this.size.rows * this.size.columns) // scale
 
-        // Rule = More old growth => more biodiversity.
-        // MIN = 0
-        // MAX = num_rows * num_columns * 3.5
-        biodiversity += 0.5 * treeCounts.seedling
-        biodiversity += 1 * treeCounts.sapling
-        biodiversity += 2 * treeCounts.mature
-        biodiversity += 3.5 * treeCounts.old_growth
-        biodiversity += 1 * treeCounts.dead
+        // Rule: Healthy forest = Mix of different ages.
+        let count = {
+            "seedling-sapling":0, "mature":0, 
+            "old_growth-senescent":0, "dead":0,
+            "total": 0
+        }
+        for (const group of Object.keys(ageComp)) {
+            for (const lifeStage of group.split("-")) {
+                count[group] += treeCounts[lifeStage]
+                count.total += treeCounts[lifeStage]
+            }
+        }
 
-        // MIN = 0
-        // MAX = (3*num_rows*num_columns) + (3.5*num_rows*num_columns)
-        const numLandSpots = this.size.rows * this.size.columns
-        biodiversity = (biodiversity/((3*numLandSpots)+(3.5*numLandSpots))).toFixed(2)
-        return biodiversity
+        let prop = {}
+        for (const group of Object.keys(ageComp)) {
+            prop[group] = count[group]/count.total
+        }
+
+        let errorMax = {}
+        for (const group of Object.keys(ageComp)) {
+            errorMax[group] = Math.max(
+                1 - ageComp[group], 
+                ageComp[group] - 0
+            )
+        }
+        
+        for (const group of Object.keys(ageComp)) {
+            let error = Math.abs(prop[group] - ageComp[group])
+            bAge += 1 - (error/errorMax[group])
+        }
+        bAge = bAge/Object.keys(ageComp).length
+
+        // Avg. biodiversity score.
+        b = ((bSpecies+bAge)/2).toFixed(2)
+        
+        return b
     }
 
     #computeBiodiversityCategory() {
@@ -371,8 +396,8 @@ export default class Land {
         )
         for (const [category, scoreRange] of Object.entries(categoryScoreRanges)) {
             if (
-                this.biodiversityScore >= scoreRange[0] &&
-                this.biodiversityScore < scoreRange[1]
+                this.biodiversityScore > scoreRange[0] &&
+                this.biodiversityScore <= scoreRange[1]
             ) {
                 return category
             }
@@ -450,20 +475,6 @@ export default class Land {
 
         // Update biodiversity.
         this.#updateBiodiversity()
-
-        // // Print ratios. // DEBUG
-        // const carbon = this.#getCarbon()
-        // if (carbon.vegetation > 0 && carbon.air > 0) {
-        //     console.log(
-        //         "soil / vegetation =", 
-        //         carbon.soil.div(carbon.vegetation).toNumber().toFixed(2),
-        //         "[ideally 2.54]\n",
-        //         "soil / air =", 
-        //         carbon.soil.div(carbon.air).toNumber().toFixed(2),
-        //         "[ideally 1.87]"
-        //     )
-        // }
-        // console.log(this.content)
     }
 
     getTree (treeType, treeLifeStage) {

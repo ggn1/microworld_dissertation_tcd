@@ -19,7 +19,7 @@ const LandingPage = () => {
         <div key="dialogue_1">Hi</div>,
         <div key="dialogue_2">I&apos;ve been expecting you.</div>,
         <div key="dialogue_3">You&apos;ve chosen well.</div>,
-        <div key="dialogue_4">They say it&apos;s been here for at least 500 years.</div>,
+        <div key="dialogue_4">They say it&apos;s been here for at least 200 years.</div>,
         <div key="dialogue_5">The forest is healthy and fairly large.</div>,
         <div key="dialogue_6">I&apos;d say it&apos;s a good size for first time forest owners like yourself.</div>,
         <div key="dialogue_7">Your forest offers ample wood. A very valuable resource.</div>,

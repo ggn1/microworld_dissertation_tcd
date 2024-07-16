@@ -3,6 +3,8 @@
  * files may require.
 */
 
+export const devMode = false 
+
 export function getRandomIntegerBetween(x, y) {
     /** Returns a random integer between integers 
      *  x and y inclusive. 

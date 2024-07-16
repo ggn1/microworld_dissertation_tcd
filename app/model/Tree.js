@@ -220,7 +220,7 @@ export default class Tree {
         // to maintain it's current biomass (damage repair, shedding, etc.)
         const volumeOld = utils.volumeCylinder(this.height, this.diameter/2)
         let volumeMaintenance = volumeOld * JSON.parse(
-            process.env.NEXT_PUBLIC_TREE_VOLUME_MAINTENANCE_PC
+            process.env.NEXT_PUBLIC_TREE_MAINTENANCE_PC
         )[this.treeType]
         
         // Compute volume by which this tree grows in height.

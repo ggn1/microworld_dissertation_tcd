@@ -142,7 +142,7 @@ export default class Land {
 
             // Get volume of the tree that will be harvested.
             const heightHarvested = tree.height * (1 - JSON.parse(
-                process.env.NEXT_PUBLIC_TREE_VOLUME_REMAINS_AFTER_FELL
+                process.env.NEXT_PUBLIC_TREE_REMAINS_AFTER_FELL
             ))
             const radius = tree.diameter/2
             const volumeHarvested = utils.volumeCylinder(heightHarvested, radius)

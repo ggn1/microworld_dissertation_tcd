@@ -8,7 +8,7 @@ export default class Planner {
     #targets = {
         co2: JSON.parse(process.env.NEXT_PUBLIC_TARGET_CO2_START), // Atmospheric PPM
         income: Big(JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START)), // x Bc
-        funds: Big(JSON.parse(process.env.NEXT_PUBLIC_TARGET_FUNDS_START)) // x Bc
+        funds: 1 // x Bc
     }
     #updateUISalesTargets
     #lastYear = 0

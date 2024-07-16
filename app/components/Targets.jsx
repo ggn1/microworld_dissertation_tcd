@@ -6,9 +6,7 @@ import * as utils from '../utils.js'
 
 import {useState, useEffect } from "react"
 
-let targets = {"co2": null, "income": null, "funds": Big(JSON.parse(
-    process.env.NEXT_PUBLIC_TARGET_FUNDS_START
-))}
+let targets = {"co2": null, "income": null, "funds": 1}
 let isExpMode = true
 
 const Targets = ({

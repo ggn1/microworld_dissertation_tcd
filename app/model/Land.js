@@ -331,7 +331,6 @@ export default class Land {
         let bSpecies = 0
         let bAge = 0
         let b = 0
-        let bCat = ""
         const ageComp = JSON.parse(process.env.NEXT_PUBLIC_LAND_AGE_COMP)
 
         const treeCounts = this.countTrees()

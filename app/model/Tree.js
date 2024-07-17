@@ -43,7 +43,6 @@ export default class Tree {
         this.stressEnv = 0 // DEBUG
         this.stressAge = 0 // DEBUG
         this.age = 0 // years
-        this.reproduction = true // DEBUG
         this.#getBiodiversityCategory = getBiodiversityCategory
         this.#updateCarbon = updateCarbon
         this.#isLandFree = isLandFree
@@ -229,22 +228,35 @@ export default class Tree {
         const growthHeight = growthRate * this.ghMax
         const growthDiameter = growthRate * this.gdMax
         const heightNew = Math.min(this.heightMax, this.height + growthHeight) // Grow until max height.
-        const diameterNew = Math.min(this.diameterMax, this.diameter + growthDiameter) // Grow until max diameter.
+        let diameterNew = Math.min(this.diameterMax, this.diameter + growthDiameter) // Grow until max diameter.
         const volumeNew = utils.volumeCylinder(heightNew, diameterNew/2)
         let volumeGrowth = Math.max(0, volumeNew - volumeOld)
+        if (volumeGrowth == 0) { // Secondary growth.
+            // Unlike height, diameter keeps growing throughout lifespan
+            // of a tree. It slows down as the tree ages. This reduction
+            // with age need not be explicitly modelled as stress due to 
+            // aging shall cause this.
+            const gvMax = utils.volumeCylinder(this.ghMax, this.gdMax)
+            const volumeGrowthSec = (
+                gvMax * process.env.NEXT_PUBLIC_SEC_GROWTH_PC
+            )
+            let growthDiameterSec = 2 * Math.sqrt(
+                volumeGrowthSec/(Math.PI * this.height)
+            )
+            diameterNew = this.diameter + growthDiameterSec
+            volumeGrowth = volumeGrowthSec
+            console.log("volumeGrowthSec =", volumeGrowthSec)
+        }
 
         // Process carbon needed for maintenance.
         if (volumeMaintenance > 0) {
             this.#processCarbon(volumeMaintenance, "air", "soil")
         }
         
-        // Process carbon needed for growth.
-        // Grow physically.
-        if (volumeGrowth > 0) {
-            this.#processCarbon(volumeGrowth, "air", "vegetation")
-            this.height = heightNew
-            this.diameter = diameterNew
-        }
+        // Process carbon needed for growth & grow.
+        this.#processCarbon(volumeGrowth, "air", "vegetation")
+        this.height = heightNew
+        this.diameter = diameterNew
     }
 
     #isAlive() {
@@ -270,7 +282,7 @@ export default class Tree {
         if (this.lifeStage != "dead") {
             this.#recover()  // Recover from past stress.
             this.#grow() // Grow physically.
-            if (this.reproduction) this.#reproduce() // Reproduce if possible.
+            if (utils.reproductionEnabled) this.#reproduce() // Reproduce if possible.
         }
     }
 

@@ -3,7 +3,8 @@
  * files may require.
 */
 
-export const devMode = false 
+export const devMode = false // dev
+export const reproductionEnabled = true // dev
 
 export function getRandomIntegerBetween(x, y) {
     /** Returns a random integer between integers 

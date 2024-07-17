@@ -2,6 +2,7 @@
 
 import * as d3 from "d3"
 import { saveAs } from 'file-saver'
+import * as utils from '../utils.js'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import PopUp from '../components/PopUp'
@@ -47,7 +48,7 @@ const Home = () => {
     const [showIncDepPanel, setShowIncDepPanel] = useState(true)
     const [showIncPanel, setShowIncPanel] = useState(true)
     const [showBiodiversity, setShowBiodiversity] = useState(true)
-    const [devMode, setDevMode] = useState(JSON.parse(process.env.NEXT_PUBLIC_DEV_MODE))
+    const [devMode, setDevMode] = useState(utils.devMode)
     const [targetFailYearCO2, setTargetFailYearCO2] = useState(-1)
     const [targetFailYearIncome, setTargetFailYearIncome] = useState(-1)
 

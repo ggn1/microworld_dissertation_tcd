@@ -245,7 +245,6 @@ export default class Tree {
             )
             diameterNew = this.diameter + growthDiameterSec
             volumeGrowth = volumeGrowthSec
-            console.log("volumeGrowthSec =", volumeGrowthSec)
         }
 
         // Process carbon needed for maintenance.

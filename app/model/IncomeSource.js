@@ -137,6 +137,7 @@ export class NTFP extends IncomeSource {
     #getIncomeDependency
     #getFunds
     #updateExpenses
+    #availabilityScaleFactor
 
     constructor(
         type, getBiodiversityPc, getDeadWoodPc, 
@@ -165,6 +166,9 @@ export class NTFP extends IncomeSource {
         this.#updateFunds = updateFunds
         this.#getFunds = getFunds
         this.#updateExpenses = updateExpenses
+        this.#availabilityScaleFactor = JSON.parse(
+            process.env.NEXT_PUBLIC_AVAILABILITY_SCALE_FACTOR
+        )
         this.updateAvailability = () => {
             /** 
              * Updates how much of this resource is available.
@@ -178,10 +182,10 @@ export class NTFP extends IncomeSource {
                 let availabilityMax = utils.randomNormalSample(def.mean, def.sd)
                 const biodiversityPc = this.#getBiodiversityPc()
                 let availabilityBd = Math.max(
-                    0, availabilityMax - (0.5 * availabilityMax * (1 - biodiversityPc))
+                    0, availabilityMax - (this.#availabilityScaleFactor * availabilityMax * (1 - biodiversityPc))
                 )
                 const deadwoodPc = this.#getDeadWoodPc()
-                let availabilityDw = availabilityBd + (0.5 * availabilityMax * deadwoodPc)
+                let availabilityDw = availabilityBd + (this.#availabilityScaleFactor * availabilityMax * deadwoodPc)
                 this.available = availabilityDw
             } else {
                 this.available = 0

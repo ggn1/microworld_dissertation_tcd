@@ -181,7 +181,8 @@ const LandPlot = ({content, bdScore, bdCategory, hide, devMode}) => {
 
     return (
         <Help helpData={helpData} page="world">
-            <div className="pt-5">
+            <div className="pt-5 land-plot">
+                {/* BIODIVERSITY */}
                 {showBd && <div className='flex justify-between gap-2'>
                     <div className='flex'>
                         <p className='text-[#6E6E6E] mr-2'>Class:</p> 
@@ -192,8 +193,11 @@ const LandPlot = ({content, bdScore, bdCategory, hide, devMode}) => {
                         <p>{bdScore}</p>
                     </div>
                 </div>}
+                {/* LAND CONTENT */}
                 <div className="pt-2">
+                    {/* ICONS */}
                     <svg style={{height:"350px", width:"400px"}} ref={refSvg}></svg>
+                    {/* LABEL */}
                     <div className="text-center" style={{
                         opacity: Number(showTreeLabel),
                         transition: "opacity 0.5s"

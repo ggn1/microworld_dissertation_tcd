@@ -364,7 +364,7 @@ const ActionManager = ({
     }, [])
 
     return (
-        <div className='grid grid-cols-2 gap-5 max-w-5xl'>
+        <div className='action-manager grid grid-cols-2 gap-5 max-w-5xl'>
             {/* VIEWER */}
             <div className='mb-5 col-span-1 row-span-1'>
                 {/* LABELS & DELETE, SAVE, UPLOAD BUTTONS */}
@@ -481,12 +481,11 @@ const ActionManager = ({
                                 </div>
                             </div>
                         
-                            {/* ADD, FILTER BUTTONS */}
+                            {/* ADD BUTTON */}
                             <div className='
                                 flex flex-wrap gap-3 justify-center
                                 place-content-center h-full w-full
                             '>
-                                {/* ADD BUTTON */}
                                 <Button
                                     outlineColor='#B9DEB5' bgColor='#99cc93'
                                     onClick={handleAdd}

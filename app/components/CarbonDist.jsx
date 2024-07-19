@@ -2,6 +2,11 @@ import Big from 'big.js'
 import Card from './Card'
 
 const CarbonDist = ({distribution}) => {
+    /**
+     * Displays the exact amount of carbon in each
+     * carbon reservoir.
+     * @param distribution: Amount of carbon per reservoir.
+     */
     let reservoirs = []
     for (const [reservoir, carbon] of Object.entries(distribution)) {
         let reservoirLabel = reservoir.replace("_", " ")
@@ -17,7 +22,6 @@ const CarbonDist = ({distribution}) => {
             <div key={reservoir} className='flex'>
                 <div className='text-[#6E6E6E] mr-1'>{reservoirLabel}:</div>
                 <div>{carbon.div(Big(10**15)).toNumber().toFixed(2)}</div>
-                {/* <div>{carbon.div(Big(10**6)).toNumber().toFixed(2)}</div> */}
             </div>
         )
     }

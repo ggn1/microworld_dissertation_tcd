@@ -4,8 +4,8 @@ import { Tooltip } from 'react-tooltip'
 
 const CO2Scale = ({concentration}) => {
     /** 
-     * Component that given displays CO2 concentration
-     * on a color coded scale. 
+     * Component that given atmospheric CO2 concentration,
+     * displays it on a color coded scale. 
      * @param concentration: Current atmospheric CO2 concentration.
      */
 

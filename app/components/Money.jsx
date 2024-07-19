@@ -2,7 +2,8 @@ import * as utils from '../utils.js'
 
 const Money = ({amountBig, showUnit=true}) => {
     /**
-     * Displays money in right format with unit.
+     * Displays money in the right format with unit
+     * and optionally icon.
      * @param amountBig: Amount as a Big object.
      */
     return (

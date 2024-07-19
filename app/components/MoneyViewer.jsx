@@ -9,7 +9,7 @@
 
     const MoneyViewer = ({
         targets, funds, income, resources, dependency, 
-        hideTargets, hideIncDep, expenses
+        hideTargets, expenses
     }) => {
         /** 
          * This component displays income targets as
@@ -25,11 +25,7 @@
          *                  overall, annual, and per rotation expenditure.
          * @param hideTargets: Whether income targets are hidden.
          * @param resources: Available resources in the world.
-         * @param hideIncDep: Hide income dependency panel.
          */
-
-        const colorGood = "#32BE51"
-        const colorDefault = "#EEEEEE"
         const incomeSources = JSON.parse(process.env.NEXT_PUBLIC_INCOME_SOURCES)
         const helpData = [["heading", "COINS"], ["paragraph", "Coins are the currency of this microworld. The COIN PANEL displays your bank balance, income, and expenses."],["paragraph", "BANK BALANCE is the total amount of coins that you have at any given point in the simulation."], ["paragraph", "INCOME refers to no. of coins you have earned. Overall income is how much you've earned so far in the simulation, yearly income is how much you've earned this year alone, and rotation income is how much you have earned in this rotation alone."], ["paragraph", "EXPENSES refer to how much you have spent overall, this year, and this rotation. Felling/planting a tree costs coins that comprise this expenditure."], ["image", "help/coins_1.png"], ["paragraph", "By default, it is income/expense per rotation that is visible below the icon representing type of income stream. You may click on 'OVERALL', 'YEAR' or 'ROTATION' to update this. Hover over the icon to view the name of the income stream."], ["image", "help/coins_2.png"]]
 
@@ -38,18 +34,6 @@
         const [incProp, setIncProp] = useState({})
         const [expProp, setExpProp] = useState({})
         const [breakdownIncLvl, setBreakdownIncLvl] = useState("rotation")
-
-        const getNumActiveResources = () => {
-            /**
-             * Returns the no. of resources that
-             * the user is dependent on.
-             */
-            let numResources = 0
-            for (const [res, dep] of Object.entries(dependency)) {
-                numResources += Number(dep > 0)
-            }
-            return numResources
-        }
 
         const getResourceIncExpDivs = (incExp) => {
             /**

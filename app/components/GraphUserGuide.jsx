@@ -21,9 +21,6 @@ const GraphUserGuide = ({handleTopicSelection, nodes, links}) => {
         const svg = d3.select(refSvg.current)
         const widthSvg = Number(svg.style('width').replace('px', ''))
         const heightSvg = Number(svg.style('height').replace('px', ''))
-        const margins = {left: 0, right: 0, top: 0, bottom: 0}
-        // const widthPlot = widthSvg - margins.left - margins.right
-        // const heightPlot = heightSvg - margins.top - margins.bottom
 
         // Clear any existing elements
         svg.selectAll('*').remove()

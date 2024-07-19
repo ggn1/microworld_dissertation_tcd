@@ -27,7 +27,7 @@ const ActionSelector = ({handleSelection}) => {
     return (
         <div className='
             flex flex-col place-content-center p-2 bg-[#D0D0D0] 
-            rounded-lg text-center h-full w-
+            rounded-lg text-center h-full action-selector
         '>
             <p className='mb-2 font-bold'>ACTIONS</p>
             <div className='mb-2'>

@@ -1,6 +1,12 @@
 const PopUp = ({children, handleClose}) => {
     /**
-     * A popup window.
+     * Displays chilren on a PopUp window
+     * that triggers given function upon 
+     * the user clicking on the transluscent 
+     * background.
+     * @param handleClose: Function to execute
+     *                     upon an attempt to
+     *                     close the popup. 
      */
 
     return (

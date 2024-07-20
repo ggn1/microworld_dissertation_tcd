@@ -54,7 +54,7 @@ const GraphUserGuide = ({handleTopicSelection, nodes, links}) => {
                                 'link', 
                                 d3.forceLink(links)
                                     .id(d => d.id)
-                                    .distance(150)
+                                    .distance(120)
                             )
                             .force('charge', d3.forceManyBody().strength(-120))
                             .force("collide", d3.forceCollide(1)) // radius + 1

@@ -84,6 +84,7 @@ const LandPlot = ({content, bdScore, bdCategory, hide, devMode}) => {
             treeLifeStage = treeLifeStage.join(" ")
     
             let label = `${treeLifeStage} ${treeType}`
+            if (treeLifeStage != "Dead") label += ` (Age = ${entity.age})`
             if (devMode) label += ` (Stress = ${entity.stress})`
     
             return {

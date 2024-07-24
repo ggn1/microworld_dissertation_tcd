@@ -45,7 +45,6 @@ const Home = () => {
     const [showCO2Scale, setShowCO2Scale] = useState(true)
     const [showPanelC, setShowPanelC] = useState(true)
     const [showPanelFF, setShowPanelFF] = useState(true)
-    const [showIncDepPanel, setShowIncDepPanel] = useState(true)
     const [showIncPanel, setShowIncPanel] = useState(true)
     const [showBiodiversity, setShowBiodiversity] = useState(true)
     const [devMode, setDevMode] = useState(utils.devMode)
@@ -88,9 +87,6 @@ const Home = () => {
          */
         if (e.ctrlKey && e.altKey) {
             switch (e.key) {
-                case "0": // Ctrl + Alt + 0 => No Challenge
-                    setCurChallenge(0)
-                    break
                 case "1": // Ctrl + Alt + 1 => Challenge 1
                     setCurChallenge(1)
                     break
@@ -149,21 +145,11 @@ const Home = () => {
 
     useEffect(() => {
         challenge = curChallenge
-        if (challenge == 0) { // Full Features
-            setShowCO2Target(true)
-            setShowCO2Scale(true)
-            setShowPanelC(true)
-            setShowPanelFF(true)
-            setShowIncDepPanel(true)
-            setShowBiodiversity(true)
-            setShowIncomeTarget(true)
-            setShowIncPanel(true)
-        } else if (challenge == 1) { // Challenge 1
+        if (challenge == 1) { // Challenge 1
             setShowCO2Target(false)
             setShowCO2Scale(false)
             setShowPanelC(false)
             setShowPanelFF(false)
-            setShowIncDepPanel(false)
             setShowBiodiversity(false)
             setShowIncomeTarget(false)
             setShowIncPanel(true)
@@ -172,7 +158,6 @@ const Home = () => {
             setShowCO2Scale(true)
             setShowPanelC(false)
             setShowPanelFF(false)
-            setShowIncDepPanel(false)
             setShowBiodiversity(false)
             setShowIncomeTarget(false)
             setShowIncPanel(false)
@@ -181,27 +166,24 @@ const Home = () => {
             setShowCO2Scale(true)
             setShowPanelC(false)
             setShowPanelFF(false)
-            setShowIncDepPanel(false)
             setShowBiodiversity(false)
-            setShowIncomeTarget(false)
+            setShowIncomeTarget(true)
             setShowIncPanel(true)
         } else if (challenge == 4) { // Challenge 4
             setShowCO2Target(true)
             setShowCO2Scale(true)
-            setShowPanelC(false)
+            setShowPanelC(true)
             setShowPanelFF(true)
-            setShowIncDepPanel(false)
-            setShowBiodiversity(false)
-            setShowIncomeTarget(false)
+            setShowBiodiversity(true)
+            setShowIncomeTarget(true)
             setShowIncPanel(true)
-        } else if (challenge == 5) { // Challenge 4
+        } else if (challenge == 5) { // Challenge 5
             setShowCO2Target(true)
             setShowCO2Scale(true)
-            setShowPanelC(false)
+            setShowPanelC(true)
             setShowPanelFF(true)
-            setShowIncDepPanel(true)
-            setShowBiodiversity(false)
-            setShowIncomeTarget(false)
+            setShowBiodiversity(true)
+            setShowIncomeTarget(true)
             setShowIncPanel(true)
         }
     }, [curChallenge])
@@ -240,7 +222,6 @@ const Home = () => {
                             dependency={incomeDependency}
                             resources={sim.resources}
                             hideTargets={!showIncomeTarget}
-                            hideIncDep={!showIncDepPanel}
                         /> : <div className='min-h-32'></div>}
                     </div>
                     <div id="world-timeline" className="

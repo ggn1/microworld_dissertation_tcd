@@ -196,6 +196,52 @@ export default class Planner {
             }
             return this.incomeDependency 
         }
+        this.checkTargetMet = (co2, income, funds, year, rotation) => {
+            /**
+             * Checks if the target is met or not.
+             * @param co2: Current co2 value.
+             * @param income: Current total income.
+             * @param funds: Current bank balance.
+             * @param year: This year.
+             * @param rotation: Current rotation.
+             * @return: Latest target met status.
+             */
+            if (year == 0 || year <= this.#lastYear) {
+                this.targetFailYear.co2 = -1
+                this.targetFailYear.income = -1
+                this.targetFailYear.funds = -1
+            }
+            if (this.targetFailYear.co2 < 0) { // CO2 target has not failed yet.
+                if (co2 <= this.#targets.co2) this.targetFailYear.co2 = -2 // CO2 target met.
+                else this.targetFailYear.co2 = year // CO2 target failed.      
+            }
+            if (year%this.rotationPeriod == (this.rotationPeriod - 1)) {
+                this.#rotIncTargetMet = (this.targetFailYear.income == -2)
+            }
+            if (this.targetFailYear.income < 0) { // Income target has not failed yet.
+                // Reset and evaluate at the starting of a new rotation.
+                if (year != 0 && year%this.rotationPeriod == 0) { // New rotation.
+                    // Income target was met the last rotation.
+                    if (this.#rotIncTargetMet) {
+                        this.targetFailYear.income = -1
+                        this.#rotIncTargetMet = false
+                    } 
+                    // Income target was not met the last rotation.
+                    else { // Income target has not failed.
+                        this.targetFailYear.income = rotation - 1
+                    }
+                }
+                if (income.gte(this.#targets.income)) {
+                    this.targetFailYear.income = -2 // Income target met.
+                }    
+            }
+            if (this.targetFailYear.funds < 0) { // Funds target has not failed yet.
+                if (funds.gte(this.#targets.funds)) this.targetFailYear.funds = -2 // Funds target met.
+                else this.targetFailYear.funds = year - 1  // CO2 target failed.      
+            }
+            this.#lastYear = year
+            return this.targetFailYear
+        }
     }
 
     updateActionStatus(year, actionType, actionIdx, successStatus) {
@@ -217,52 +263,5 @@ export default class Planner {
         if (year in this.plan && this.plan[year][actionType].length > actionIdx) {
             this.plan[year][actionType][actionIdx].success = successStatus
         }
-    }
-
-    checkTargetMet(co2, income, funds, year, rotation) {
-        /**
-         * Checks if the target is met or not.
-         * @param co2: Current co2 value.
-         * @param income: Current total income.
-         * @param funds: Current bank balance.
-         * @param year: This year.
-         * @param rotation: Current rotation.
-         * @return: Latest target met status.
-         */
-        if (year == 0 || year <= this.#lastYear) {
-            this.targetFailYear.co2 = -1
-            this.targetFailYear.income = -1
-            this.targetFailYear.funds = -1
-        }
-        if (this.targetFailYear.co2 < 0) { // CO2 target has not failed yet.
-            if (co2 <= this.#targets.co2) this.targetFailYear.co2 = -2 // CO2 target met.
-            else this.targetFailYear.co2 = year // CO2 target failed.      
-        }
-        if (year%this.rotationPeriod == (this.rotationPeriod - 1)) {
-            this.#rotIncTargetMet = (this.targetFailYear.income == -2)
-        }
-        if (this.targetFailYear.income < 0) { // Income target has not failed yet.
-            // Reset and evaluate at the starting of a new rotation.
-            if (year != 0 && year%this.rotationPeriod == 0) { // New rotation.
-                // Income target was met the last rotation.
-                if (this.#rotIncTargetMet) {
-                    this.targetFailYear.income = -1
-                    this.#rotIncTargetMet = false
-                } 
-                // Income target was not met the last rotation.
-                else { // Income target has not failed.
-                    this.targetFailYear.income = rotation - 1
-                }
-            }
-            if (income.gte(this.#targets.income)) {
-                this.targetFailYear.income = -2 // Income target met.
-            }    
-        }
-        if (this.targetFailYear.funds < 0) { // Funds target has not failed yet.
-            if (funds.gte(this.#targets.funds)) this.targetFailYear.funds = -2 // Funds target met.
-            else this.targetFailYear.funds = year - 1  // CO2 target failed.      
-        }
-        this.#lastYear = year
-        return this.targetFailYear
     }
 }

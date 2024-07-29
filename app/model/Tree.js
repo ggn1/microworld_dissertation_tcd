@@ -188,7 +188,7 @@ export default class Tree {
     #processCarbon(volume, srcReservoir, dstReservoir) {
         /** 
          * Pulls and fixes carbon needed to build given amount of volume. 
-         * @param volume: The amount of growth required.
+         * @param volume: The amount of carbon as tree volume.
          * @param srcReservoir: The sources that the carbon is to be drawn from.
          * @param dstReservoir: The destination to which carbon is to be added to.
         */
@@ -260,8 +260,10 @@ export default class Tree {
 
     #isAlive() {
         /** 
-         * Function to check whether this tree is still alive.
-         * @return: True if the tree is alive and False otherwise.
+         * Function to check whether this 
+         * tree is still alive.
+         * @return: True if the tree is alive 
+         *          and False otherwise.
          */
         return this.stress < 1
     }
@@ -269,19 +271,16 @@ export default class Tree {
     #live() {
         /**
          * Models life activities that a plant does.
-         * @param reproduce: Whether or not reproduction is enabled.
-         *                   This is enabled by default. There is a
-         *                   need to allow for this to be disabled
-         *                   in the situation wherein the land is being
-         *                   initialized to achive a desired tree age 
-         *                   and tree type composition.
          */
         // Update lifestage and proceed if not dead.
         this.lifeStage = this.#computeLifeStage()
         if (this.lifeStage != "dead") {
             this.#recover()  // Recover from past stress.
             this.#grow() // Grow physically.
-            if (utils.reproductionEnabled) this.#reproduce() // Reproduce if possible.
+            if (utils.reproductionEnabled) {
+                // Reproduce if possible.
+                this.#reproduce() 
+            } 
         }
     }
 
@@ -396,7 +395,7 @@ export default class Tree {
             this.age += 1
             this.stressAge = this.#getStressAge()
             this.stress += Math.min(1, this.stress + this.stressAge)           
-            this.#live()
+            this.#live() // Carry out life processes.
         } else { // Dead => decay.
             this.#decay()
         }

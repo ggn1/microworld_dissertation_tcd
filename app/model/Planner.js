@@ -1,14 +1,16 @@
 import Big from 'big.js'
 
 export default class Planner {
-    /** This class facilitates storing,
-     *  updating and saving of management plans. 
+    /** This class facilitates creation,
+     *  and editing of management plans
+     *  and other learner decisions 
+     *  (CO2, income targets, rotation period). 
      */
 
     #targets = {
         co2: JSON.parse(process.env.NEXT_PUBLIC_TARGET_CO2_START), // Atmospheric PPM
-        income: Big(JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START)), // x Bc
-        funds: 1 // x Bc
+        income: Big(JSON.parse(process.env.NEXT_PUBLIC_TARGET_INCOME_START)), // x coins
+        funds: 1 // x coins
     }
     #updateUISalesTargets
     #lastYear = 0
@@ -29,7 +31,7 @@ export default class Planner {
         for (const [resource, value] of Object.entries(JSON.parse(
             process.env.NEXT_PUBLIC_INCOME_SOURCES
         ))) this.incomeDependency[resource] = value.dependency
-        this.targetFailYear = {co2:-1, funds:-1, income:-1}
+        this.targetFailYear = {co2:-1, funds:-1, income:-1} // Keep track of the first year in which a target failed. -1 implies it has not failed.
 
         this.getTargets = () => {
             /** 

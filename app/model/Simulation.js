@@ -215,8 +215,9 @@ export default class Simulation {
     }
 
     #executePlans(year) {
-        /** 
-         * Executes all plans for given year if possible.
+        /**
+         * Executes planned forest management
+         * actions for this year if available.
          * @param year: The year for which all plans are to be executed.
          */
         let status = []
@@ -290,7 +291,7 @@ export default class Simulation {
     #updateExpenditure(rotationUpdated) {
         /** 
          * Updates overall and per rotation expenditure
-         * upon considering espenses from this year.
+         * after accounting for this year's expenses.
          * @param rotationUpdated: Whether the rotation has changed.
          */
         for (const [resource, yearExpenses] of Object.entries(this.expenses.year)) {
@@ -309,7 +310,8 @@ export default class Simulation {
 
     #resetYearExpenses() {
         /**
-         * Sets expenditure for the year back to 0 for each resource.
+         * Sets expenditure for the year 
+         * back to 0 for each resource.
          */
         for (const resource of Object.keys(this.resources).concat(["total"])) {
             this.expenses.year[resource] = Big(0)
@@ -318,9 +320,8 @@ export default class Simulation {
 
     #updateRotation() {
         /**
-         * Computes current rotation based on
-         * current time. When new rotation starts,
-         * resets income targets.
+         * Computes latest rotation number based 
+         * on current time and set rotation period.
          * @return: Whether the rotation has changed.
          */
         let newRotation = this.rotation + Number(

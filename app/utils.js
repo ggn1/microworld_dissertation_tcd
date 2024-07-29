@@ -184,16 +184,3 @@ export function reverseNFormatter(formattedStr) {
 
     return number.toString();
 }
-
-export function co2massFromCmass (cMassBig) {
-    /** 
-     * Given mass of carbon, returns that of CO2
-     * assuming all carbon is found in the form of
-     * CO2. 
-     * @param cMassBig: Mass of carbon as a Big object.
-     * @return co2Mass: Mass of CO2 as a Big object.
-     */
-    const molarMassCO2 = 44.01
-    const molarMassC = 12.01
-    return cMassBig.mul(molarMassCO2/molarMassC)
-}

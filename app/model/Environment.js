@@ -1,13 +1,12 @@
 import Big from 'big.js'
 import Land from "./Land.js"
-import * as utils from '../utils.js'
-
-let fossilFuelEmission =  Big(JSON.parse(
-    process.env.NEXT_PUBLIC_CO2_FOSSIL_FUEL_ANNUAL_EMISSION_START
-))
 
 export default class Environment {
     /** Environment comprises the atmosphere and the land. */
+
+    static fossilFuelEmission = Big(JSON.parse(
+        process.env.NEXT_PUBLIC_CO2_FOSSIL_FUEL_ANNUAL_EMISSION_START
+    ))
 
     #airMass = Big(JSON.parse(process.env.NEXT_PUBLIC_AIR_MASS))
 
@@ -40,11 +39,9 @@ export default class Environment {
              *  @return: Concentration of CO2 in the atmosphere in
              *           parts per million (ppm).
              */
-            const airC = this.carbon.air // Mass of carbon in the atmosphere currently.
-    
+            const airC = this.carbon.air // Current mass of carbon in the air.
             // 1. Compute mass of CO2 in the air.
-            const massCO2air = utils.co2massFromCmass(airC) // gCO2
-
+            const massCO2air = this.#co2massFromCmass(airC) // gCO2
             // 2. Compute CO2 concentration.
             const ppm = (massCO2air.div(this.#airMass)).mul(1e+6).toNumber()
             return ppm
@@ -58,7 +55,7 @@ export default class Environment {
              * Returns current annual carbon emissions
              * from fossil fuel usage.
              */
-            return fossilFuelEmission
+            return Environment.fossilFuelEmission
         }
         this.setFossilFuelEmission = (val) => {
             /**
@@ -66,7 +63,7 @@ export default class Environment {
              * from fossil fuel usage.
              * @param val: New value.
              */
-            fossilFuelEmission = val
+            Environment.fossilFuelEmission = val
         }
         this.land = new Land(this.updateCarbon, this.getCarbon, this.getAirCO2ppm)
     }
@@ -79,7 +76,7 @@ export default class Environment {
         
         if (!isInit) {
             // Update carbon in air due to fossil fuels.
-            let toEmit = fossilFuelEmission
+            let toEmit = Environment.fossilFuelEmission
             if (toEmit.gt(this.carbon.fossil_fuels)) {
                 // Can only emit as much as is available.
                 toEmit = this.carbon.fossil_fuels
@@ -92,5 +89,18 @@ export default class Environment {
         
         // Update land content.
         this.land.takeTimeStep()
+    }
+
+    #co2massFromCmass (cMassBig) {
+        /** 
+         * Given mass of carbon, returns that of CO2
+         * assuming all carbon is found in the form of
+         * CO2. 
+         * @param cMassBig: Mass of carbon as a Big object.
+         * @return co2Mass: Mass of CO2 as a Big object.
+         */
+        const molarMassCO2 = 44.01
+        const molarMassC = 12.01
+        return cMassBig.mul(molarMassCO2/molarMassC)
     }
 }

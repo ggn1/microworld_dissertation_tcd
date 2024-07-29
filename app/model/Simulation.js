@@ -347,17 +347,16 @@ export default class Simulation {
         this.rotation = 0
         this.funds = Big(JSON.parse(process.env.NEXT_PUBLIC_FUNDS_START))
         this.resources = {
-            timber: new Timber("timber", this.env.updateCarbon),
+            timber: new Timber(this.env.updateCarbon),
             ntfp: new NTFP(
-                "ntfp", this.env.land.getBiodiversityPc, 
+                this.env.land.getBiodiversityPc, 
                 this.env.land.getDeadWoodPc,
                 this.updateFunds,
                 this.planner.getIncDep,
                 this.getFunds,
                 this.updateExpenses
             ),
-            recreation: new Recreation(
-                "recreation", 
+            recreation: new Recreation( 
                 this.env.land.getBiodiversityPc,
                 this.updateFunds,
                 this.planner.getIncDep,

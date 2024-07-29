@@ -2,7 +2,7 @@ import Tree from './Tree'
 import * as utils from '../utils.js'
 
 let initSowPositions = [] // Initial positions wherein plants were sown.
-let timeStepOrder = [] // The which each spot on land is visited.
+let timeStepOrder = [] // The order in which each spot on land is visited.
 
 export default class Land {
     /** 
@@ -13,7 +13,6 @@ export default class Land {
     #updateCarbon
     #getAirCO2ppm
     #getCarbon
-
     constructor(updateCarbon, getCarbon, getAirCO2ppm) {
         /**
          * Constructor for object of this class.
@@ -42,229 +41,11 @@ export default class Land {
         let row = []
         for (let i = 0; i < this.size.rows; i++) {
             row = []
-            for (let j = 0; j < this.size.columns; j++) {
-                row.push([])
-            }
+            for (let j = 0; j < this.size.columns; j++) row.push([])
             this.content.push(row)
         }
         this.biodiversityCategory = "Unforested"
         this.biodiversityScore = 0
-        this.getBiodiversityCategory = () => {
-            /** 
-             * Returns classification of this land that was 
-             * computed using the biodiversity score. 
-             */
-            return this.biodiversityCategory
-        }
-        this.isLandFree = (row, column) => {
-            /**
-             * Checks if a given spot on the land is free.
-             * @param row: Land grid row.
-             * @param column: Land grid column.
-             * @return: True if [row, column] is free and false otherwise.
-             */
-            // If the given position falls outside the size of the
-            // land, then it is invalid and hence not free.
-            if (
-                row < 0 || row >= this.size.rows || 
-                column < 0 || column >= this.size.columns
-            ) return false
-            
-            // A spot on the land is considered free for
-            // planting if it is empty.
-            const spotContent = this.content[row][column]
-            if (spotContent.length == 0) return true
-            
-            // It is also considered to be free if there is
-            // only one decayed tree on it with a fraction of
-            // original max height remaining.
-            if (spotContent.length == 1) {
-                const spotContentLatest = spotContent[0]
-                if (
-                    spotContentLatest.lifeStage == "dead" &&
-                    spotContentLatest.height <= JSON.parse(
-                        process.env.NEXT_PUBLIC_HEIGHT_MAX
-                    )[spotContentLatest.treeType] * JSON.parse(
-                        process.env.NEXT_PUBLIC_DECAY_HEIGHT_THRESHOLD
-                    )
-                ) return true
-            }
-            return false
-        }
-        this.plantTree = (treeType, position) => {
-            /**
-             * Function that adds a new seedling onto the land.
-             * This action is successful only if there is a free
-             * space available on the land.
-             * @param treeType: The type of tree that is born.
-             * @param position: The [x, y] position at which the new plant is 
-             *                  to grow. This is null by default, in which
-             *                  case, the position is a random free spot.
-             *                  If a position is defined, then this is where
-             *                  the plant is sown.
-             * @return: The tree that was planted or 0 if it was 
-             *          not possible to sow.
-             */
-
-            // Can only plant at a position if it is free.
-            const landFree = this.isLandFree(position[0], position[1])
-            if (!landFree) return 0
-            const newTree = new Tree(
-                position, treeType,
-                this.getBiodiversityCategory,
-                this.isLandFree, this.#updateCarbon,
-                this.plantTree, this.#getAirCO2ppm
-            )
-            this.content[position[0]][position[1]].push(newTree)
-            return newTree
-        }
-        this.fellTree = (position, treeType, treeLifeStage) => {
-            /**
-             * Fells one or more trees on the land.
-             * @param position: Position of the tree to fell
-             * @param treeType: The type of tree to fell (deciduous/coniferous).
-             * @param treeLifeStage: The stage of life at which the tree to be 
-             *                       felled must be at.
-             * @return: Whether it was possible to execute this action 
-             *          (1) or not (0).
-             */ 
-            const landSpot = this.content[position[0]][position[1]]
-            if (landSpot.length == null) return [0, 0]
-            const tree = landSpot[landSpot.length - 1]
-            if (
-                tree.treeType != treeType ||
-                tree.lifeStage != treeLifeStage
-            ) return [0, 0]
-            
-            // Tree is chopped. So, it's stress levels 
-            // are set to 1.
-            tree.updateStress((1-tree.stress))
-
-            // Get volume of the tree that will be harvested.
-            const heightHarvested = tree.height * (1 - JSON.parse(
-                process.env.NEXT_PUBLIC_TREE_REMAINS_AFTER_FELL
-            ))
-            const radius = tree.diameter/2
-            const volumeHarvested = utils.volumeCylinder(heightHarvested, radius)
-
-            // Remove harvested portion of the tree.
-            tree.updateHeight(-1*heightHarvested)
-
-            // Compute weight of the tree that is harvested.
-            const weightHarvested = volumeHarvested * tree.woodDensity
-            return [1, weightHarvested]
-        }
-        this.getInitSowPositions = () => {
-            /**
-             * Returns initial sowing positions as currently saved.
-             * @return: Initial sow positions.
-             */
-            return initSowPositions
-        }
-        this.getTimeStepOrder = () => {
-            /**
-             * Returns current random order in which to
-             * visit each spot on the land.
-             * @return: Time step order.
-             */
-            return timeStepOrder
-        }
-        this.setInitSowPositions = (sowPositions) => {
-            /**
-             * Updates initial sowing positions.
-             * @param sowPositions: New positions.
-             */
-            initSowPositions = sowPositions
-        }
-        this.setTimeStepOrder = (order) => {
-            /**
-             * Updates time step order.
-             * @param order: New order.
-             */
-            timeStepOrder = order
-        }
-        this.getDeadWoodPc = () => {
-            /**
-             * Computes percent of the land that has deadwood.
-             * @return: Percent of the land with deadwood.
-             */
-            const landSpotsTotal = this.size.rows * this.size.columns
-            let spotContent = []
-            let landSpotsDeadWood = 0
-            for (let i = 0; i < this.size.rows; i++) {
-                for (let j = 0; j < this.size.columns; j++) {
-                    spotContent = this.content[i][j]
-                    for (let k = 0; k < spotContent.length; k++) {
-                        if (
-                            this.content[i][j] != null &&
-                            this.content[i][j].lifeStage == "dead"
-                        ) {
-                            landSpotsDeadWood += 1
-                            break
-                        }
-                    }
-                }
-            }
-            return landSpotsDeadWood/landSpotsTotal
-        } 
-        this.getBiodiversityPc = () => {
-            /**
-             * Returns biodiversity score.
-             * @return: Biodiversity score [0, 1].
-             */
-            return this.biodiversityScore
-        }
-        this.getActiveLandContent = () => {
-            /**
-             * Gets latest land content (last added
-             * tree to the list of trees on each land spot).
-             * If a spot has no trees, then null is returned
-             * for this position.
-             * @return: 2D list of positions on land and its
-             *          latest tree / null if empty.
-             */
-            let activeContent = []
-            let spotContent = []
-            let row = []
-            for (let i = 0; i < this.size.rows; i++) {
-                row = []
-                for (let j = 0; j < this.size.columns; j++) {
-                    spotContent = this.content[i][j]
-                    if (spotContent.length == 0) row.push(null)
-                    else row.push(spotContent[spotContent.length-1])
-                }
-                activeContent.push(row)
-            }
-            return activeContent
-        }
-        this.countTrees = () => {
-            /** 
-             * Returns a count of no. of tree of each 
-             * lifestage category on land. 
-             * @return: No. of each type (species, life stage) of tree
-             *          currently on the land.
-             */
-            let counts = {
-                deciduous: 0, coniferous: 0,
-                seedling: 0, sapling: 0, mature: 0, 
-                old_growth: 0, senescent: 0, dead: 0
-            }
-       
-            let spotContent = []
-            let entity = null
-            for (let x = 0; x < this.size.rows; x++) {
-                for (let y = 0; y < this.size.columns; y++) {
-                    spotContent = this.content[x][y]
-                    if (spotContent.length > 0) { // Count only latest tree on land.
-                        entity = spotContent[spotContent.length-1]
-                        counts[entity.treeType] += 1
-                        counts[entity.lifeStage] += 1
-                    }
-                }
-            }
-    
-            return counts
-        }
         this.#initialize()
     }
 
@@ -306,6 +87,35 @@ export default class Land {
         this.#releaseCarbonFromSoil()
     }
 
+    #countTrees = () => {
+        /** 
+         * Returns a count of no. of tree of each 
+         * lifestage category on land. 
+         * @return: No. of each type (species, life stage) of tree
+         *          currently on the land.
+         */
+        let counts = {
+            deciduous: 0, coniferous: 0,
+            seedling: 0, sapling: 0, mature: 0, 
+            old_growth: 0, senescent: 0, dead: 0
+        }
+   
+        let spotContent = []
+        let entity = null
+        for (let x = 0; x < this.size.rows; x++) {
+            for (let y = 0; y < this.size.columns; y++) {
+                spotContent = this.content[x][y]
+                if (spotContent.length > 0) { // Count only latest tree on land.
+                    entity = spotContent[spotContent.length-1]
+                    counts[entity.treeType] += 1
+                    counts[entity.lifeStage] += 1
+                }
+            }
+        }
+
+        return counts
+    }
+
     #releaseCarbonFromSoil() {
         /** 
          * Each time step, a certain amount of the carbon 
@@ -328,7 +138,7 @@ export default class Land {
         let b = 0
         const ageComp = JSON.parse(process.env.NEXT_PUBLIC_LAND_AGE_COMP)
 
-        const treeCounts = this.countTrees()
+        const treeCounts = this.#countTrees()
 
         // Rule: Mixed forests with more trees => more biodiversity.
         const more = Math.max(treeCounts.coniferous, treeCounts.deciduous)
@@ -495,5 +305,196 @@ export default class Land {
             }
         }
         return [-1, -1]
+    }
+
+    isLandFree = (row, column) => {
+        /**
+         * Checks if a given spot on the land is free.
+         * @param row: Land grid row.
+         * @param column: Land grid column.
+         * @return: True if [row, column] is free and false otherwise.
+         */
+        // If the given position falls outside the size of the
+        // land, then it is invalid and hence not free.
+        if (
+            row < 0 || row >= this.size.rows || 
+            column < 0 || column >= this.size.columns
+        ) return false
+        
+        // A spot on the land is considered free for
+        // planting if it is empty.
+        const spotContent = this.content[row][column]
+        if (spotContent.length == 0) return true
+        
+        // It is also considered to be free if there is
+        // only one decayed tree on it with a fraction of
+        // original max height remaining.
+        if (spotContent.length == 1) {
+            const spotContentLatest = spotContent[0]
+            if (
+                spotContentLatest.lifeStage == "dead" &&
+                spotContentLatest.height <= JSON.parse(
+                    process.env.NEXT_PUBLIC_HEIGHT_MAX
+                )[spotContentLatest.treeType] * JSON.parse(
+                    process.env.NEXT_PUBLIC_DECAY_HEIGHT_THRESHOLD
+                )
+            ) return true
+        }
+        return false
+    }
+    
+    plantTree = (treeType, position) => {
+        /**
+         * Function that adds a new seedling onto the land.
+         * This action is successful only if there is a free
+         * space available on the land.
+         * @param treeType: The type of tree that is born.
+         * @param position: The [x, y] position at which the new plant is 
+         *                  to grow. This is null by default, in which
+         *                  case, the position is a random free spot.
+         *                  If a position is defined, then this is where
+         *                  the plant is sown.
+         * @return: The tree that was planted or 0 if it was 
+         *          not possible to sow.
+         */
+
+        // Can only plant at a position if it is free.
+        const landFree = this.isLandFree(position[0], position[1])
+        if (!landFree) return 0
+        const newTree = new Tree(
+            position, treeType,
+            () => {return this.biodiversityCategory},
+            this.isLandFree, this.#updateCarbon,
+            this.plantTree, this.#getAirCO2ppm
+        )
+        this.content[position[0]][position[1]].push(newTree)
+        return newTree
+    }
+
+    fellTree = (position, treeType, treeLifeStage) => {
+        /**
+         * Fells one or more trees on the land.
+         * @param position: Position of the tree to fell
+         * @param treeType: The type of tree to fell (deciduous/coniferous).
+         * @param treeLifeStage: The stage of life at which the tree to be 
+         *                       felled must be at.
+         * @return: Whether it was possible to execute this action 
+         *          (1) or not (0).
+         */ 
+        const landSpot = this.content[position[0]][position[1]]
+        if (landSpot.length == null) return [0, 0]
+        const tree = landSpot[landSpot.length - 1]
+        if (
+            tree.treeType != treeType ||
+            tree.lifeStage != treeLifeStage
+        ) return [0, 0]
+        
+        // Tree is chopped. So, it's stress levels 
+        // are set to 1.
+        tree.updateStress((1-tree.stress))
+
+        // Get volume of the tree that will be harvested.
+        const heightHarvested = tree.height * (1 - JSON.parse(
+            process.env.NEXT_PUBLIC_TREE_REMAINS_AFTER_FELL
+        ))
+        const radius = tree.diameter/2
+        const volumeHarvested = utils.volumeCylinder(heightHarvested, radius)
+
+        // Remove harvested portion of the tree.
+        tree.updateHeight(-1*heightHarvested)
+
+        // Compute weight of the tree that is harvested.
+        const weightHarvested = volumeHarvested * tree.woodDensity
+        return [1, weightHarvested]
+    }
+
+    getInitSowPositions = () => {
+        /**
+         * Returns initial sowing positions as currently saved.
+         * @return: Initial sow positions.
+         */
+        return initSowPositions
+    }
+
+    getTimeStepOrder = () => {
+        /**
+         * Returns current random order in which to
+         * visit each spot on the land.
+         * @return: Time step order.
+         */
+        return timeStepOrder
+    }
+
+    setInitSowPositions = (sowPositions) => {
+        /**
+         * Updates initial sowing positions.
+         * @param sowPositions: New positions.
+         */
+        initSowPositions = sowPositions
+    }
+
+    setTimeStepOrder = (order) => {
+        /**
+         * Updates time step order.
+         * @param order: New order.
+         */
+        timeStepOrder = order
+    }
+
+    getDeadWoodPc = () => {
+        /**
+         * Computes percent of the land that has deadwood.
+         * @return: Percent of the land with deadwood.
+         */
+        const landSpotsTotal = this.size.rows * this.size.columns
+        let spotContent = []
+        let landSpotsDeadWood = 0
+        for (let i = 0; i < this.size.rows; i++) {
+            for (let j = 0; j < this.size.columns; j++) {
+                spotContent = this.content[i][j]
+                for (let k = 0; k < spotContent.length; k++) {
+                    if (
+                        this.content[i][j] != null &&
+                        this.content[i][j].lifeStage == "dead"
+                    ) {
+                        landSpotsDeadWood += 1
+                        break
+                    }
+                }
+            }
+        }
+        return landSpotsDeadWood/landSpotsTotal
+    }
+
+    getBiodiversityPc = () => {
+        /**
+         * Returns biodiversity score.
+         * @return: Biodiversity score [0, 1].
+         */
+        return this.biodiversityScore
+    }
+
+    getActiveLandContent = () => {
+        /**
+         * Gets latest land content (last added
+         * tree to the list of trees on each land spot).
+         * If a spot has no trees, then null is returned
+         * for this position.
+         * @return: 2D list of positions on land and its
+         *          latest tree / null if empty.
+         */
+        let activeContent = []
+        let spotContent = []
+        let row = []
+        for (let i = 0; i < this.size.rows; i++) {
+            row = []
+            for (let j = 0; j < this.size.columns; j++) {
+                spotContent = this.content[i][j]
+                if (spotContent.length == 0) row.push(null)
+                else row.push(spotContent[spotContent.length-1])
+            }
+            activeContent.push(row)
+        }
+        return activeContent
     }
 }

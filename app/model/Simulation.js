@@ -20,122 +20,10 @@ export default class Simulation {
          *                      plan displayed in the plan viewer
          *                      as per latest changes.
          */
-        this.updateResourceSalesTargets = () => {
-            /**
-             * Updates target incomes per rotation 
-             * for each income stream based on latest 
-             * income target and dependency settings.
-             */
-            let targetIncome = this.planner.getTargets()
-            targetIncome = targetIncome.income
-            for(const resource of Object.keys(this.resources)) {
-                this.resources[resource].setSalesTarget(
-                    targetIncome, this.planner.incomeDependency[resource]
-                )
-            }
-        }
         this.planner = new Planner(this.updateResourceSalesTargets)
         this.updateSimUI = updateSimUI
         this.updatePlanUI = updatePlanUI
-        this.promptTargetMetCheck = () => {
-            /** 
-             * Prompts checking of whether 
-             * latest targets are met.
-             */
-            return this.planner.checkTargetMet(
-                this.env.getAirCO2ppm(), 
-                this.income.rotation.total,
-                this.funds, this.time,
-                this.rotation
-            )
-        }
-        this.getResourceSalesTargets = () => {
-            /**
-             * Returns current per rotation sales
-             * target for each income stream.
-             * @return: Sales targets.
-             */
-            let salesTargets = {}
-            for(const resource of Object.keys(this.resources)) {
-                salesTargets[resource] = this.resources[resource].salesTarget
-            }
-            salesTargets["total"] = this.planner.getTargets().income
-            return salesTargets
-        }
-        this.updateExpenses = (resource, change) => {
-            /**
-             * Allows one to update expenses of the year.
-             * @param resource: The resource that contributed to this change.
-             * @param change: The value to be added.
-             */
-            this.expenses.year[resource] = this.expenses.year[resource].plus(change)
-            this.expenses.year.total = this.expenses.year.total.plus(change)
-        }
-        this.updateFunds = (change) => {
-            /**
-             * Facilitates changing of bank balance by 
-             * given amount.
-             */
-            this.funds = this.funds.plus(change)
-        }
-        this.getFunds = () => {
-            /** 
-             * Returns current bank balance.
-             * @return: Current funds.
-             */
-            return this.funds
-        }
         this.#createFreshWorld()
-        this.goto = (time) => {
-            /** 
-             * Given a point in time, runs the simulation
-             * up to that point in time. 
-             */
-
-            // Get the no. of steps from given 
-            // time step, computations must be made.
-            let timesteps = time - this.time
-            if (timesteps < 0) {
-                timesteps = time
-                this.#createFreshWorld() // Reset world.
-            }
-
-            // For as many timesteps as required, 
-            // compute forward in time.
-            // If the given time was in the past,
-            // then, start fresh and start computing
-            // forward from there for desired no.
-            // of steps.
-            if (timesteps > 0) {
-                for (let t=0; t<timesteps; t++) {
-                    this.#takeTimeStep()
-                }
-            }
-            this.updateSimUI(this.planner.targetFailYear)
-        }
-        this.loadState = (state) => {
-            /**
-             * Loads a saved state and restores it.
-             */
-            this.planner.plan = state.plan
-            this.planner.incomeDependency = state.incomeDependency
-            state.targetSettings.income = Big(state.targetSettings.income)
-            state.targetSettings.funds = Big(state.targetSettings.funds)
-            this.planner.setTargets(state.targetSettings)
-            this.env.setFossilFuelEmission(Big(state.fossilFuelEmission))
-            this.env.land.setInitSowPositions(state.initSowPositions)
-            this.env.land.setTimeStepOrder(state.timeStepOrder)
-            this.planner.rotationPeriod = state.rotationPeriod
-            // Force land reset.
-            this.goto(10)
-            this.goto(0)
-        }
-        this.getRunData = () => {
-            /**
-             * Fetches recorded run parameter values.
-             */
-            return this.#runData
-        }
     }
 
     #executeAction = (actionType, treeType, treeLifeStage="none") => {
@@ -500,5 +388,126 @@ export default class Simulation {
         this.#generateIncome(rotationUpdated)
         this.promptTargetMetCheck()
         this.#recordData()
+    }
+
+    updateResourceSalesTargets = () => {
+        /**
+         * Updates target incomes per rotation 
+         * for each income stream based on latest 
+         * income target and dependency settings.
+         */
+        let targetIncome = this.planner.getTargets()
+        targetIncome = targetIncome.income
+        for(const resource of Object.keys(this.resources)) {
+            this.resources[resource].setSalesTarget(
+                targetIncome, this.planner.incomeDependency[resource]
+            )
+        }
+    }
+
+    promptTargetMetCheck = () => {
+        /** 
+         * Prompts checking of whether 
+         * latest targets are met.
+         */
+        return this.planner.checkTargetMet(
+            this.env.getAirCO2ppm(), 
+            this.income.rotation.total,
+            this.funds, this.time,
+            this.rotation
+        )
+    }
+
+    getResourceSalesTargets = () => {
+        /**
+         * Returns current per rotation sales
+         * target for each income stream.
+         * @return: Sales targets.
+         */
+        let salesTargets = {}
+        for(const resource of Object.keys(this.resources)) {
+            salesTargets[resource] = this.resources[resource].salesTarget
+        }
+        salesTargets["total"] = this.planner.getTargets().income
+        return salesTargets
+    }
+
+    updateExpenses = (resource, change) => {
+        /**
+         * Allows one to update expenses of the year.
+         * @param resource: The resource that contributed to this change.
+         * @param change: The value to be added.
+         */
+        this.expenses.year[resource] = this.expenses.year[resource].plus(change)
+        this.expenses.year.total = this.expenses.year.total.plus(change)
+    }
+
+    updateFunds = (change) => {
+        /**
+         * Facilitates changing of bank balance by 
+         * given amount.
+         */
+        this.funds = this.funds.plus(change)
+    }
+
+    getFunds = () => {
+        /** 
+         * Returns current bank balance.
+         * @return: Current funds.
+         */
+        return this.funds
+    }
+
+    goto = (time) => {
+        /** 
+         * Given a point in time, runs the simulation
+         * up to that point in time. 
+         */
+
+        // Get the no. of steps from given 
+        // time step, computations must be made.
+        let timesteps = time - this.time
+        if (timesteps < 0) {
+            timesteps = time
+            this.#createFreshWorld() // Reset world.
+        }
+
+        // For as many timesteps as required, 
+        // compute forward in time.
+        // If the given time was in the past,
+        // then, start fresh and start computing
+        // forward from there for desired no.
+        // of steps.
+        if (timesteps > 0) {
+            for (let t=0; t<timesteps; t++) {
+                this.#takeTimeStep()
+            }
+        }
+        this.updateSimUI(this.planner.targetFailYear)
+    }
+
+    loadState = (state) => {
+        /**
+         * Loads a saved state and restores it.
+         */
+        this.planner.plan = state.plan
+        this.planner.incomeDependency = state.incomeDependency
+        state.targetSettings.income = Big(state.targetSettings.income)
+        state.targetSettings.funds = Big(state.targetSettings.funds)
+        this.planner.setTargets(state.targetSettings)
+        this.env.setFossilFuelEmission(Big(state.fossilFuelEmission))
+        this.env.land.setInitSowPositions(state.initSowPositions)
+        this.env.land.setTimeStepOrder(state.timeStepOrder)
+        this.planner.rotationPeriod = state.rotationPeriod
+        // Force land reset.
+        this.goto(10)
+        this.goto(0)
+    }
+
+    getRunData = () => {
+        /**
+         * Fetches recorded run parameter values.
+         */
+        return this.#runData
     }
 }

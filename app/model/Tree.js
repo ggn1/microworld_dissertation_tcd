@@ -69,25 +69,6 @@ export default class Tree {
         this.#processCarbon(utils.volumeCylinder(
             this.height, this.diameter/2
         ), "air", "vegetation")
-        this.updateStress = (change) => {
-            /**
-             * Changes stress on this tree.
-             * @param change: The amount by which stress is to be
-             *                changed (in either positive or negative
-             *                directions).
-             */
-            this.stress = Math.min(1, this.stress + change)
-            this.lifeStage = this.#computeLifeStage()
-        }
-        this.updateHeight = (change) => {
-            /**
-             * Updates height value by given amount.
-             * @param change: The amount by which the height of
-             *                the tree changes.
-             */
-            this.height += change
-            this.diameter = this.#getDiameterFromHeight(this.height)
-        }
         this.getOlder()
     }
 
@@ -374,6 +355,27 @@ export default class Tree {
         // If it is indeed possible to reproduce,
         // add a sapling to the first available space.
         this.#plantTree(this.treeType, positionsFree[0])
+    }
+
+    updateStress = (change) => {
+        /**
+         * Changes stress on this tree.
+         * @param change: The amount by which stress is to be
+         *                changed (in either positive or negative
+         *                directions).
+         */
+        this.stress = Math.min(1, this.stress + change)
+        this.lifeStage = this.#computeLifeStage()
+    }
+
+    updateHeight = (change) => {
+        /**
+         * Updates height value by given amount.
+         * @param change: The amount by which the height of
+         *                the tree changes.
+         */
+        this.height += change
+        this.diameter = this.#getDiameterFromHeight(this.height)
     }
 
     getOlder() {

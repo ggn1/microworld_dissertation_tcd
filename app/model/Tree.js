@@ -262,6 +262,8 @@ export default class Tree {
                 // Reproduce if possible.
                 this.#reproduce() 
             } 
+        } else {
+            this.#decay()
         }
     }
 

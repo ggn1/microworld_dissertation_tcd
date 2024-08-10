@@ -416,6 +416,14 @@ export default class Land {
         return initSowPositions
     }
 
+    setInitSowPositions = (sowPositions) => {
+        /**
+         * Updates initial sowing positions.
+         * @param sowPositions: New positions.
+         */
+        initSowPositions = sowPositions
+    }
+
     getTimeStepOrder = () => {
         /**
          * Returns current random order in which to
@@ -423,14 +431,6 @@ export default class Land {
          * @return: Time step order.
          */
         return timeStepOrder
-    }
-
-    setInitSowPositions = (sowPositions) => {
-        /**
-         * Updates initial sowing positions.
-         * @param sowPositions: New positions.
-         */
-        initSowPositions = sowPositions
     }
 
     setTimeStepOrder = (order) => {

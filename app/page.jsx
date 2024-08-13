@@ -38,7 +38,6 @@ const LandingPage = () => {
         /** 
          * Function that receives a keypress event.
          */
-        console.log("dialogueInProgress =", dialogueInProgress)
         const notDoneYet = <Fade>Your enthusiasm is much appreciated, but I&apos;m not done yet. Please continue clicking. I promise this won&apos;t take long.</Fade>
         if (e.key === "Enter") {
             if (dialogueInProgress) setDialogue(notDoneYet)
